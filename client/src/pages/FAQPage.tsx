@@ -43,7 +43,7 @@ export const FAQPage: React.FC = () => {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}>
           <p className="heading-eyebrow">Preguntas Frecuentes</p>
-          <h1 className="heading-page mt-3 text-4xl md:text-5xl mb-3">¿Tienes dudas? Estamos para ayudarte</h1>
+          <h1 className="heading-page mt-3 text-3xl sm:text-4xl md:text-5xl mb-3">¿Tienes dudas? Estamos para ayudarte</h1>
           <p className="text-gray-500 mb-10">Respuestas rápidas sobre pedidos, entregas y pagos</p>
         </motion.div>
 
@@ -60,7 +60,7 @@ export const FAQPage: React.FC = () => {
               >
                 <button
                   onClick={() => setOpenIndex(isOpen ? null : i)}
-                  className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left"
+                  className="w-full flex items-center justify-between gap-4 px-5 sm:px-6 py-5 text-left min-h-[3.5rem]"
                   aria-expanded={isOpen}
                 >
                   <span className="font-display font-bold text-dark">{faq.question}</span>
@@ -81,7 +81,7 @@ export const FAQPage: React.FC = () => {
                       transition={{ duration: 0.28, ease: 'easeOut' }}
                       className="overflow-hidden"
                     >
-                      <p className="px-6 pb-6 text-gray-600 leading-relaxed">{faq.answer}</p>
+                      <p className="px-5 sm:px-6 pb-6 text-gray-600 leading-relaxed">{faq.answer}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -95,7 +95,7 @@ export const FAQPage: React.FC = () => {
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="grove-theme liquid-border rounded-3xl p-8 mt-12 text-center"
+          className="grove-theme liquid-border rounded-3xl p-6 sm:p-8 mt-12 text-center"
         >
           <h2 className="font-display text-2xl font-bold mb-2">¿Sigues con dudas?</h2>
           <p className="text-emerald-100/80 mb-6">Escríbenos y te respondemos el mismo día</p>

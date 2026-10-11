@@ -66,13 +66,13 @@ export const LogoMedallion: React.FC<LogoMedallionProps> = ({ withChips = false 
   const visible = useChipCycle(3, 6500, 2600);
 
   return (
-    <div className="relative w-64 h-64 md:w-80 md:h-80">
+    <div className="relative w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80">
       {/* Halo de luz detrás (colores del tema) */}
       <motion.div
         aria-hidden
         animate={{ opacity: [0.75, 1, 0.75], scale: [0.97, 1.03, 0.97] }}
         transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute -inset-8 rounded-full blur-2xl"
+        className="absolute -inset-6 sm:-inset-8 rounded-full blur-lg sm:blur-2xl"
         style={{
           background: isMarket
             ? 'radial-gradient(circle_at_30%_25%, rgba(84,131,24,0.30), rgba(13,46,84,0.18) 55%, transparent 75%)'
@@ -154,10 +154,10 @@ export const LogoMedallion: React.FC<LogoMedallionProps> = ({ withChips = false 
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.7, y: 10 }}
                 transition={{ duration: 0.45, ease: 'easeOut' }}
-                className="liquid-badge absolute -top-4 -left-6 md:-left-14 rounded-2xl px-4 py-2.5 flex items-center gap-2"
+                className="liquid-badge absolute -top-3 -left-3 sm:-left-6 md:-left-14 rounded-2xl px-3.5 sm:px-4 py-2 sm:py-2.5 flex items-center gap-2"
               >
                 {chips[0].icon}
-                <span className="text-sm font-bold text-dark">{chips[0].text}</span>
+                <span className="text-xs sm:text-sm font-bold text-dark">{chips[0].text}</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -184,10 +184,10 @@ export const LogoMedallion: React.FC<LogoMedallionProps> = ({ withChips = false 
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.7, y: 10 }}
                 transition={{ duration: 0.45, ease: 'easeOut' }}
-                className="liquid-badge absolute -bottom-4 -right-6 md:-right-12 rounded-2xl px-4 py-2.5 flex items-center gap-2"
+                className="liquid-badge absolute -bottom-3 -right-3 sm:-right-6 md:-right-12 rounded-2xl px-3.5 sm:px-4 py-2 sm:py-2.5 flex items-center gap-2"
               >
                 {chips[2].icon}
-                <span className="text-sm font-bold text-dark">{chips[2].text}</span>
+                <span className="text-xs sm:text-sm font-bold text-dark">{chips[2].text}</span>
               </motion.div>
             )}
           </AnimatePresence>

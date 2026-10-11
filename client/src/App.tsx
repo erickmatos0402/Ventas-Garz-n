@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { MotionConfig } from 'framer-motion';
 import { Header, Footer, FloatingLeaves, ContactBubble, StoreTransitionOverlay } from './components';
 import {
   LandingPage,
@@ -73,9 +74,13 @@ function App() {
   useMockAdminStore((s) => s.products);
 
   return (
-    <Router>
-      <AppShell />
-    </Router>
+    // reducedMotion="user": en móviles que pidan menos movimiento,
+    // framer-motion omite transformaciones y deja solo fade-in/out.
+    <MotionConfig reducedMotion="user">
+      <Router>
+        <AppShell />
+      </Router>
+    </MotionConfig>
   );
 }
 

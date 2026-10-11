@@ -356,16 +356,21 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, clas
               onClick={() => setActive(i)}
               aria-label={`Ir al producto ${i + 1} de ${count}`}
               aria-current={i === active}
-              className="rounded-full transition-all duration-500 ease-in-out"
-              style={{
-                width: i === active ? 28 : 8,
-                height: 8,
-                background:
-                  i === active
-                    ? 'linear-gradient(90deg, var(--c-primary), var(--c-primary-deep))'
-                    : 'rgba(var(--c-ink-rgb), 0.18)',
-              }}
-            />
+              className="flex h-8 items-center justify-center rounded-full"
+            >
+              {/* Barra visible + área táctil amplia (h-8) sin cambiar el diseño */}
+              <span
+                className="block rounded-full transition-all duration-500 ease-in-out"
+                style={{
+                  width: i === active ? 28 : 8,
+                  height: 8,
+                  background:
+                    i === active
+                      ? 'linear-gradient(90deg, var(--c-primary), var(--c-primary-deep))'
+                      : 'rgba(var(--c-ink-rgb), 0.18)',
+                }}
+              />
+            </button>
           ))}
         </div>
       )}

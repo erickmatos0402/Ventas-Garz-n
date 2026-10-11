@@ -10,7 +10,7 @@ export const ContactBubble: React.FC = () => {
   const [open, setOpen] = React.useState(false);
 
   return (
-    <div className="fixed bottom-5 right-5 z-[70] flex flex-col items-end gap-3">
+    <div className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-[70] flex flex-col items-end gap-3">
       <AnimatePresence>
         {open && (
           <motion.div
@@ -18,7 +18,7 @@ export const ContactBubble: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.9 }}
             transition={{ type: 'spring', stiffness: 320, damping: 26 }}
-            className="glass-strong rounded-3xl p-5 w-72 shadow-glass-lg"
+            className="glass-strong rounded-3xl p-5 w-[min(18rem,calc(100vw-2rem))] shadow-glass-lg"
           >
             <div className="flex items-center justify-between mb-3">
               <p className="font-bold text-dark">¿Necesitas ayuda?</p>
@@ -57,6 +57,7 @@ export const ContactBubble: React.FC = () => {
       <motion.button
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.92 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 22 }}
         onClick={() => setOpen((v) => !v)}
         className="w-14 h-14 rounded-full btn-liquid flex items-center justify-center shadow-glass-lg z-10"
         aria-label="Contacto rápido"

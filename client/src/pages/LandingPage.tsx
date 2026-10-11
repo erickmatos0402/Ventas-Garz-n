@@ -79,9 +79,9 @@ export const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen">
       {/* ============ HERO ============ */}
-      <section className="relative pt-10 md:pt-16 pb-20 hero-dark">
+      <section className="relative pt-8 sm:pt-10 md:pt-16 pb-16 sm:pb-20 hero-dark">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12 items-center">
             {/* Texto */}
             <div className="lg:col-span-7 text-center lg:text-left">
               <motion.div
@@ -94,11 +94,11 @@ export const LandingPage: React.FC = () => {
                     <span className="h-2 w-2 rounded-full bg-primary"></span>
                     {meta.badgeText}
                   </p>
-                  <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-dark leading-[1.08]">
+                  <h1 className="font-display text-[2.15rem] sm:text-5xl md:text-6xl font-extrabold text-dark leading-[1.1] sm:leading-[1.08]">
                     {meta.heroTitleA}{' '}
                     <span className="text-liquid">{meta.heroTitleB}</span>
                   </h1>
-                  <p className="text-xl text-gray-500 font-light max-w-xl mx-auto lg:mx-0">
+                  <p className="text-lg sm:text-xl text-gray-500 font-light max-w-xl mx-auto lg:mx-0">
                     {meta.heroSubtitle}
                   </p>
 
@@ -232,7 +232,7 @@ export const LandingPage: React.FC = () => {
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SlideUp>
-            <h2 className="font-display text-4xl md:text-5xl font-extrabold tracking-tight text-center mb-4">
+            <h2 className="font-display text-[1.75rem] sm:text-4xl md:text-5xl font-extrabold tracking-tight text-center mb-4">
               <span className="text-liquid">¿Por qué elegirnos?</span>
             </h2>
             <p className="text-center text-gray-500 font-light text-lg mb-12 max-w-xl mx-auto">
@@ -284,7 +284,7 @@ export const LandingPage: React.FC = () => {
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SlideUp>
-            <h2 className="font-display text-4xl md:text-5xl font-extrabold tracking-tight text-center mb-4">
+            <h2 className="font-display text-[1.75rem] sm:text-4xl md:text-5xl font-extrabold tracking-tight text-center mb-4">
               <span className="text-liquid">Ofertas Especiales</span>
             </h2>
             <p className="text-center text-gray-500 font-light text-lg mb-12 max-w-xl mx-auto">
@@ -311,7 +311,7 @@ export const LandingPage: React.FC = () => {
                 <motion.div
                   key={product.id}
                   variants={itemVariants}
-                  className="relative liquid-photo overflow-hidden group shadow-glass-lg min-h-[280px] flex items-end"
+                  className="relative liquid-photo overflow-hidden group shadow-glass-lg min-h-[260px] sm:min-h-[280px] flex items-end"
                   style={{ borderRadius: 'clamp(1.25rem, 6vw, 3rem)' }}
                 >
                   {/* Imagen de fondo con capa protectora de contraste según imagen */}
@@ -337,10 +337,10 @@ export const LandingPage: React.FC = () => {
                     <span className="inline-block mb-3 rounded-full px-4 py-1 text-xs font-bold uppercase tracking-widest text-white drop-shadow" style={{ background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(6px)' }}>
                       -{product.discount}% OFF · {product.category === 'aseo' ? 'Aseo' : 'Alimentos'}
                     </span>
-                    <h3 className="font-display text-3xl font-extrabold tracking-tight text-white mb-2 drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)]">
+                    <h3 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2 drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)]">
                       {product.name}
                     </h3>
-                    <p className="mb-2 text-white/95 font-light text-lg drop-shadow-[0_1px_6px_rgba(0,0,0,0.55)]">
+                    <p className="mb-2 text-white/95 font-light text-base sm:text-lg drop-shadow-[0_1px_6px_rgba(0,0,0,0.55)]">
                       {product.description}
                     </p>
                     <p className="mb-5 text-white font-bold text-xl drop-shadow-[0_1px_6px_rgba(0,0,0,0.55)]">
@@ -366,7 +366,7 @@ export const LandingPage: React.FC = () => {
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SlideUp>
-            <h2 className="font-display text-4xl md:text-5xl font-extrabold tracking-tight text-center text-dark mb-8">
+            <h2 className="font-display text-[1.75rem] sm:text-4xl md:text-5xl font-extrabold tracking-tight text-center text-dark mb-8">
               Productos Destacados
             </h2>
           </SlideUp>
@@ -403,7 +403,7 @@ export const LandingPage: React.FC = () => {
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SlideUp>
-            <h2 className="font-display text-4xl md:text-5xl font-extrabold tracking-tight text-center mb-4">
+            <h2 className="font-display text-[1.75rem] sm:text-4xl md:text-5xl font-extrabold tracking-tight text-center mb-4">
               <span className="text-liquid">Comprar es así de fácil</span>
             </h2>
             <p className="text-center text-gray-500 font-light text-lg mb-12 max-w-xl mx-auto">
@@ -458,7 +458,7 @@ export const LandingPage: React.FC = () => {
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SlideUp>
-            <h2 className="font-display text-4xl md:text-5xl font-extrabold tracking-tight text-center mb-4">
+            <h2 className="font-display text-[1.75rem] sm:text-4xl md:text-5xl font-extrabold tracking-tight text-center mb-4">
               <span className="text-liquid">Lo que dicen nuestros clientes</span>
             </h2>
             <p className="text-center text-gray-500 font-light text-lg mb-12 max-w-xl mx-auto">
@@ -563,7 +563,7 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-4xl mx-auto px-4">
           <SlideUp>
             <div className="grove-theme liquid-border rounded-3xl p-6 md:p-12 text-center shadow-glass-lg">
-              <h2 className="font-display text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
+              <h2 className="font-display text-[1.75rem] sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
                 ¿Listo para Comprar?
               </h2>
               <p className="text-xl mb-8 grove-text-soft">

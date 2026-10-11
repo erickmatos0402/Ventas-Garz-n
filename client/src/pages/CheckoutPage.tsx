@@ -117,14 +117,14 @@ export const CheckoutPage: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <SlideUp>
           <p className="heading-eyebrow">Último paso</p>
-          <h1 className="heading-page text-4xl md:text-5xl mb-2">Finalizar Compra</h1>
+          <h1 className="heading-page text-3xl sm:text-4xl md:text-5xl mb-2">Finalizar Compra</h1>
           <p className="text-gray-500 mb-8">Completa tus datos para coordinar tu pedido</p>
         </SlideUp>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Formulario */}
           <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="glass-strong rounded-3xl p-6 space-y-6">
+            <form onSubmit={handleSubmit} className="glass-strong rounded-3xl p-5 sm:p-6 space-y-6">
               {/* Modo de entrega como burbujas seleccionables */}
               <div>
                 <h2 className="text-xl font-bold text-dark mb-4 flex items-center gap-2">
@@ -244,7 +244,7 @@ export const CheckoutPage: React.FC = () => {
 
           {/* Resumen */}
           <div className="lg:col-span-1">
-            <div className="glass-strong rounded-3xl p-6 sticky top-24">
+            <div className="glass-strong rounded-3xl p-5 sm:p-6 sticky top-24">
               <h2 className="text-xl font-bold text-dark mb-4">Tu Pedido</h2>
 
               <div className="space-y-3 mb-4 max-h-56 overflow-y-auto pr-1">

@@ -158,7 +158,7 @@ const ImagePreviewModal: React.FC<{ product: Product; onClose: () => void }> = (
         initial={{ opacity: 0, scale: 0.94, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.94, y: 16 }}
-        className="relative glass-strong rounded-3xl p-5 w-full max-w-md"
+        className="relative glass-strong rounded-3xl p-5 w-full max-w-md max-h-[85vh] overflow-y-auto"
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-display font-bold text-dark truncate pr-3">{product.name}</h3>
@@ -249,11 +249,11 @@ export const AdminPage: React.FC = () => {
     <div className="min-h-screen pt-24 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Cabecera */}
-        <div className="mb-10 glass-panel rounded-3xl p-8">
+        <div className="mb-10 glass-panel rounded-3xl p-6 sm:p-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="heading-eyebrow">Panel de Control</p>
-              <h1 className="heading-page text-4xl md:text-5xl">Administrador de Ventas Garzón</h1>
+              <h1 className="heading-page text-3xl sm:text-4xl md:text-5xl">Administrador de Ventas Garzón</h1>
               <p className="mt-3 text-gray-600 max-w-2xl">
                 Gestiona el catálogo con datos falsos: crea, edita y elimina productos de aseo, alimentos y ofertas.
               </p>
@@ -320,7 +320,7 @@ export const AdminPage: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 24, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            className="relative glass-strong rounded-3xl p-6 w-full max-w-lg"
+            className="relative glass-strong rounded-3xl p-6 w-full max-w-lg max-h-[85vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-5">
               <h3 className="font-display text-xl font-bold text-dark">

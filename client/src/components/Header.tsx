@@ -7,7 +7,7 @@ import { StoreSwitcher } from './StoreSwitcher';
 import { LiquidTabs } from './LiquidTabs';
 import { STORE_META_DATA, MARKET_LOGO_PATH } from '../data/boutiqueData';
 import { useCartStore } from '../store'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { trackBubblePointer, resetBubblePointer } from '../utils';
 
 const NAV_ITEMS = [
@@ -25,6 +25,11 @@ export const Header: React.FC = () => {
   const [hovered, setHovered] = useState<string | null>(null);
   const location = useLocation();
   const meta = STORE_META_DATA[theme];
+
+  // En móvil el menú se cierra solo al cambiar de sección
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
 
   return (
     <header className="sticky top-0 z-50 glass-strong header-dark">
@@ -121,9 +126,11 @@ export const Header: React.FC = () => {
 
             {/* Mobile menu button */}
             <button
-              className="md:hidden btn-liquid-ghost w-10 h-10 flex items-center justify-center"
+              className="md:hidden btn-liquid-ghost w-11 h-11 flex items-center justify-center"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Abrir menú"
+              aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-nav"
             >
               {isMenuOpen ? <X size={20} className="text-primary-deep" /> : <Menu size={20} className="text-primary-deep" />}
             </button>
@@ -134,9 +141,11 @@ export const Header: React.FC = () => {
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
+              id="mobile-nav"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
               className="md:hidden mt-1 space-y-2 border-t border-white/60 py-3 overflow-hidden"
             >
               {/* Conmutador de tienda en móvil */}

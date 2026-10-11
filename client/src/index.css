@@ -1084,3 +1084,125 @@ html[data-theme='boutique'] .hero-dark {
     inset 0 -1px 1px rgba(255, 255, 255, 0.06);
 }
 .header-dark .liquid-badge.text-primary-deep { color: var(--c-grove-text); }
+
+/* ============================================================
+   MOBILE-FIRST — ajustes para pantallas táctiles y teléfonos
+   ============================================================ */
+
+/* Sin retardo de toque (~350 ms) ni zoom por doble-tap en controles */
+a,
+button,
+select,
+label,
+[role='button'],
+.liquid-tab,
+.btn-liquid,
+.btn-liquid-ghost,
+.btn-grove {
+  touch-action: manipulation;
+}
+
+/* Sin el resplandor azul del sistema al tocar */
+html,
+body,
+a,
+button,
+.liquid-tab,
+.btn-liquid,
+.btn-liquid-ghost,
+.btn-grove {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (pointer: coarse) {
+  /* iOS hace zoom automático al enfocar campos de menos de 16px */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* `fixed` es costoso en móviles (e iOS lo ignora): mejor scroll */
+  body {
+    background-attachment: scroll;
+  }
+
+  /* El scroll en móvil es overlay: no reservamos ancho de barra */
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  /* Opciones del menú vertical: objetivo táctil cómodo (~44px) */
+  .liquid-tabs.is-vertical .liquid-tab {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+}
+
+/* Sin hover "pegajoso" tras tocar: los efectos hover quedan para ratón */
+@media (hover: none) {
+  .glass-hover:hover,
+  .btn-grove:hover,
+  .liquid-tab:hover,
+  .group:hover img {
+    transform: none;
+  }
+
+  /* El feedback del toque (:active) sí se mantiene */
+  .liquid-tab:active,
+  .btn-grove:active {
+    transform: scale(0.97);
+  }
+}
+
+/* Menos desenfoque en pantallas pequeñas: el scroll se mantiene fluido */
+@media (max-width: 767px) {
+  .glass-panel,
+  .glass-strong,
+  .liquid-panel,
+  .liquid-badge,
+  .liquid-tabs,
+  .liquid-tab > .liquid-tab-blob,
+  .liquid-tab > .liquid-tab-traveler,
+  .grove-chip,
+  .grove-panel,
+  .hero-dark .glass-panel,
+  .header-dark .liquid-tabs {
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+  }
+
+  .aurora-static {
+    filter: blur(48px);
+  }
+}
+
+/* Lo decorativo (chips, aros, gotas) puede sobresalir sin scroll horizontal */
+body {
+  overflow-x: clip;
+}
+
+/* Accesibilidad: respeta "reducir movimiento" del sistema */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .liquid-photo > .liquid-photo-bg > img,
+  .glass-hover,
+  .liquid-tab > .liquid-tab-blob {
+    transform: none !important;
+    scale: none !important;
+  }
+
+  /* El indicador de carga sí debe seguir girando (feedback visual) */
+  .animate-spin {
+    animation-duration: 1.6s !important;
+    animation-iteration-count: infinite !important;
+  }
+}

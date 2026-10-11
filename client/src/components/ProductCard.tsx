@@ -23,6 +23,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
 
   const finalPrice = getDiscountedPrice(product);
 
+  // En pantallas táctiles no hay hover real: sin este guard el efecto
+  // "se pegaría" tras tocar la tarjeta.
+  const [canHover, setCanHover] = React.useState(false);
+  React.useEffect(() => {
+    const mq = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const update = () => setCanHover(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
   const handleAddToCart = () => {
     if (onAddToCart) {
       onAddToCart(product, quantity);
@@ -36,7 +47,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
 
   return (
     <motion.div
-      whileHover={{ y: -3 }}
+      whileHover={canHover ? { y: -3 } : undefined}
       transition={{ type: 'spring', stiffness: 300, damping: 22 }}
       className="glass-panel glass-hover rounded-2xl overflow-hidden flex flex-col h-full"
     >
@@ -88,7 +99,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
           <div className="liquid-badge flex items-center rounded-full px-1">
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="w-8 h-8 rounded-full text-dark hover:bg-white/70 transition text-lg leading-none"
+              className="w-10 h-10 sm:w-9 sm:h-9 rounded-full text-dark hover:bg-white/70 transition text-lg leading-none"
               disabled={product.stock === 0}
               aria-label="Restar cantidad"
             >
@@ -97,7 +108,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
             <span className="w-8 text-center font-bold text-dark text-sm">{quantity}</span>
             <button
               onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-              className="w-8 h-8 rounded-full text-dark hover:bg-white/70 transition text-lg leading-none"
+              className="w-10 h-10 sm:w-9 sm:h-9 rounded-full text-dark hover:bg-white/70 transition text-lg leading-none"
               disabled={product.stock === 0}
               aria-label="Sumar cantidad"
             >
@@ -108,7 +119,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
             whileTap={{ scale: product.stock > 0 ? 0.95 : 1 }}
             onClick={handleAddToCart}
             disabled={product.stock === 0}
-            className={`btn-liquid flex-1 py-2.5 flex items-center justify-center space-x-2 disabled:cursor-not-allowed ${justAdded ? 'text-primary-deep' : ''}`}
+            className={`btn-liquid flex-1 py-3 sm:py-2.5 flex items-center justify-center space-x-2 disabled:cursor-not-allowed ${justAdded ? 'text-primary-deep' : ''}`}
           >
             {justAdded ? <Check size={18} /> : <ShoppingCart size={18} />}
             <span>{product.stock === 0 ? 'Agotado' : justAdded ? '¡Añadido!' : 'Agregar'}</span>

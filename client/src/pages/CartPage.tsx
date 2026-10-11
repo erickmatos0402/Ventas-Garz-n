@@ -39,7 +39,7 @@ export const CartPage: React.FC = () => {
     <div className="min-h-screen pt-20 pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SlideUp>
-          <h1 className="font-display text-4xl font-extrabold tracking-tight text-dark mb-8">Mi Carrito</h1>
+          <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-dark mb-8">Mi Carrito</h1>
         </SlideUp>
 
         {/* Barra de envío gratis */}
@@ -94,7 +94,7 @@ export const CartPage: React.FC = () => {
                   <div className="flex sm:flex-col items-center sm:items-end justify-between gap-3">
                     <button
                       onClick={() => removeItem(item.id)}
-                      className="btn-liquid-ghost text-danger p-2.5"
+                      className="btn-liquid-ghost text-danger p-3 sm:p-2.5"
                       aria-label={`Eliminar ${item.name}`}
                     >
                       <Trash2 size={18} />
@@ -103,7 +103,7 @@ export const CartPage: React.FC = () => {
                     <div className="liquid-badge flex items-center rounded-full px-1">
                       <button
                         onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                        className="w-8 h-8 rounded-full hover:bg-white/70 transition flex items-center justify-center"
+                        className="w-10 h-10 sm:w-9 sm:h-9 rounded-full hover:bg-white/70 transition flex items-center justify-center"
                         aria-label="Restar"
                       >
                         <Minus size={15} />
@@ -111,7 +111,7 @@ export const CartPage: React.FC = () => {
                       <span className="px-3 font-bold text-dark text-sm">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="w-8 h-8 rounded-full hover:bg-white/70 transition flex items-center justify-center"
+                        className="w-10 h-10 sm:w-9 sm:h-9 rounded-full hover:bg-white/70 transition flex items-center justify-center"
                         aria-label="Sumar"
                       >
                         <Plus size={15} />

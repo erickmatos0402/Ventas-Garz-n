@@ -91,7 +91,7 @@ export const ProductsPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SlideUp>
             <p className="heading-eyebrow">{meta.name}</p>
-            <h1 className="heading-page text-4xl md:text-5xl mb-3">Nuestros Productos</h1>
+            <h1 className="heading-page text-3xl sm:text-4xl md:text-5xl mb-3">Nuestros Productos</h1>
             <p className="text-gray-500 max-w-xl">
               {theme === 'market'
                 ? 'Aseo y alimentos seleccionados. Usa las pestañas o el buscador para encontrar lo que necesitas.'
@@ -106,7 +106,7 @@ export const ProductsPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Barra de filtros líquida */}
           <div className="glass-panel rounded-3xl p-4 sm:p-5 mb-8 flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
-            <LiquidTabs items={categoryTabs} activeId={selectedCategory} onChange={handleCategoryChange} />
+            <LiquidTabs wrap items={categoryTabs} activeId={selectedCategory} onChange={handleCategoryChange} />
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 lg:ml-auto">
               {/* Buscador */}
