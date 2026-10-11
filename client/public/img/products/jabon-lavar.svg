@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-label="Jabón de lavar en polvo">
+  <defs>
+    <linearGradient id="jlBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E8F7EE"/>
+      <stop offset="1" stop-color="#CBE9D8"/>
+    </linearGradient>
+    <linearGradient id="jlBox" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2FA36B"/>
+      <stop offset="1" stop-color="#0E8C4F"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="320" rx="36" fill="url(#jlBg)"/>
+  <!-- caja -->
+  <path d="M92 96 L228 96 L236 262 L84 262 Z" fill="url(#jlBox)"/>
+  <path d="M92 96 L228 96 L230 128 L90 128 Z" fill="#FFFFFF" opacity="0.22"/>
+  <!-- olas de espuma -->
+  <path d="M100 150 q14 -14 28 0 q14 14 28 0 q14 -14 28 0 q14 14 28 0" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" opacity="0.9"/>
+  <path d="M104 176 q14 -14 28 0 q14 14 28 0 q14 -14 28 0" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.6"/>
+  <!-- ropa colgada -->
+  <path d="M118 208 h34 a4 4 0 0 1 4 4 v28 h-42 v-28 a4 4 0 0 1 4 -4 Z" fill="#E8F7EE" opacity="0.95"/>
+  <path d="M168 208 h30 a4 4 0 0 1 4 4 v28 h-38 v-28 a4 4 0 0 1 4 -4 Z" fill="#CBE9D8" opacity="0.95"/>
+  <!-- burbujas -->
+  <circle cx="64" cy="120" r="12" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="256" cy="110" r="9" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="252" cy="220" r="7" fill="#FFFFFF" opacity="0.5"/>
+</svg>

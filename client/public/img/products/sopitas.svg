@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-label="Sopitas">
+  <defs>
+    <linearGradient id="soBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F0FAF1"/>
+      <stop offset="1" stop-color="#D8EEDC"/>
+    </linearGradient>
+    <linearGradient id="soPack" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2FA36B"/>
+      <stop offset="1" stop-color="#0E8C4F"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="320" rx="36" fill="url(#soBg)"/>
+  <!-- sobre -->
+  <path d="M84 84 L200 84 L200 210 Q200 222 188 222 L96 222 Q84 222 84 210 Z" fill="url(#soPack)"/>
+  <path d="M84 84 L200 84 L198 108 L86 108 Z" fill="#FFFFFF" opacity="0.2"/>
+  <!-- fideos en el sobre -->
+  <path d="M100 140 q14 -12 28 0 q14 12 28 0 q14 -12 28 0" fill="none" stroke="#F5D08A" stroke-width="7" stroke-linecap="round"/>
+  <path d="M100 166 q14 -12 28 0 q14 12 28 0 q14 -12 28 0" fill="none" stroke="#F5D08A" stroke-width="7" stroke-linecap="round" opacity="0.75"/>
+  <rect x="102" y="188" width="76" height="8" rx="4" fill="#FFFFFF" opacity="0.85"/>
+  <!-- tazon -->
+  <path d="M212 200 L292 200 Q290 244 252 244 Q214 244 212 200 Z" fill="#FFFFFF" stroke="#2E7D57" stroke-width="5"/>
+  <path d="M222 204 L282 204 Q278 232 252 232 Q226 232 222 204 Z" fill="#F5D08A"/>
+  <path d="M212 200 Q204 196 206 188 M292 200 Q300 196 298 188" fill="none" stroke="#2E7D57" stroke-width="5" stroke-linecap="round"/>
+  <!-- vapor -->
+  <path d="M240 176 q6 -12 0 -22 q-6 -10 0 -20 M260 176 q6 -12 0 -22 q-6 -10 0 -20" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.8"/>
+  <!-- hoja -->
+  <path d="M56 236 q16 -20 36 -12 q-6 22 -30 22 q-8 -4 -6 -10 Z" fill="#2FA36B"/>
+  <circle cx="250" cy="76" r="10" fill="#FFFFFF" opacity="0.6"/>
+</svg>

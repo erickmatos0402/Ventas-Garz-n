@@ -1,0 +1,2 @@
+-- Script para ejecutar después de schema.sql
+-- Contendrá datos de prueba adicionales si es necesario

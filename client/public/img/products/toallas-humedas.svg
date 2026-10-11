@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-label="Toallas húmedas">
+  <defs>
+    <linearGradient id="thBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E8F7EE"/>
+      <stop offset="1" stop-color="#CBE9D8"/>
+    </linearGradient>
+    <linearGradient id="thLid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3BB578"/>
+      <stop offset="1" stop-color="#12945A"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="320" rx="36" fill="url(#thBg)"/>
+  <!-- paquete -->
+  <rect x="66" y="96" width="188" height="140" rx="26" fill="#12945A"/>
+  <rect x="66" y="96" width="188" height="48" rx="24" fill="#FFFFFF" opacity="0.16"/>
+  <!-- tapa con pestaña -->
+  <rect x="106" y="120" width="108" height="44" rx="16" fill="url(#thLid)"/>
+  <rect x="106" y="120" width="108" height="18" rx="9" fill="#FFFFFF" opacity="0.28"/>
+  <path d="M148 142 q12 -10 24 0" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+  <!-- toalla saliendo -->
+  <path d="M148 236 q14 18 30 4 q10 -8 22 0 q-6 16 -26 16 q-18 0 -26 -20 Z" fill="#FFFFFF" stroke="#2E7D57" stroke-width="4"/>
+  <!-- brillo lateral -->
+  <path d="M76 108 L88 108 L84 226 L74 218 Z" fill="#FFFFFF" opacity="0.25"/>
+  <!-- hojitas -->
+  <path d="M240 92 q18 -18 36 -10 q-6 20 -28 20 q-8 -2 -8 -10 Z" fill="#2FA36B"/>
+  <path d="M80 250 q-18 16 -34 8 q8 -18 28 -16 q8 2 6 8 Z" fill="#2FA36B" opacity="0.8"/>
+  <!-- burbujas -->
+  <circle cx="52" cy="96" r="10" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="262" cy="252" r="8" fill="#FFFFFF" opacity="0.5"/>
+</svg>

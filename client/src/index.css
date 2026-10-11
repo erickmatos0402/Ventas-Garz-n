@@ -1,0 +1,1086 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
+@media (pointer: fine) {
+  html { scroll-behavior: smooth; }
+}
+
+@media (pointer: coarse) {
+  html { scroll-behavior: auto; }
+}
+
+/* Transicion suave al cambiar de pagina */
+.page-fade {
+  animation: pageFade 0.35s ease;
+}
+
+@keyframes pageFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+body {
+  font-family: 'Outfit', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background:
+    radial-gradient(1100px 750px at 5% -8%, var(--c-bg-glow-1), transparent 60%),
+    radial-gradient(900px 650px at 100% 2%, var(--c-bg-glow-2), transparent 55%),
+    radial-gradient(900px 800px at 50% 115%, var(--c-bg-glow-3), transparent 60%),
+    linear-gradient(180deg, var(--c-bg-1) 0%, var(--c-bg-2) 100%);
+  background-attachment: fixed;
+  color: var(--c-ink);
+}
+
+/* ============================================================
+   TEMAS DE TIENDA — mercado verde / boutique moda sostenible
+   ------------------------------------------------------------
+   html[data-theme] cambia TODAS las variables de color del sitio.
+   Los componentes usan tokens (primary, primary-deep, dark...) que
+   se resuelven a las variables, así cada tienda tiene su paleta.
+   ============================================================ */
+
+/* Tema 1: Ventas Garzón (mercado)
+   ------------------------------------------------------------
+   PALETA ARMONIZADA — DOS EJES tomados de la foto del Hero
+   (Fotos/hero0.jpg) y del logo del mercado (Fotos/logo.jpg):
+     · fondos menta/agua muy claros  #e1f2f2 · #e0edd5 · #c4e5f1
+     · verde oliva (eje 1)           #598e15 · #548318 · #d9ecc0
+     · azul marino (eje 2)           #0d2e54 · #12365e · #1d4e7a
+   Se retiró el oro #e1ab4e/#c8b359 y el azul vivo de acento para
+   evitar variedad: todo color del sitio sale de estos dos ejes más
+   la menta de fondo. */
+html[data-theme='market'],
+:root {
+  --c-bg-1: #f2f9f6; /* menta claro de la foto (#e1f2f2) */
+  --c-bg-2: #e4f0ea; /* menta/agua un paso más densa (#e0edd5 + #c4e5f1) */
+  --c-bg-glow-1: rgba(84, 131, 24, 0.10); /* oliva (eje 1) */
+  --c-bg-glow-2: rgba(13, 46, 84, 0.09); /* azul marino (eje 2) */
+  --c-bg-glow-3: rgba(196, 229, 241, 0.16); /* menta/agua de la foto */
+  --c-ink: #10283c; /* azul marino del logo (#0d2e54), apto para texto */
+  --c-primary: #548318; /* verde oliva de la foto y del logo (#598e15) */
+  --c-primary-deep: #40660f;
+  --c-primary-dark: #2f4c0a;
+  --c-soft: #eaf4dc; /* oliva pálido de la foto (#e0edd5) */
+  --c-soft-2: #d3e6b3; /* (#c6ddab) */
+  --c-grove-1: #12365e;
+  --c-grove-2: #0d2e54; /* azul marino del logo */
+  --c-grove-3: #071c37;
+  --c-soft-rgb: 234, 244, 220;
+  --c-deep-rgb: 64, 102, 15;
+  --c-ink-rgb: 16, 40, 60;
+  --c-primary-rgb: 84, 131, 24;
+  --c-btn-text: #2f4c0a;
+  --c-tab-text: #2b4a12;
+  --c-eyebrow: #3f6d0e; /* oliva profundo, legible sobre menta */
+  --c-disabled: #96ab84;
+  --c-scrollbar-track: #e1efe6;
+  --c-text-mid: #6f9d22;
+  --c-text-accent: #1d4e7a; /* azul marino legible (eje 2) */
+  --c-grove-text: #eaf2f9;
+  --c-grove-link: #d7e8f7; /* cielo muy claro: legible sobre el velo de la foto */
+  --c-glow-soft: #d9ecc0; /* oliva muy claro: acento legible sobre el marino */
+  --c-glow-soft-rgb: 217, 236, 192;
+  --c-btn-grove-1: #5e8f1a;
+  --c-btn-grove-2: #3f6b0c;
+  --c-aurora-1: rgba(142, 189, 104, 0.30); /* oliva claro */
+  --c-aurora-2: rgba(196, 229, 241, 0.42); /* agua clara */
+  --c-aurora-3: rgba(234, 244, 220, 0.55); /* oliva crema */
+  --c-shadow-rgb: 16, 40, 60;
+  --c-shadow-2-rgb: 13, 46, 84;
+  --c-btn-inset-rgb: 47, 76, 10;
+  --c-photo-1: rgba(13, 46, 84, 0.55);
+  --c-photo-2: rgba(7, 28, 55, 0.82);
+  /* Foto compartida por la barra (Header) y la sección Hero */
+  --c-hero-photo: url('/img/Fotos/hero0.jpg');
+  --c-disabled-1: rgba(242, 249, 246, 0.9);
+  --c-disabled-2: rgba(228, 240, 234, 0.8);
+}
+
+/* Tema 2: Garzón Chic (moda sostenible segunda mano — paleta CREMA / BEIGE HUEVO y Dorado) */
+html[data-theme='boutique'] {
+  --c-bg-1: #faf6f0; /* crema bebé claro */
+  --c-bg-2: #f4ecdc; /* beige crema suave */
+  --c-bg-glow-1: rgba(233, 224, 200, 0.28); /* crema dorada */
+  --c-bg-glow-2: rgba(214, 192, 156, 0.14); /* crema dorada suave */
+  --c-bg-glow-3: rgba(168, 146, 114, 0.08); /* dorado suave */
+  --c-ink: #3a3128; /* cantimplora cálido */
+  --c-primary: #b99a6f; /* dorado suave */
+  --c-primary-deep: #9a7b4f;
+  --c-primary-dark: #7d5f3d;
+  --c-soft: #f8f1e3; /* crema sutil */
+  --c-soft-2: #f0e3cf; /* crema dorada claro */
+  --c-grove-1: #4a3e2b;
+  --c-grove-2: #3a3128;
+  --c-grove-3: #2a231b;
+  --c-soft-rgb: 248, 241, 227;
+  --c-deep-rgb: 154, 123, 79;
+  --c-ink-rgb: 58, 49, 40;
+  --c-primary-rgb: 185, 154, 111;
+  --c-btn-text: #5a4932;
+  --c-tab-text: #7a6248;
+  --c-eyebrow: #c9a96e; /* dorado crema */
+  --c-disabled: #d8c9ad;
+  --c-scrollbar-track: #f2e8d4;
+  --c-text-mid: #b89462; /* dorado crema */
+  --c-text-accent: #7a6248; /* dorado suave */
+  --c-grove-text: #fbf5e6; /* crema dorada */
+  --c-grove-link: #e6d4ad;
+  --c-glow-soft: #e6d3a6; /* dorado crema */
+  --c-glow-soft-rgb: 230, 211, 166; /* dorado crema */
+  --c-btn-grove-1: #bfa07c;
+  --c-btn-grove-2: #ba916a;
+  --c-aurora-1: rgba(238, 227, 204, 0.4);
+  --c-aurora-2: rgba(216, 195, 156, 0.3);
+  --c-aurora-3: rgba(250, 246, 233, 0.6);
+  --c-shadow-rgb: 144, 118, 79;
+  --c-shadow-2-rgb: 168, 137, 93;
+  --c-btn-inset-rgb: 74, 60, 44;
+  --c-photo-1: rgba(74, 62, 45, 0.45);
+  --c-photo-2: rgba(42, 35, 27, 0.65);
+  --c-disabled-1: rgba(250, 246, 233, 0.9);
+  --c-disabled-2: rgba(240, 231, 211, 0.85);
+}
+
+::selection {
+  background: rgba(var(--c-primary-rgb), 0.25);
+}
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--c-scrollbar-track); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--c-primary), var(--c-primary-deep));
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--c-eyebrow), var(--c-primary-deep));
+}
+
+/* CRISTAL LIQUIDO VERDE (paneles) */
+.glass-panel {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(var(--c-soft-rgb), 0.35));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 1px 2px rgba(var(--c-shadow-rgb), 0.05),
+    0 4px 14px rgba(var(--c-shadow-rgb), 0.08),
+    0 12px 32px rgba(var(--c-shadow-rgb), 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.25);
+}
+
+.glass-strong {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(var(--c-soft-rgb), 0.5));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 1px 2px rgba(var(--c-shadow-rgb), 0.05),
+    0 6px 18px rgba(var(--c-shadow-rgb), 0.08),
+    0 16px 44px rgba(var(--c-shadow-rgb), 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.glass-hover { transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease; }
+
+.glass-hover:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 2px 6px rgba(var(--c-shadow-rgb), 0.05),
+    0 12px 32px rgba(var(--c-shadow-rgb), 0.10),
+    0 18px 44px rgba(var(--c-shadow-2-rgb), 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.liquid-panel {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.45), rgba(var(--c-soft-rgb), 0.25));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 1px 2px rgba(var(--c-shadow-rgb), 0.05),
+    0 6px 18px rgba(var(--c-shadow-rgb), 0.08),
+    0 14px 40px rgba(var(--c-shadow-rgb), 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.25);
+}
+
+.liquid-badge {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.3));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 1px 2px rgba(var(--c-shadow-rgb), 0.06),
+    0 8px 20px rgba(var(--c-shadow-rgb), 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.25);
+}
+
+/* BORDE LIQUIDO: aro especular en el canto */
+.liquid-border {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.liquid-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(255, 255, 255, 0.15) 35%,
+    rgba(var(--c-shadow-2-rgb), 0.35) 65%,
+    rgba(255, 255, 255, 0.85)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* BURBUJAS LIQUIDAS: botones transparentes con brillo de gota. El traspaso entre opciones vive en .liquid-tabs + LiquidTabs.tsx */
+
+.btn-liquid,
+.btn-liquid-ghost {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 9999px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease,
+    background-color 0.25s ease,
+    color 0.25s ease,
+    filter 0.25s ease;
+}
+
+.btn-liquid {
+  color: var(--c-btn-text);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  background: transparent;
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 3px 10px rgba(var(--c-ink-rgb), 0.10);
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.btn-liquid:hover {
+  border-color: rgba(255, 255, 255, 0.85);
+  color: var(--c-primary-dark);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 4px 12px rgba(var(--c-ink-rgb), 0.12);
+}
+
+/* Transparencia LIMPIA: botones que deben quedar a la vista sin
+   brillo de gota ni sombras pesadas. Solo el borde, el blur de fondo
+   y el texto definen el elemento. */
+.btn-liquid,
+.btn-liquid-ghost {
+  color: var(--c-btn-text);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: transparent;
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 3px 10px rgba(var(--c-ink-rgb), 0.10);
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.btn-liquid:hover,
+.btn-liquid-ghost:hover {
+  border-color: rgba(255, 255, 255, 0.85);
+  color: var(--c-primary-dark);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 4px 12px rgba(var(--c-ink-rgb), 0.12);
+}
+
+.btn-liquid:active,
+.btn-liquid-ghost:active {
+  transform: scale(0.97);
+}
+
+.btn-liquid::before,
+.btn-liquid-ghost::before {
+  display: none;
+}
+
+.btn-liquid::before,
+.btn-liquid-ghost::before {
+  display: none;
+}
+
+.btn-liquid:active {
+  transform: scale(0.97);
+  box-shadow:
+    inset 0 2px 6px rgba(var(--c-ink-rgb), 0.08);
+}
+
+.btn-liquid-ghost:active {
+  transform: scale(0.97);
+  box-shadow:
+    inset 0 2px 6px rgba(var(--c-ink-rgb), 0.06);
+}
+
+.btn-liquid:disabled {
+  cursor: not-allowed;
+  background: linear-gradient(180deg, var(--c-disabled-1), var(--c-disabled-2));
+  color: var(--c-disabled);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transform: none;
+  filter: none;
+}
+
+.btn-liquid:disabled::before,
+.btn-liquid:disabled::after,
+.btn-liquid-ghost:disabled::before,
+.btn-liquid-ghost:disabled::after {
+  display: none;
+}
+
+.btn-liquid-ghost:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* PESTAÑAS LIQUIDAS: contenedor pastilla; el blob activo y el viajero se dibujan desde LiquidTabs.tsx */
+
+.liquid-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 6px;
+  /* La burbuja activa sobresale un poco del cuadro de opciones: el
+     contenedor deja de recortar para que la gota respire por fuera. */
+  overflow: visible;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(var(--c-soft-rgb), 0.3));
+  backdrop-filter: blur(20px) saturate(170%);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 8px 24px rgba(var(--c-shadow-rgb), 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.25);
+}
+
+/* Variante vertical (menú móvil): opciones a ancho completo */
+.liquid-tabs.is-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  border-radius: 1.5rem;
+}
+
+.liquid-tabs.is-vertical .liquid-tab {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+/* Grupo que puede saltar de línea (chips del Hero) */
+.liquid-tabs.is-wrap {
+  flex-wrap: wrap;
+  border-radius: 1.5rem;
+}
+
+/* En columna, la burbuja apenas se sale para no invadir la opción vecina */
+.liquid-tabs.is-vertical .liquid-tab > .liquid-tab-blob,
+.liquid-tabs.is-vertical .liquid-tab > .liquid-tab-traveler {
+  inset: -2px;
+}
+
+.liquid-tab {
+  position: relative;
+  border-radius: 9999px;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  color: var(--c-tab-text);
+  transition: color 0.25s ease;
+}
+
+.liquid-tab:hover { color: var(--c-btn-text); }
+.liquid-tab:active { transform: scale(0.97); }
+
+.liquid-tab > * { position: relative; z-index: 1; }
+
+/* ============================================================
+   BUBBLE HIGHLIGHT (estilo iOS)
+   ------------------------------------------------------------
+   La opción activa del menú se marca con una BURBUJA de cristal
+   líquido: reflejo superior, tinte del tema por debajo y sombra
+   suave. Un blob "viajero" más translúcido se estira hacia la
+   opción apuntada y la burbuja se asienta con un rebote elástico.
+   El brillo especular sigue al puntero gracias a --mx / --my, que
+   escribe trackBubblePointer() (ver src/utils/index.ts).
+   ============================================================ */
+
+/* Brillo especular que persigue el cursor dentro de cada opción */
+.liquid-tab::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    70px 70px at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0) 70%
+  );
+  opacity: 0;
+  transition: opacity 0.28s ease;
+  pointer-events: none;
+}
+
+.liquid-tab:hover::after,
+.liquid-tab:focus-visible::after { opacity: 1; }
+
+/* Burbuja activa: gota plana y translúcida. Se agranda con `inset`
+   negativo (2px por fuera del relleno del contenedor) para despegar del
+   cuadro de opciones, y pierde el degradado alto-brillo y los reflejos
+   internos para verse más plana y más líquida. */
+.liquid-tab > .liquid-tab-blob {
+  position: absolute;
+  inset: -8px;
+  z-index: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(var(--c-soft-rgb), 0.42) 55%,
+    rgba(var(--c-soft-rgb), 0.3) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  box-shadow:
+    0 6px 16px rgba(var(--c-shadow-rgb), 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  /* Usa `scale` (no transform) para no pelear con la proyección de
+     layout que anima framer-motion sobre el mismo elemento. */
+  animation: liquidBubbleSettle 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+/* Reflejo tenue (arriba) + tinte del tema (abajo), ambos suaves */
+.liquid-tab > .liquid-tab-blob::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(60% 50% at 50% 0%, rgba(255, 255, 255, 0.55), transparent 68%),
+    radial-gradient(40% 42% at 26% 94%, rgba(var(--c-primary-rgb), 0.14), transparent 74%);
+  pointer-events: none;
+}
+
+@keyframes liquidBubbleSettle {
+  0% { scale: 0.9 0.7; }
+  55% { scale: 1.06 1.08; }
+  100% { scale: 1 1; }
+}
+
+/* Blob viajero: previsualización desenfocada que "se derrama" hacia
+   la opción apuntada antes de que la burbuja se asiente en ella. */
+.liquid-tab > .liquid-tab-traveler {
+  position: absolute;
+  inset: -8px;
+  z-index: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.2));
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 4px 12px rgba(var(--c-shadow-rgb), 0.10);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-tab > .liquid-tab-blob { animation: none; }
+}
+
+/* TEMA VERDE PROFUNDO: footer y bloques oscuros del sitio */
+
+.grove-theme {
+  background:
+    radial-gradient(900px 420px at 85% 0%, rgba(var(--c-primary-rgb), 0.22), transparent 55%),
+    linear-gradient(160deg, var(--c-grove-1) 0%, var(--c-grove-2) 55%, var(--c-grove-3) 100%);
+  color: var(--c-grove-text);
+}
+
+.grove-theme h1, .grove-theme h2, .grove-theme h3, .grove-theme h4 { color: #ffffff; }
+
+.grove-link {
+  color: var(--c-grove-link);
+  position: relative;
+  transition: color 0.25s ease;
+  display: inline-block;
+}
+
+.grove-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 2px;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  background: linear-gradient(90deg, var(--c-primary), var(--c-glow-soft));
+  border-radius: 2px;
+}
+
+.grove-link:hover { color: #ffffff; }
+.grove-link:hover::after { transform: scaleX(1); }
+
+/* Textos dentro de bloques grove (se adaptan al tema) */
+.grove-text { color: var(--c-grove-text); }
+.grove-text-soft { color: var(--c-grove-link); }
+.grove-accent { color: var(--c-glow-soft); }
+
+.grove-chip {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.grove-panel {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.06);
+}
+
+/* Boton dorado suave para fondos oscuros / sección boutique */
+.btn-grove {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 9999px;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: linear-gradient(180deg, var(--c-btn-grove-1) 0%, var(--c-btn-grove-2) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 12px 34px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -6px 16px rgba(var(--c-btn-inset-rgb), 0.55);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, filter 0.25s ease;
+}
+
+.btn-grove:hover {
+  filter: brightness(1.08);
+  box-shadow:
+    0 14px 36px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -6px 14px rgba(var(--c-btn-inset-rgb), 0.5);
+}
+
+.btn-grove:active { transform: scale(0.96); }
+
+/* TEXTO CON DEGRADADO DEL TEMA (beige crema / dorado suave / cantimplora) */
+.text-liquid {
+  background: linear-gradient(130deg, var(--c-tab-text) 0%, var(--c-eyebrow) 45%, var(--c-primary) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* FALLBACK: navegadores sin backdrop-filter */
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-panel,
+  .glass-strong,
+  .liquid-panel,
+  .liquid-badge {
+    background: rgba(255, 255, 255, 0.9);
+  }
+}
+
+/* AURORA ESTATICA: manchas verdes fijas + un toque agua */
+
+.aurora-static {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(72px);
+  pointer-events: none;
+}
+
+.aurora-1 { background: var(--c-aurora-1); }
+.aurora-2 { background: var(--c-aurora-2); }
+.aurora-3 { background: var(--c-aurora-3); }
+
+/* Detalle decorativo tipo gota: sigue el eje de acento del tema (oliva
+   en Mercado, dorado suave en Boutique) para no introducir un tono
+   fuera de la paleta del Hero. */
+.aqua-accent {
+  background: linear-gradient(135deg, rgba(var(--c-primary-rgb), 0.14), rgba(var(--c-primary-rgb), 0.05));
+  border: 1px solid rgba(var(--c-primary-rgb), 0.22);
+}
+
+.aqua-text {
+  color: var(--c-primary-deep);
+}
+
+/* TIPOGRAFIA CONSISTENTE */
+
+h1, h2, h3, h4 {
+  font-family: 'Sora', 'Outfit', 'Segoe UI', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.heading-eyebrow {
+  font-family: 'Outfit', 'Segoe UI', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--c-eyebrow);
+}
+
+.heading-page {
+  font-family: 'Sora', 'Outfit', 'Segoe UI', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--c-ink);
+}
+
+/* OFERTAS: bloque con fondo fotografico casi opaco */
+
+.liquid-photo {
+  position: relative;
+  isolation: isolate;
+}
+
+.liquid-photo > .liquid-photo-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+.liquid-photo > .liquid-photo-bg > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.05);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.liquid-photo:hover > .liquid-photo-bg > img { transform: scale(1.05); }
+
+.liquid-photo > .liquid-photo-glass {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.12), var(--c-photo-1) 55%, var(--c-photo-2));
+  backdrop-filter: blur(6px) saturate(130%);
+  -webkit-backdrop-filter: blur(6px) saturate(130%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-photo > .liquid-photo-bg > img {
+    transition: none;
+  }
+
+  .btn-liquid:active,
+  .btn-liquid-ghost:active,
+  .btn-grove:active {
+    transform: none;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ============================================================
+   MODO OSCURO SCOPED: solo la barra de navegación (Header) y la
+   sección Hero de la landing. Usa SOLAMENTE los tokens que ya
+   existen por tema (--c-grove-*, --c-eyebrow, --c-glow-soft...),
+   sin tocar el resto del sitio ni la estructura de los componentes.
+   ============================================================ */
+
+/* ---------- HEADER: barra fija con superficie oscura ---------- */
+
+.header-dark {
+  position: relative;
+  /* Foto del tema activo + velo oscuro para contraste del contenido,
+     sin decoración de borrosidad ni burbujas sobre la barra. */
+  background-image:
+    linear-gradient(160deg, rgba(9, 32, 58, 0.76) 0%, rgba(13, 46, 84, 0.70) 55%, rgba(7, 28, 55, 0.80) 100%),
+    var(--c-hero-photo, url('/img/Fotos/hero0.jpg'));
+  background-size: cover, cover;
+  background-position: center 30%, center 30%;
+  color: var(--c-grove-text);
+  border: none;
+  border-bottom: none;
+  box-shadow: none;
+}
+
+.header-dark img { box-shadow: none; }
+.header-dark img.border-moss { border-color: rgba(255, 255, 255, 0.35); }
+.header-dark::before { display: none; }
+
+.header-dark .liquid-tabs {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.06);
+}
+
+.header-dark .liquid-tab { color: var(--c-grove-link); }
+
+.header-dark .liquid-tab:hover { color: #ffffff; }
+
+.header-dark .liquid-tab.text-primary-deep { color: var(--c-grove-text); }
+
+/* Bubble Highlight sobre fondo oscuro: la gota pasa a vidrio
+   esmerilado OSCURO, ahora plano (un solo tinte, sin degradado
+   alto-brillo) para acompañar el efecto líquido del resto del sitio. */
+.header-dark .liquid-tab > .liquid-tab-blob,
+.hero-dark .liquid-tab > .liquid-tab-blob {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.13) 0%,
+    rgba(255, 255, 255, 0.07) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* Reflejo tenue solo en el borde superior: la zona del texto queda limpia */
+.header-dark .liquid-tab > .liquid-tab-blob::before,
+.hero-dark .liquid-tab > .liquid-tab-blob::before {
+  background:
+    radial-gradient(58% 42% at 50% 0%, rgba(255, 255, 255, 0.28), transparent 64%),
+    radial-gradient(38% 34% at 26% 96%, rgba(var(--c-glow-soft-rgb), 0.16), transparent 72%);
+}
+
+.header-dark .liquid-tab > .liquid-tab-traveler,
+.hero-dark .liquid-tab > .liquid-tab-traveler {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 4px 12px rgba(0, 0, 0, 0.22);
+}
+
+.header-dark .liquid-tab::after,
+.hero-dark .liquid-tab::after {
+  background: radial-gradient(
+    70px 70px at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.22),
+    rgba(255, 255, 255, 0) 70%
+  );
+}
+
+/* ---------- HERO: misma superficie, esquinas inferiores ovaladas ---------- */
+
+.hero-dark {
+  position: relative;
+  isolation: isolate;
+  /* FOTO del tema activo + velos oscuro y de color para legibilidad.
+     La foto cubre toda la sección (cover) con foco superior visual. */
+  background-image:
+    linear-gradient(180deg, rgba(7, 28, 55, 0.78) 0%, rgba(9, 36, 64, 0.70) 55%, rgba(7, 28, 55, 0.80) 100%),
+    var(--c-hero-photo, url('/img/Fotos/hero0.jpg'));
+  background-size: auto, cover;
+  background-position: center, center 35%;
+  background-repeat: no-repeat;
+  color: var(--c-grove-text);
+  /* BORDE INFERIOR SEMI-OVALADO: la superficie oscura curva al cerrar */
+  border-radius: 0 0 50% 50% / 0 0 44px 44px;
+}
+
+/* CIERRE INFERIOR CON GOTA: una lágrima colgando del centro del arco */
+.hero-dark::after {
+  content: '';
+  position: absolute;
+  bottom: -26px;
+  left: 50%;
+  width: 56px;
+  height: 56px;
+  transform: translateX(-50%);
+  border-radius: 50% 50% 50% 50% / 42% 42% 58% 58%;
+  background: linear-gradient(180deg, rgba(var(--c-primary-rgb), 0.55), rgba(var(--c-primary-rgb), 0.25) 60%, transparent);
+  filter: blur(0.5px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Halo suave que acompaña la gota para integrarla con el arco */
+.hero-dark::before {
+  content: '';
+  position: absolute;
+  bottom: -34px;
+  left: 50%;
+  width: 120px;
+  height: 34px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(var(--c-primary-rgb), 0.28), transparent 70%);
+  filter: blur(6px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Tema boutique: foto vertical de moda, centro más alto + velo crema oscuro */
+html[data-theme='boutique'] .header-dark,
+html[data-theme='boutique'] .hero-dark { --c-hero-photo: url('/img/Fotos/hero4.jpg'); }
+html[data-theme='boutique'] .header-dark {
+  background-image:
+    linear-gradient(160deg, rgba(42, 35, 27, 0.88) 0%, rgba(58, 49, 40, 0.80) 55%, rgba(74, 62, 45, 0.72) 100%),
+    var(--c-hero-photo);
+}
+html[data-theme='boutique'] .hero-dark {
+  background-image:
+    radial-gradient(1000px 480px at 15% 0%, rgba(185, 154, 111, 0.18), transparent 55%),
+    linear-gradient(180deg, rgba(42, 35, 27, 0.84) 0%, rgba(58, 49, 40, 0.70) 55%, rgba(58, 49, 40, 0.82) 100%),
+    var(--c-hero-photo);
+  background-position: center, center, center 20%;
+}
+
+/* Sobre el velo las etiquetas y el enlace activo van en claro: el oro de
+   --c-glow-soft se reserva para titulares grandes y adornos, donde su
+   luminancia tan alta sí aguanta el contraste. */
+.header-dark .text-primary-deep,
+.hero-dark .text-primary-deep { color: var(--c-grove-text); }
+
+.hero-dark .text-gray-500 { color: var(--c-grove-link); }
+
+/* Ícono de lupa y placeholder del buscador, en claro sobre oscuro */
+.hero-dark .text-gray-400 { color: rgba(255, 255, 255, 0.55); }
+.hero-dark input::placeholder { color: rgba(255, 255, 255, 0.45); }
+
+/* El degradado del titular usa tonos luminosos: el oliva profundo de
+   --c-eyebrow desaparecería sobre el velo azul marino. */
+.hero-dark .text-liquid {
+  background: linear-gradient(130deg, var(--c-glow-soft) 0%, var(--c-soft-2) 45%, var(--c-glow-soft) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Etiqueta de la hero: chip de cristal oscuro + punto del tema */
+.hero-dark .liquid-badge {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.06);
+}
+
+/* Buscador hero: panel de cristal sólido-oscuro con línea interior */
+.hero-dark .glass-panel {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 4px 14px rgba(0, 0, 0, 0.25),
+    0 12px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.06);
+}
+
+/* ---------- CTAs: transparencia limpia y forma sobria ---------- */
+
+/* En header/hero oscuros, los botones pierden la burbuja de gota    (::before de .btn-liquid / .btn-liquid-ghost) y pasan a ser
+
+   vidrios planos translúcidos con borde fino y texto contrastado. */
+.hero-dark .btn-liquid::before,
+.hero-dark .btn-liquid-ghost::before,
+.header-dark .btn-liquid::before,
+.header-dark .btn-liquid-ghost::before,
+.hero-dark .btn-grove::before,
+.header-dark .btn-grove::before {
+  display: none;
+}
+
+/* Primario: vidrio 100% transparente; solo borde + blur dejan pasar la foto */
+.hero-dark .btn-liquid,
+.header-dark .btn-liquid {
+  color: #ffffff;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  backdrop-filter: blur(6px) saturate(120%);
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.hero-dark .btn-liquid:hover,
+.header-dark .btn-liquid:hover {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 6px 20px rgba(0, 0, 0, 0.22);
+}
+
+/* Secundario: cristal invisible; solo borde, reflejo y texto clara */
+.hero-dark .btn-liquid-ghost,
+.header-dark .btn-liquid-ghost {
+  color: var(--c-grove-text);
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: transparent;
+  backdrop-filter: blur(6px) saturate(120%);
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 3px 10px rgba(0, 0, 0, 0.12);
+}
+
+.hero-dark .btn-liquid-ghost:hover,
+.header-dark .btn-liquid-ghost:hover {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 5px 16px rgba(0, 0, 0, 0.16);
+}
+
+.hero-dark .btn-liquid:active,
+.hero-dark .btn-liquid-ghost:active,
+.header-dark .btn-liquid:active,
+.header-dark .btn-liquid-ghost:active,
+.hero-dark .btn-grove:active {
+  transform: scale(0.97);
+}
+
+/* Botón de búsqueda del formulario hero */
+.hero-dark form[role='search'] .btn-liquid {
+  min-width: 96px;
+}
+
+/* Búsqueda rápida: chips de tema + hover */
+
+.hero-dark .liquid-badge:hover,
+.hero-dark button.liquid-badge:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.07));
+  color: var(--c-glow-soft);
+}
+
+.hero-dark .liquid-badge.text-primary-deep,
+.hero-dark form .liquid-badge { color: var(--c-grove-text); }
+
+/* ---------- Medallón: los chips flotantes también en oscuro ---------- */
+
+/* Texto de los chips flotantes alrededor del medallón */
+.hero-dark .text-dark { color: var(--c-grove-text); }
+
+/* Panel que envuelve el logo: ahora cristal oscuro */
+.hero-dark .liquid-panel {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.06);
+}
+
+/* Aros decorativos girando: tonos claros para que se vean sobre oscuro */
+.hero-dark .bg-wicker\/60 { background-color: rgba(255, 255, 255, 0.45); }
+.hero-dark .bg-latte { background-color: rgba(255, 255, 255, 0.35); }
+.hero-dark .bg-mint { background-color: rgba(255, 255, 255, 0.4); }
+.hero-dark .bg-moss { background-color: rgba(255, 255, 255, 0.4); }
+.hero-dark .border-white\/70 { border-color: rgba(255, 255, 255, 0.5); }
+.hero-dark .border-wicker\/40 { border-color: rgba(255, 255, 255, 0.35); }
+.hero-dark .text-aqua-deep { color: var(--c-glow-soft); }
+.hero-dark .text-wicker-deep { color: var(--c-grove-link); }
+/* El punto verde/moss del aro mantienen el primary del tema */
+.hero-dark .bg-primary\/70 { background-color: rgba(var(--c-primary-rgb), 0.8); }
+.hero-dark .bg-primary { background-color: var(--c-primary); }
+
+/* ---------- Hamburguesa/carrito (iconos) en Header oscuro ---------- */
+
+.header-dark .btn-liquid-ghost { color: var(--c-grove-text); }
+.header-dark .btn-liquid-ghost:hover { color: #fff; }
+.header-dark .text-primary-deep { color: var(--c-glow-soft); }
+
+/* Badge del carrito: el anillo pasa de blanco→claro para despegar del fondo oscuro */
+.header-dark .ring-white { --tw-ring-opacity: 1; --tw-ring-color: rgba(255, 255, 255, 0.65); }
+
+/* ---------- Menú móvil desplegable dentro del header oscuro ---------- */
+
+.header-dark .border-t { border-color: rgba(255, 255, 255, 0.12); }
+.header-dark .liquid-badge {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 9999px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+  0 8px 20px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.06);
+}
+.header-dark .liquid-badge.text-primary-deep { color: var(--c-grove-text); }

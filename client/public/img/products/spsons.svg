@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-label="Galletas sponch tipo sandwich">
+  <defs>
+    <linearGradient id="spBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F0FAF1"/>
+      <stop offset="1" stop-color="#D8EEDC"/>
+    </linearGradient>
+    <linearGradient id="spCookie" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F5D08A"/>
+      <stop offset="1" stop-color="#E3A94E"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="320" rx="36" fill="url(#spBg)"/>
+  <!-- galleta sandwich frontal -->
+  <ellipse cx="150" cy="180" rx="78" ry="70" fill="url(#spCookie)"/>
+  <ellipse cx="150" cy="164" rx="78" ry="62" fill="#F8E3B0"/>
+  <ellipse cx="150" cy="168" rx="46" ry="36" fill="#FFF7E6"/>
+  <circle cx="150" cy="168" r="10" fill="#E3A94E"/>
+  <!-- galleta detrás -->
+  <ellipse cx="232" cy="226" rx="44" ry="38" fill="#EDBB63"/>
+  <ellipse cx="232" cy="218" rx="44" ry="32" fill="#F8E3B0"/>
+  <!-- miga / puntos -->
+  <circle cx="120" cy="150" r="4" fill="#E3A94E"/>
+  <circle cx="176" cy="146" r="4" fill="#E3A94E"/>
+  <circle cx="150" cy="216" r="4" fill="#E3A94E"/>
+  <circle cx="112" cy="196" r="3" fill="#E3A94E"/>
+  <circle cx="190" cy="196" r="3" fill="#E3A94E"/>
+  <!-- hoja decorativa -->
+  <path d="M60 92 q20 -22 42 -12 q-8 24 -34 24 q-10 -4 -8 -12 Z" fill="#2FA36B"/>
+  <path d="M258 92 q-16 -20 -36 -12 q6 22 30 22 q8 -4 6 -10 Z" fill="#2FA36B" opacity="0.75"/>
+  <!-- burbujas -->
+  <circle cx="72" cy="236" r="9" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="250" cy="60" r="8" fill="#FFFFFF" opacity="0.55"/>
+</svg>

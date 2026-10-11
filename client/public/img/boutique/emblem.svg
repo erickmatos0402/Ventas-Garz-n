@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-label="Emblema Garzón Chic">
+  <defs>
+    <linearGradient id="geBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#847365"/>
+      <stop offset="0.55" stop-color="#6B5D51"/>
+      <stop offset="1" stop-color="#3B332C"/>
+    </linearGradient>
+    <linearGradient id="geWicker" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#DCC7AA"/>
+      <stop offset="1" stop-color="#A98757"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="320" rx="36" fill="url(#geBg)"/>
+  <circle cx="160" cy="160" r="118" fill="none" stroke="url(#geWicker)" stroke-width="3" opacity="0.9"/>
+  <circle cx="160" cy="160" r="106" fill="none" stroke="#EFE8DF" stroke-width="1.5" opacity="0.6"/>
+  <!-- percha de mimbre -->
+  <g stroke="url(#geWicker)" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M160 96 a14 14 0 1 1 14 -14"/>
+    <path d="M160 96 L160 112"/>
+    <path d="M160 112 L88 178 Q78 188 92 188 L228 188 Q242 188 232 178 Z"/>
+  </g>
+  <!-- perlas -->
+  <circle cx="112" cy="222" r="6" fill="#F7F3EE" opacity="0.95"/>
+  <circle cx="136" cy="232" r="5" fill="#F7F3EE" opacity="0.8"/>
+  <circle cx="208" cy="232" r="5" fill="#F7F3EE" opacity="0.8"/>
+  <circle cx="232" cy="222" r="6" fill="#F7F3EE" opacity="0.95"/>
+  <!-- lazo (acento azul mezclilla) -->
+  <path d="M132 250 q14 12 28 0 q14 12 28 0" stroke="#4B637B" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <text x="160" y="288" text-anchor="middle" font-family="Georgia, serif" font-size="30" letter-spacing="6" fill="#DCC7AA">G·C</text>
+</svg>

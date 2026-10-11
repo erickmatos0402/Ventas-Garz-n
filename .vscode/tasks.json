@@ -1,0 +1,52 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Install Dependencies",
+      "type": "shell",
+      "command": "npm",
+      "args": ["install"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Start Frontend",
+      "type": "shell",
+      "command": "npm",
+      "args": ["--prefix", "client", "run", "dev"],
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^.*?VITE.*?\\bready in\\b.*?ms.*$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*?VITE.*?",
+          "endsPattern": "^.*?Local:.*?http"
+        }
+      }
+    },
+    {
+      "label": "Start Backend",
+      "type": "shell",
+      "command": "npm",
+      "args": ["--prefix", "server", "run", "dev"],
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Setup Database",
+      "type": "shell",
+      "command": "npm",
+      "args": ["--prefix", "server", "run", "db:setup"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Start Frontend & Backend",
+      "dependsOn": ["Start Frontend", "Start Backend"],
+      "problemMatcher": []
+    }
+  ]
+}
