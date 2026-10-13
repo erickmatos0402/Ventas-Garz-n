@@ -158,7 +158,7 @@ const ImagePreviewModal: React.FC<{ product: Product; onClose: () => void }> = (
         initial={{ opacity: 0, scale: 0.94, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.94, y: 16 }}
-        className="relative glass-strong rounded-3xl p-5 w-full max-w-md max-h-[85vh] overflow-y-auto"
+        className="relative glass-strong rounded-3xl p-5 w-full max-w-md max-h-[85dvh] overflow-y-auto"
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-display font-bold text-dark truncate pr-3">{product.name}</h3>
@@ -246,10 +246,10 @@ export const AdminPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-dvh pt-10 sm:pt-20 pb-24 sm:pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Cabecera */}
-        <div className="mb-10 glass-panel rounded-3xl p-6 sm:p-8">
+        <div className="mb-8 sm:mb-10 glass-panel rounded-3xl p-5 sm:p-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="heading-eyebrow">Panel de Control</p>
@@ -266,20 +266,23 @@ export const AdminPage: React.FC = () => {
         </div>
 
         {/* Estadísticas */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
           {stats.map((stat) => (
-            <motion.div key={stat.label} whileHover={{ y: -4 }} className="glass-panel rounded-3xl p-6">
-              <div className="flex items-center justify-between">
-                <p className="heading-eyebrow">{stat.label}</p>
-                {stat.icon}
+            <motion.div key={stat.label} whileHover={{ y: -4 }} className="glass-panel rounded-3xl p-4 sm:p-6">
+              <div className="flex items-start justify-between gap-2">
+                {/* text-xs en móvil: el tracking del eyebrow desbordaba en 2 columnas */}
+                <p className="heading-eyebrow text-[11px] sm:text-sm min-w-0 break-words">{stat.label}</p>
+                <span className="flex-shrink-0">{stat.icon}</span>
               </div>
-              <p className="mt-4 text-3xl font-bold text-dark">{stat.value}</p>
+              {/* Valores largos (precios con separadores de miles) deben
+                  partirse en vez de desbordar la tarjeta en 320px. */}
+              <p className="mt-3 sm:mt-4 text-xl min-[380px]:text-2xl sm:text-3xl font-bold text-dark break-words">{stat.value}</p>
             </motion.div>
           ))}
         </div>
 
         {/* Gestión de productos */}
-        <div className="mt-10 glass-panel rounded-3xl p-6">
+        <div className="mt-8 sm:mt-10 glass-panel rounded-3xl p-4 sm:p-6">
           <div className="mb-6">
             <h2 className="font-display text-xl font-bold text-primary-dark tracking-tight">Gestión de Productos</h2>
             <p className="text-sm text-gray-500">Los cambios se reflejan al instante en Productos y ofertas</p>
@@ -320,7 +323,7 @@ export const AdminPage: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 24, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            className="relative glass-strong rounded-3xl p-6 w-full max-w-lg max-h-[85vh] overflow-y-auto"
+            className="relative glass-strong rounded-3xl p-5 sm:p-6 w-full max-w-lg max-h-[85dvh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-5">
               <h3 className="font-display text-xl font-bold text-dark">
@@ -441,7 +444,9 @@ export const AdminPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              {/* En teléfonos estrechos los campos van a una columna:
+                  dos inputs numéricos a 320px quedan inservibles. */}
+              <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-dark mb-1.5">Precio (COP)</label>
                   <input
@@ -466,7 +471,7 @@ export const AdminPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-dark mb-1.5">Categoría</label>
                   <select

@@ -12,6 +12,9 @@ html {
   scroll-behavior: smooth;
   overflow-y: scroll;
   scrollbar-gutter: stable;
+  /* Evita que iOS inflle el texto al girar a horizontal */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 @media (pointer: fine) {
@@ -1122,6 +1125,13 @@ button,
     font-size: 16px !important;
   }
 
+  /* Objetivo táctil mínimo (Apple HIG / Material) en todo campo de formulario */
+  input:not([type='checkbox']):not([type='radio']),
+  select,
+  textarea {
+    min-height: 44px;
+  }
+
   /* `fixed` es costoso en móviles (e iOS lo ignora): mejor scroll */
   body {
     background-attachment: scroll;
@@ -1138,6 +1148,30 @@ button,
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
   }
+
+  /* Opciones horizontales (chips del Hero, filtros del catálogo):
+     también 44px de alto. En <a> el min-height solo surte efecto si
+     el elemento deja de ser inline, así que se centra con flex. */
+  .liquid-tabs:not(.is-vertical) .liquid-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+  }
+}
+
+/* En teléfonos el texto crece (zoom del navegador, ajustes de
+   accesibilidad): las palabras largas deben partirse antes que
+   empujar el layout y provocar scroll horizontal. */
+body {
+  overflow-wrap: break-word;
+}
+
+/* Titulares: reparto equilibrado de líneas, sin palabras huérfanas */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
 }
 
 /* Sin hover "pegajoso" tras tocar: los efectos hover quedan para ratón */
@@ -1183,6 +1217,43 @@ body {
   overflow-x: clip;
 }
 
+/* Teléfonos estrechos (320–360px): menos aire vertical para que cada
+   sección se vea casi completa de una pantalla */
+@media (max-width: 400px) {
+  .aurora-static {
+    filter: blur(40px);
+  }
+
+  /* El hero respira menos arriba y abajo, todo lo demás se mantiene */
+  .hero-dark {
+    padding-top: 1.75rem;
+    padding-bottom: 3.5rem;
+  }
+}
+
+/* ============================================================
+   UTILIDADES MOBILE-FIRST (áreas seguras + horizontal)
+   ============================================================ */
+
+/* Reserva el espacio del notch / barra gestual (requiere viewport-fit=cover) */
+.safe-t { padding-top: env(safe-area-inset-top); }
+.safe-b { padding-bottom: env(safe-area-inset-bottom); }
+.safe-l { padding-left: env(safe-area-inset-left); }
+.safe-r { padding-right: env(safe-area-inset-right); }
+
+/* En pantallas bajas en horizontal (móvil tumbado) el hero no debe
+   ocupar toda la altura: se comprime para que quepan las secciones. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .hero-dark {
+    padding-top: 1rem;
+    padding-bottom: 3rem;
+  }
+
+  .hero-dark h1 {
+    font-size: clamp(1.6rem, 6vh, 2.5rem);
+  }
+}
+
 /* Accesibilidad: respeta "reducir movimiento" del sistema */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -1205,4 +1276,219 @@ body {
     animation-duration: 1.6s !important;
     animation-iteration-count: infinite !important;
   }
+}
+
+/* ============================================================
+   LIQUID GLASS iOS + BUBBLE HIGHLIGHT (global)
+   ------------------------------------------------------------
+   Material translúcido al estilo iOS: blur + saturación, canto
+   especular superior, borde fino y sombra baja. Se apoya en la
+   paleta del medallón de Mercado: oliva -> verde-agua -> cian ->
+   marino (--c-sig-*), con equivalencia cálida en Boutique.
+   ============================================================ */
+
+html[data-theme='market'],
+:root {
+  --c-sig-1: #6fa62b; /* oliva vivo del medallón */
+  --c-sig-2: #2f9e7a; /* puente verde-agua */
+  --c-sig-3: #1b6fa8; /* cian del medallón */
+  --c-sig-4: #0d2e54; /* azul marino del medallón */
+  --c-sig-glow: rgba(47, 158, 122, 0.35);
+}
+
+html[data-theme='boutique'] {
+  --c-sig-1: #d8b877;
+  --c-sig-2: #c69a6b;
+  --c-sig-3: #9a7b54;
+  --c-sig-4: #3a3128;
+  --c-sig-glow: rgba(198, 154, 107, 0.32);
+}
+
+/* ---------- Superficies iOS ---------- */
+
+.ios-glass {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(140deg, rgba(255, 255, 255, 0.62), rgba(var(--c-soft-rgb), 0.30) 58%, rgba(255, 255, 255, 0.16));
+  backdrop-filter: blur(26px) saturate(185%);
+  -webkit-backdrop-filter: blur(26px) saturate(185%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 1px 1px rgba(var(--c-shadow-rgb), 0.06),
+    0 10px 28px rgba(var(--c-shadow-rgb), 0.10),
+    0 26px 60px rgba(var(--c-shadow-2-rgb), 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.25);
+}
+
+/* Canto especular: una línea de luz que se desvanece hacia los lados */
+.ios-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.2px;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(255, 255, 255, 0.05) 30%,
+    rgba(var(--c-primary-rgb), 0.18) 68%,
+    rgba(255, 255, 255, 0.75)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Variante oscura: para superficies sobre el hero/header */
+.ios-glass-dark {
+  background:
+    linear-gradient(140deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05) 60%, rgba(255, 255, 255, 0.03));
+  backdrop-filter: blur(26px) saturate(160%);
+  -webkit-backdrop-filter: blur(26px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.22),
+    0 14px 40px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.05);
+}
+
+.ios-glass-dark::before {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.5),
+    rgba(255, 255, 255, 0.04) 34%,
+    rgba(var(--c-primary-rgb), 0.22) 70%,
+    rgba(255, 255, 255, 0.32)
+  );
+}
+
+/* Presión táctil iOS: la superficie se hunde ligeramente */
+.ios-press { transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease; }
+.ios-press:hover { transform: translateY(-3px); }
+.ios-press:active { transform: scale(0.985); }
+
+/* ---------- Bubble highlight (estilo iOS) ----------
+   El brillo especular sigue al puntero (--mx / --my, escritas por
+   trackBubblePointer en src/utils/index.ts). Reutilizable en
+   cualquier superficie interactiva de la web. */
+
+.bubble-hl {
+  position: relative;
+}
+
+.bubble-hl::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+      260px 260px at var(--mx, 50%) var(--my, -10%),
+      rgba(255, 255, 255, 0.42),
+      rgba(255, 255, 255, 0) 62%
+    ),
+    radial-gradient(
+      180px 180px at var(--mx, 50%) var(--my, -10%),
+      var(--c-sig-glow),
+      transparent 70%
+    );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.bubble-hl:hover::after,
+.bubble-hl:focus-visible::after { opacity: 1; }
+
+/* Sobre superficies oscuras el brillo sube de intensidad */
+.bubble-hl-dark::after {
+  background: radial-gradient(
+      240px 240px at var(--mx, 50%) var(--my, -10%),
+      rgba(255, 255, 255, 0.22),
+      rgba(255, 255, 255, 0) 60%
+    ),
+    radial-gradient(
+      200px 200px at var(--mx, 50%) var(--my, -10%),
+      rgba(var(--c-glow-soft-rgb), 0.14),
+      transparent 72%
+    );
+}
+
+/* ---------- Acentos de la firma del medallón ---------- */
+
+/* Barra corta con el arco verde -> azul del medallón */
+.section-rule {
+  display: block;
+  width: 48px;
+  height: 4px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, var(--c-sig-1), var(--c-sig-2) 48%, var(--c-sig-3));
+  box-shadow: 0 3px 12px var(--c-sig-glow);
+}
+
+/* Texto con el gradiente firma */
+.text-signature {
+  background: linear-gradient(118deg, var(--c-sig-1) 0%, var(--c-sig-2) 45%, var(--c-sig-3) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Sobre el velo oscuro del hero el gradiente se aclara para contrastar */
+.hero-dark .text-signature {
+  background: linear-gradient(118deg, #dcefc2 0%, #bfe6d5 46%, #cfe6f7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ios-press:hover,
+  .ios-press:active { transform: none; }
+}
+
+@media (hover: none) {
+  .bubble-hl::after { display: none; }
+  .ios-press:hover { transform: none; }
+}
+
+/* Botón firma: gradiente del medallón (oliva -> agua -> cian) */
+.btn-signature {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 9999px;
+  font-weight: 700;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: linear-gradient(125deg, var(--c-sig-1) 0%, var(--c-sig-2) 52%, var(--c-sig-3) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 14px 34px rgba(var(--c-shadow-rgb), 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -8px 20px rgba(0, 0, 0, 0.18);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), filter 0.25s ease, box-shadow 0.25s ease;
+}
+
+.btn-signature:hover {
+  filter: brightness(1.06);
+  transform: translateY(-2px);
+}
+
+.btn-signature:active { transform: scale(0.97); }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-signature:hover,
+  .btn-signature:active { transform: none; }
 }

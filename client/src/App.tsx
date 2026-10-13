@@ -46,7 +46,9 @@ function AppShell() {
   }, [pathname, theme]);
 
   return (
-    <div className="relative flex flex-col min-h-screen">
+    // min-h-dvh: en móvil, 100vh incluye la barra del navegador y deja
+    // un hueco fantasma al final del scroll.
+    <div className="relative flex flex-col min-h-dvh">
       <FloatingLeaves />
       <Header />
       <main key={pathname} className="flex-1 page-fade">

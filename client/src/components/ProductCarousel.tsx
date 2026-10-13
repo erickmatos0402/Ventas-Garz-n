@@ -12,8 +12,14 @@ interface ProductCarouselProps {
   className?: string;
 }
 
-/** Separación horizontal entre tarjetas (px) */
+/** Separación horizontal entre tarjetas en pantallas grandes (px) */
 const GAP = 28;
+
+/** Separación reducida en teléfonos: la tarjeta vecina alcanza a asomarse */
+const GAP_MOBILE = 14;
+
+/** Desde qué ancho se considera "teléfono" para el carrusel (px) */
+const MOBILE_BREAKPOINT = 520;
 
 /** Etiqueta de estado de la tarjeta (arriba a la izquierda) */
 function getStatusLabel(product: Product, isBoutique: boolean): string {
@@ -249,11 +255,15 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, clas
     };
   }, []);
 
+  // En teléfonos el hueco entre tarjetas baja para aprovechar el ancho,
+  // que a 320–360px es el recurso más escaso.
+  const gap = viewportW > 0 && viewportW < MOBILE_BREAKPOINT ? GAP_MOBILE : GAP;
+
   const slideW = useMemo(
-    () => Math.min(340, Math.max(240, viewportW * 0.72)),
+    () => Math.min(340, Math.max(210, viewportW * 0.78)),
     [viewportW]
   );
-  const step = slideW + GAP;
+  const step = slideW + gap;
   const offsetX = viewportW / 2 - slideW / 2 - active * step;
 
   const goPrev = useCallback(() => setActive((a) => Math.max(0, a - 1)), []);
@@ -279,7 +289,9 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, clas
 
   if (count === 0) return null;
 
-  const arrowClass = `absolute top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full flex items-center justify-center text-primary-deep transition-all duration-300 hover:scale-110 active:scale-95 disabled:opacity-0 disabled:pointer-events-none`;
+  // Flechas algo más pequeñas en móvil: con la tarjeta activa ocupando
+  // casi todo el ancho, las de 44px se comían el contenido de los bordes.
+  const arrowClass = `absolute top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-primary-deep transition-all duration-300 hover:scale-110 active:scale-95 disabled:opacity-0 disabled:pointer-events-none`;
   const arrowStyle: React.CSSProperties = {
     background: 'rgba(255, 255, 255, 0.55)',
     backdropFilter: 'blur(10px)',
@@ -293,13 +305,13 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, clas
       {/* Zona deslizable */}
       <div
         ref={viewportRef}
-        className="overflow-hidden py-6 outline-none"
+        className="overflow-hidden py-6 outline-none touch-pan-y"
         tabIndex={0}
         onKeyDown={handleKeyDown}
       >
         <motion.div
           className="flex items-stretch"
-          style={{ gap: GAP }}
+          style={{ gap }}
           animate={{ x: offsetX }}
           transition={{ type: 'tween', duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           onPanEnd={handlePanEnd}
@@ -356,7 +368,7 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, clas
               onClick={() => setActive(i)}
               aria-label={`Ir al producto ${i + 1} de ${count}`}
               aria-current={i === active}
-              className="flex h-8 items-center justify-center rounded-full"
+              className="flex h-11 w-11 items-center justify-center rounded-full -m-1.5"
             >
               {/* Barra visible + área táctil amplia (h-8) sin cambiar el diseño */}
               <span

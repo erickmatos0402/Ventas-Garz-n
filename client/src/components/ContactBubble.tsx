@@ -10,7 +10,8 @@ export const ContactBubble: React.FC = () => {
   const [open, setOpen] = React.useState(false);
 
   return (
-    <div className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-[70] flex flex-col items-end gap-3">
+    // offsets con env(): el botón no queda bajo la barra gestual del iPhone.
+    <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-[calc(1rem+env(safe-area-inset-right))] sm:bottom-[calc(1.25rem+env(safe-area-inset-bottom))] sm:right-[calc(1.25rem+env(safe-area-inset-right))] z-[70] flex flex-col items-end gap-3">
       <AnimatePresence>
         {open && (
           <motion.div

@@ -39,11 +39,11 @@ export const FAQPage: React.FC = () => {
   const [openIndex, setOpenIndex] = React.useState<number | null>(0);
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-dvh pt-10 sm:pt-20 pb-24 sm:pb-16">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}>
           <p className="heading-eyebrow">Preguntas Frecuentes</p>
-          <h1 className="heading-page mt-3 text-3xl sm:text-4xl md:text-5xl mb-3">¿Tienes dudas? Estamos para ayudarte</h1>
+          <h1 className="heading-page mt-3 text-2xl min-[400px]:text-3xl sm:text-4xl md:text-5xl mb-3 text-balance">¿Tienes dudas? Estamos para ayudarte</h1>
           <p className="text-gray-500 mb-10">Respuestas rápidas sobre pedidos, entregas y pagos</p>
         </motion.div>
 
@@ -63,7 +63,7 @@ export const FAQPage: React.FC = () => {
                   className="w-full flex items-center justify-between gap-4 px-5 sm:px-6 py-5 text-left min-h-[3.5rem]"
                   aria-expanded={isOpen}
                 >
-                  <span className="font-display font-bold text-dark">{faq.question}</span>
+                  <span className="font-display font-bold text-dark min-w-0">{faq.question}</span>
                   <motion.span
                     animate={{ rotate: isOpen ? 180 : 0 }}
                     transition={{ duration: 0.25 }}

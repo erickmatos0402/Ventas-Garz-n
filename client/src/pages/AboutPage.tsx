@@ -60,17 +60,17 @@ export const AboutPage: React.FC = () => {
   const content = CONTENT[theme];
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-dvh pt-10 sm:pt-20 pb-24 sm:pb-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           className="glass-panel rounded-3xl p-5 sm:p-6 md:p-10"
         >
-          <p className="heading-eyebrow">Acerca de · {meta.name}</p>
-          <h1 className="heading-page mt-4 text-3xl sm:text-4xl md:text-5xl">{content.title}</h1>
+          <p className="heading-eyebrow break-words">Acerca de · {meta.name}</p>
+          <h1 className="heading-page mt-4 text-2xl min-[400px]:text-3xl sm:text-4xl md:text-5xl">{content.title}</h1>
           <p className="mt-6 text-gray-600 leading-relaxed text-base sm:text-lg">{content.intro}</p>
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
+          <div className="mt-8 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {content.pillars.map((item) => (
               <div key={item.title} className="liquid-badge rounded-3xl p-6">
                 <h2 className="font-display text-xl font-bold text-primary-dark tracking-tight mb-2">{item.title}</h2>
@@ -112,12 +112,12 @@ export const AboutPage: React.FC = () => {
 
         {/* Cifras */}
         <div className="mt-12 grove-theme liquid-border rounded-3xl p-6 sm:p-8 md:p-10 text-center">
-          <h2 className="font-display text-3xl font-extrabold mb-8">{content.statsTitle}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+          <h2 className="font-display text-2xl sm:text-3xl font-extrabold mb-6 sm:mb-8">{content.statsTitle}</h2>
+          <div className="grid grid-cols-3 gap-3 sm:gap-8">
             {content.stats.map((stat) => (
               <div key={stat.label}>
-                <p className="font-display text-4xl font-extrabold grove-accent mb-1">{stat.value}</p>
-                <p className="grove-text-soft text-sm">{stat.label}</p>
+                <p className="font-display text-2xl min-[400px]:text-3xl sm:text-4xl font-extrabold grove-accent mb-1">{stat.value}</p>
+                <p className="grove-text-soft text-xs sm:text-sm">{stat.label}</p>
               </div>
             ))}
           </div>

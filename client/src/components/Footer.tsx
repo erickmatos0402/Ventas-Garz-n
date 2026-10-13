@@ -10,9 +10,10 @@ export const Footer: React.FC = () => {
   const meta = STORE_META_DATA[theme];
 
   return (
-    <footer className="grove-theme border-t border-white/10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+    <footer className="grove-theme border-t border-white/10 safe-b safe-l safe-r">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-24 sm:pt-14 sm:pb-16">
+        {/* 1 col en móvil → 2 en tablet → 4 en escritorio */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10">
           {/* About */}
           <div>
             <div className="flex items-center gap-3 mb-4">
@@ -80,6 +81,8 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
+        {/* pb extra en móvil: la burbuja flotante de contacto (56px, fija
+            abajo a la derecha) taparía el aviso de copyright. */}
         <div className="border-t border-white/10 mt-10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 grove-text-soft text-sm">
           <p>&copy; {currentYear} {meta.name}. Todos los derechos reservados.</p>
           <div className="grove-chip rounded-full px-4 py-1.5 text-xs font-semibold grove-text">

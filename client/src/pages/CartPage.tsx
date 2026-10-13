@@ -18,7 +18,7 @@ export const CartPage: React.FC = () => {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center pt-20 pb-16">
+      <div className="min-h-dvh flex items-center justify-center px-4 py-16">
         <div className="text-center px-4">
           <SlideUp>
             <div className="liquid-badge w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -36,7 +36,7 @@ export const CartPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen pt-20 pb-20">
+    <div className="min-h-dvh pt-10 sm:pt-20 pb-24 sm:pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SlideUp>
           <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-dark mb-8">Mi Carrito</h1>
@@ -44,14 +44,16 @@ export const CartPage: React.FC = () => {
 
         {/* Barra de envío gratis */}
         <SlideUp delay={0.05}>
-          <div className="glass-panel rounded-full px-5 py-3 mb-8 flex items-center gap-3">
+          {/* En teléfonos el texto salta de línea: un pill (rounded-full)
+              recorta las esquinas, así que ahí va con radio normal. */}
+          <div className="glass-panel rounded-2xl sm:rounded-full px-5 py-3 mb-8 flex items-center gap-3">
             <Truck size={18} className="text-primary flex-shrink-0" />
             {missingForFreeShipping > 0 ? (
-              <p className="text-sm text-dark">
+              <p className="text-sm text-dark min-w-0 flex-1">
                 Te faltan <span className="font-bold text-primary-deep">{formatPrice(missingForFreeShipping)}</span> para el envío gratis
               </p>
             ) : (
-              <p className="text-sm font-bold text-primary-deep">¡Tienes envío gratis en este pedido! 🎉</p>
+              <p className="text-sm font-bold text-primary-deep min-w-0 flex-1">¡Tienes envío gratis en este pedido! 🎉</p>
             )}
           </div>
         </SlideUp>
@@ -73,7 +75,9 @@ export const CartPage: React.FC = () => {
                   className="glass-panel rounded-3xl p-5 flex flex-col sm:flex-row gap-5"
                 >
                   {/* Miniatura real del producto (con emoji de respaldo) */}
-                  <div className="relative w-full sm:w-24 h-24 flex-shrink-0 bg-white/60 border border-white/70 rounded-2xl overflow-hidden flex items-center justify-center">
+                  {/* Miniatura compacta: en móvil la lista se ve más densa
+                      y entran más productos por pantalla. */}
+                  <div className="relative w-full h-32 sm:w-24 sm:h-24 flex-shrink-0 bg-white/60 border border-white/70 rounded-2xl overflow-hidden flex items-center justify-center">
                     <span className="text-3xl">{item.emoji || '🛒'}</span>
                     {item.image && (
                       <img
@@ -91,7 +95,7 @@ export const CartPage: React.FC = () => {
                     <p className="font-bold text-primary-deep">{formatPrice(item.price)}</p>
                   </div>
 
-                  <div className="flex sm:flex-col items-center sm:items-end justify-between gap-3">
+                  <div className="flex flex-wrap items-center sm:flex-col sm:items-end justify-between gap-3">
                     <button
                       onClick={() => removeItem(item.id)}
                       className="btn-liquid-ghost text-danger p-3 sm:p-2.5"
@@ -130,7 +134,8 @@ export const CartPage: React.FC = () => {
           {/* Resumen */}
           <div className="lg:col-span-1">
             <SlideUp delay={0.15}>
-              <div className="glass-strong rounded-3xl p-6 sticky top-24">
+              {/* sticky solo en escritorio (en móvil la columna única no lo necesita) */}
+              <div className="glass-strong rounded-3xl p-5 sm:p-6 lg:sticky lg:top-24">
                 <h2 className="font-display text-2xl font-bold text-dark mb-6">Resumen</h2>
 
                 <div className="space-y-3 mb-6 border-b border-white/70 pb-6">

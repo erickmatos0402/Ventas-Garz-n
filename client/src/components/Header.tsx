@@ -32,7 +32,8 @@ export const Header: React.FC = () => {
   }, [location.pathname]);
 
   return (
-    <header className="sticky top-0 z-50 glass-strong header-dark">
+    // safe-t/safe-l/safe-r: el notch y la barra gestual no deben tapar la barra.
+    <header className="sticky top-0 z-50 glass-strong header-dark safe-t safe-l safe-r">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 md:h-[72px] gap-3">
           <Link to="/" className="flex items-center gap-2.5 transition hover:opacity-90 flex-shrink-0">
@@ -100,7 +101,11 @@ export const Header: React.FC = () => {
 
           {/* Acciones */}
           <div className="flex items-center gap-2.5">
-            <Link to="/cart" aria-label={`Carrito con ${totalItems} artículos`} className="relative flex-shrink-0">
+            <Link
+              to="/cart"
+              aria-label={`Carrito con ${totalItems} artículos`}
+              className="relative flex-shrink-0 flex items-center justify-center min-w-[44px] min-h-[44px]"
+            >
               <motion.div
                 whileHover={{ scale: 1.08 }}
                 animate={totalItems > 0 ? { scale: [1, 1.18, 1] } : {}}

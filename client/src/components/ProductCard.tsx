@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Star, ShoppingCart, Check } from 'lucide-react';
 import { Product } from '../types';
-import { formatPrice } from '../utils';
+import { formatPrice, trackBubblePointer, resetBubblePointer } from '../utils';
 import { useCartStore } from '../store';
 import { useThemeStore } from '../store';
 import { useImageWithFallback } from '../hooks/useImageWithFallback';
@@ -49,7 +49,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
     <motion.div
       whileHover={canHover ? { y: -3 } : undefined}
       transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-      className="glass-panel glass-hover rounded-2xl overflow-hidden flex flex-col h-full"
+      onPointerMove={trackBubblePointer}
+      onPointerLeave={resetBubblePointer}
+      className="ios-glass bubble-hl rounded-3xl overflow-hidden flex flex-col h-full"
     >
       {/* Imagen del producto: ventana ancha con relación fija, recorta con object-cover */}
       <div className="relative w-full aspect-[16/10] overflow-hidden bg-white/60">
@@ -99,7 +101,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
           <div className="liquid-badge flex items-center rounded-full px-1">
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="w-10 h-10 sm:w-9 sm:h-9 rounded-full text-dark hover:bg-white/70 transition text-lg leading-none"
+              className="w-11 h-11 sm:w-9 sm:h-9 rounded-full text-dark hover:bg-white/70 transition text-lg leading-none"
               disabled={product.stock === 0}
               aria-label="Restar cantidad"
             >
@@ -108,7 +110,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
             <span className="w-8 text-center font-bold text-dark text-sm">{quantity}</span>
             <button
               onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-              className="w-10 h-10 sm:w-9 sm:h-9 rounded-full text-dark hover:bg-white/70 transition text-lg leading-none"
+              className="w-11 h-11 sm:w-9 sm:h-9 rounded-full text-dark hover:bg-white/70 transition text-lg leading-none"
               disabled={product.stock === 0}
               aria-label="Sumar cantidad"
             >

@@ -85,9 +85,9 @@ export const ProductsPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen pt-20">
+    <div className="min-h-dvh pt-8 sm:pt-20">
       {/* Encabezado */}
-      <section className="py-12">
+      <section className="py-8 sm:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SlideUp>
             <p className="heading-eyebrow">{meta.name}</p>
@@ -115,15 +115,15 @@ export const ProductsPage: React.FC = () => {
                 placeholder="Buscar en el catálogo..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full sm:w-64 px-4 py-2.5 rounded-full bg-white/60 border border-white/70 outline-none focus:ring-2 focus:ring-primary/60 text-sm text-dark placeholder:text-gray-400"
+                className="w-full sm:w-64 min-h-[44px] px-4 py-2.5 rounded-full bg-white/60 border border-white/70 outline-none focus:ring-2 focus:ring-primary/60 text-sm text-dark placeholder:text-gray-400"
               />
               {/* Orden */}
-              <div className="liquid-badge rounded-full px-4 py-1 flex items-center gap-2">
-                <Tag size={14} className="text-primary-deep" />
+              <div className="liquid-badge rounded-full px-4 py-1 flex items-center gap-2 min-h-[44px]">
+                <Tag size={14} className="text-primary-deep flex-shrink-0" />
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="bg-transparent outline-none text-sm font-semibold text-primary-deep cursor-pointer py-1.5"
+                  className="bg-transparent outline-none text-sm font-semibold text-primary-deep cursor-pointer py-1.5 max-w-full"
                   aria-label="Ordenar productos"
                 >
                   {sortOptions.map((opt) => (

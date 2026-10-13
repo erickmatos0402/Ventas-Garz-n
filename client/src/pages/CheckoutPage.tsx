@@ -69,8 +69,8 @@ export const CheckoutPage: React.FC = () => {
 
   if (items.length === 0 && !success) {
     return (
-      <div className="min-h-screen flex items-center justify-center pt-20 pb-16">
-        <div className="text-center px-4">
+      <div className="min-h-dvh flex items-center justify-center px-4 py-16">
+        <div className="text-center">
           <SlideUp>
             <div className="liquid-badge w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
               <ShoppingBasket size={44} className="text-primary" />
@@ -88,9 +88,9 @@ export const CheckoutPage: React.FC = () => {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center pt-20 pb-16">
+      <div className="min-h-dvh flex items-center justify-center px-4 py-16">
         <SlideUp>
-          <div className="glass-strong rounded-3xl p-8 max-w-md text-center mx-4">
+          <div className="glass-strong rounded-3xl p-6 sm:p-8 max-w-md text-center w-full">
             <motion.div
               animate={{ scale: [0.8, 1.1, 1] }}
               transition={{ duration: 0.5 }}
@@ -113,7 +113,7 @@ export const CheckoutPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-dvh pt-10 sm:pt-20 pb-24 sm:pb-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <SlideUp>
           <p className="heading-eyebrow">Último paso</p>
@@ -244,7 +244,8 @@ export const CheckoutPage: React.FC = () => {
 
           {/* Resumen */}
           <div className="lg:col-span-1">
-            <div className="glass-strong rounded-3xl p-5 sm:p-6 sticky top-24">
+            {/* sticky solo en escritorio: en móvil una columna sticky solo estorba */}
+            <div className="glass-strong rounded-3xl p-5 sm:p-6 lg:sticky lg:top-24">
               <h2 className="text-xl font-bold text-dark mb-4">Tu Pedido</h2>
 
               <div className="space-y-3 mb-4 max-h-56 overflow-y-auto pr-1">
