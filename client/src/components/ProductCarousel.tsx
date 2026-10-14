@@ -125,7 +125,7 @@ const CarouselCard: React.FC<CarouselCardProps> = ({
           }}
           aria-label={favorite ? 'Quitar de favoritos' : 'Añadir a favoritos'}
           aria-pressed={favorite}
-          className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center transition-transform duration-300 hover:scale-110 active:scale-90"
+          className="hit-expand absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center transition-transform duration-300 hover:scale-110 active:scale-90"
           style={{
             background: 'rgba(255, 255, 255, 0.75)',
             backdropFilter: 'blur(8px)',
@@ -291,7 +291,7 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, clas
 
   // Flechas algo más pequeñas en móvil: con la tarjeta activa ocupando
   // casi todo el ancho, las de 44px se comían el contenido de los bordes.
-  const arrowClass = `absolute top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-primary-deep transition-all duration-300 hover:scale-110 active:scale-95 disabled:opacity-0 disabled:pointer-events-none`;
+  const arrowClass = `hit-expand absolute top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-primary-deep transition-all duration-300 hover:scale-110 active:scale-95 disabled:opacity-0 disabled:pointer-events-none`;
   const arrowStyle: React.CSSProperties = {
     background: 'rgba(255, 255, 255, 0.55)',
     backdropFilter: 'blur(10px)',
@@ -368,7 +368,7 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, clas
               onClick={() => setActive(i)}
               aria-label={`Ir al producto ${i + 1} de ${count}`}
               aria-current={i === active}
-              className="flex h-11 w-11 items-center justify-center rounded-full -m-1.5"
+              className="hit-expand flex h-11 w-11 items-center justify-center rounded-full -m-1.5"
             >
               {/* Barra visible + área táctil amplia (h-8) sin cambiar el diseño */}
               <span

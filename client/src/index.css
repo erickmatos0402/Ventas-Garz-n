@@ -1492,3 +1492,73 @@ html[data-theme='boutique'] {
   .btn-signature:hover,
   .btn-signature:active { transform: none; }
 }
+
+/* Amplía el área táctil sin cambiar el tamaño visual del control.
+   Un ::before absoluto forma parte del hit-testing del elemento, así
+   que un botón de 36–40px gana los 44px que pide la guía táctil sin
+   crecer en pantalla ni tapar el contenido vecino. */
+.hit-expand { position: relative; }
+.hit-expand::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+}
+
+/* ============================================================
+   VISTA MÓVIL — objetivos táctiles, foco visible y densidad
+   ------------------------------------------------------------
+   Reglas basadas en las guías de UI/UX móvil (Apple HIG / Material):
+   todo control alcanza 44×44px cuando el puntero es grueso, el foco de
+   teclado siempre es visible y los enlaces de lista ganan área de toque.
+   En punteros finos (ratón) no cambia nada del ritmo actual.
+   ============================================================ */
+
+/* Foco visible y consistente en controles (WCAG 2.4.11/2.4.13) */
+a:focus-visible,
+button:focus-visible,
+[role='button']:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 3px solid rgba(var(--c-primary-rgb), 0.9);
+  outline-offset: 2px;
+  border-radius: 0.6rem;
+}
+
+/* Sobre superficies oscuras el anillo gira a claro para contrastar */
+.hero-dark a:focus-visible,
+.hero-dark button:focus-visible,
+.header-dark a:focus-visible,
+.header-dark button:focus-visible,
+.grove-theme a:focus-visible,
+.grove-theme button:focus-visible {
+  outline-color: rgba(255, 255, 255, 0.92);
+}
+
+@media (pointer: coarse) {
+  /* Botones y pastillas: alto (y ancho) mínimo de 44px */
+  .btn-liquid,
+  .btn-liquid-ghost,
+  .btn-signature,
+  .btn-grove {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Controles icon-only marcados explícitamente (cierres, papelera...) */
+  .tap-icon {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Enlace de lista con área de toque cómoda; solo en táctil para no
+     alterar el ritmo vertical del escritorio. */
+  .tap-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}

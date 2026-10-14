@@ -150,7 +150,7 @@ export const ProductsPage: React.FC = () => {
                   setSearchQuery('');
                   handleCategoryChange('');
                 }}
-                className="btn-liquid px-6 py-2.5"
+                className="btn-liquid px-6 py-3"
               >
                 Ver todo el catálogo
               </button>

@@ -36,7 +36,7 @@ export const Header: React.FC = () => {
     <header className="sticky top-0 z-50 glass-strong header-dark safe-t safe-l safe-r">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 md:h-[72px] gap-3">
-          <Link to="/" className="flex items-center gap-2.5 transition hover:opacity-90 flex-shrink-0">
+          <Link to="/" className="flex items-center gap-2.5 min-h-[44px] transition hover:opacity-90 flex-shrink-0">
             <img
               src={theme === 'market' ? MARKET_LOGO_PATH : meta.logo}
               alt={meta.name}

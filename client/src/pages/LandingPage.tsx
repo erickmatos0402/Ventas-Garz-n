@@ -227,7 +227,7 @@ export const LandingPage: React.FC = () => {
                         placeholder={meta.searchPlaceholder}
                         className="flex-1 bg-transparent outline-none text-dark placeholder:text-gray-400 min-w-0"
                       />
-                      <button type="submit" className="btn-signature px-4 sm:px-6 py-2.5 flex-shrink-0">
+                      <button type="submit" className="btn-signature px-4 sm:px-6 py-3 flex-shrink-0">
                         <span className="sm:hidden" aria-hidden>
                           <Search size={18} />
                         </span>
@@ -378,7 +378,7 @@ export const LandingPage: React.FC = () => {
             {promoCards.length === 0 ? (
               <div className="md:col-span-2 ios-glass rounded-3xl p-10 text-center">
                 <p className="text-gray-500">No hay ofertas activas por ahora. Añade productos con descuento en el Admin.</p>
-                <Link to="/admin" className="btn-signature inline-flex px-6 py-2.5 mt-4">
+                <Link to="/admin" className="btn-signature inline-flex px-6 py-3 mt-4">
                   Ir al Admin
                 </Link>
               </div>

@@ -38,10 +38,10 @@ export const Footer: React.FC = () => {
           <div>
             <h4 className="text-lg font-bold mb-4">Navegación</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link to="/products" className="grove-link">Productos</Link></li>
-              <li><Link to="/about" className="grove-link">Acerca de</Link></li>
-              <li><Link to="/faq" className="grove-link">Preguntas Frecuentes</Link></li>
-              <li><Link to="/cart" className="grove-link">Mi Carrito</Link></li>
+              <li><Link to="/products" className="grove-link tap-link">Productos</Link></li>
+              <li><Link to="/about" className="grove-link tap-link">Acerca de</Link></li>
+              <li><Link to="/faq" className="grove-link tap-link">Preguntas Frecuentes</Link></li>
+              <li><Link to="/cart" className="grove-link tap-link">Mi Carrito</Link></li>
             </ul>
           </div>
 
@@ -49,9 +49,9 @@ export const Footer: React.FC = () => {
           <div>
             <h4 className="text-lg font-bold mb-4">Soporte</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link to="/faq" className="grove-link">Medios de Pago</Link></li>
-              <li><Link to="/faq" className="grove-link">Devoluciones</Link></li>
-              <li><Link to="/faq" className="grove-link">Compra al por mayor</Link></li>
+              <li><Link to="/faq" className="grove-link tap-link">Medios de Pago</Link></li>
+              <li><Link to="/faq" className="grove-link tap-link">Devoluciones</Link></li>
+              <li><Link to="/faq" className="grove-link tap-link">Compra al por mayor</Link></li>
             </ul>
           </div>
 
@@ -63,13 +63,13 @@ export const Footer: React.FC = () => {
                 <span className="grove-chip w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
                   <Phone size={14} />
                 </span>
-                <a href="tel:+5356072398" className="grove-link">+53 56072398</a>
+                <a href="tel:+5356072398" className="grove-link tap-link">+53 56072398</a>
               </li>
               <li className="flex items-center gap-2.5 grove-text-soft">
                 <span className="grove-chip w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
                   <Mail size={14} />
                 </span>
-                <a href="mailto:info@ventasgarzon.com" className="grove-link">info@ventasgarzon.com</a>
+                <a href="mailto:info@ventasgarzon.com" className="grove-link tap-link">info@ventasgarzon.com</a>
               </li>
               <li className="flex items-start gap-2.5 grove-text-soft">
                 <span className="grove-chip w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">

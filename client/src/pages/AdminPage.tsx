@@ -124,21 +124,21 @@ const AdminProductCard: React.FC<{
       <div className="flex items-center gap-2 pt-1">
         <button
           onClick={onPreview}
-          className="btn-liquid-ghost inline-flex items-center justify-center py-2 px-3 text-sm"
+          className="btn-liquid-ghost tap-icon inline-flex items-center justify-center py-2 px-3 text-sm"
           title="Ver imagen"
         >
           <ImageIcon size={14} />
         </button>
         <button
           onClick={onEdit}
-          className="btn-liquid-ghost flex-1 inline-flex items-center justify-center gap-1.5 py-2 text-sm"
+          className="btn-liquid-ghost tap-icon flex-1 inline-flex items-center justify-center gap-1.5 py-2 text-sm"
         >
           <Pencil size={14} />
           Editar
         </button>
         <button
           onClick={onDelete}
-          className="btn-liquid-ghost text-danger inline-flex items-center justify-center py-2 px-3 text-sm"
+          className="btn-liquid-ghost tap-icon text-danger inline-flex items-center justify-center py-2 px-3 text-sm"
         >
           <Trash2 size={14} />
         </button>
@@ -162,7 +162,7 @@ const ImagePreviewModal: React.FC<{ product: Product; onClose: () => void }> = (
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-display font-bold text-dark truncate pr-3">{product.name}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-dark transition flex-shrink-0" aria-label="Cerrar">
+          <button onClick={onClose} className="tap-icon text-gray-400 hover:text-dark transition flex-shrink-0" aria-label="Cerrar">
             <X size={22} />
           </button>
         </div>
@@ -329,7 +329,7 @@ export const AdminPage: React.FC = () => {
               <h3 className="font-display text-xl font-bold text-dark">
                 {modalMode === 'create' ? 'Nuevo Producto' : 'Editar Producto'}
               </h3>
-              <button onClick={() => setModalMode(null)} className="text-gray-400 hover:text-dark transition">
+              <button onClick={() => setModalMode(null)} className="tap-icon text-gray-400 hover:text-dark transition">
                 <X size={22} />
               </button>
             </div>
@@ -505,7 +505,7 @@ export const AdminPage: React.FC = () => {
                       type="button"
                       key={em}
                       onClick={() => setForm({ ...form, emoji: em })}
-                      className={`w-10 h-10 rounded-xl text-xl flex items-center justify-center transition ${
+                      className={`w-11 h-11 rounded-xl text-xl flex items-center justify-center transition ${
                         form.emoji === em ? 'bg-primary/15 ring-2 ring-primary' : 'bg-white/50 hover:bg-white/80'
                       }`}
                     >
@@ -516,13 +516,13 @@ export const AdminPage: React.FC = () => {
               </div>
 
               <div className="flex gap-3 pt-2">
-                <button type="submit" className="btn-liquid flex-1 py-2.5">
+                <button type="submit" className="btn-liquid flex-1 py-3">
                   {modalMode === 'create' ? 'Crear Producto' : 'Guardar Cambios'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setModalMode(null)}
-                  className="btn-liquid-ghost px-6 py-2.5 text-dark"
+                  className="btn-liquid-ghost px-6 py-3 text-dark"
                 >
                   Cancelar
                 </button>
@@ -550,11 +550,11 @@ export const AdminPage: React.FC = () => {
                   deleteProduct(confirmDeleteId);
                   setConfirmDeleteId(null);
                 }}
-                className="btn-liquid flex-1 py-2.5"
+                className="btn-liquid flex-1 py-3"
               >
                 Sí, eliminar
               </button>
-              <button onClick={() => setConfirmDeleteId(null)} className="btn-liquid-ghost flex-1 py-2.5 text-dark">
+              <button onClick={() => setConfirmDeleteId(null)} className="btn-liquid-ghost flex-1 py-3 text-dark">
                 Cancelar
               </button>
             </div>
