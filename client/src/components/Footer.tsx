@@ -11,9 +11,9 @@ export const Footer: React.FC = () => {
 
   return (
     <footer className="grove-theme border-t border-white/10 safe-b safe-l safe-r">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-24 sm:pt-14 sm:pb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20 sm:pt-12 sm:pb-14">
         {/* 1 col en móvil → 2 en tablet → 4 en escritorio */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {/* About */}
           <div>
             <div className="flex items-center gap-3 mb-4">
@@ -58,24 +58,24 @@ export const Footer: React.FC = () => {
           {/* Contact */}
           <div>
             <h4 className="text-lg font-bold mb-4">Contacto</h4>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-center gap-2.5 grove-text-soft">
-                <span className="grove-chip w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Phone size={14} />
+            <ul className="space-y-2 text-[10px]">
+              <li className="flex items-center gap-1.5 grove-text-soft">
+                <span className="grove-chip w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Phone size={12} />
                 </span>
-                <a href="tel:+5356072398" className="grove-link tap-link">+53 56072398</a>
+                <a href="tel:+5356072398" className="grove-link tap-link" style={{fontSize: '0.85rem'}}>+53 56072398</a>
               </li>
-              <li className="flex items-center gap-2.5 grove-text-soft">
-                <span className="grove-chip w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Mail size={14} />
+              <li className="flex items-center gap-1.5 grove-text-soft">
+                <span className="grove-chip w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Mail size={12} />
                 </span>
-                <a href="mailto:info@ventasgarzon.com" className="grove-link tap-link">info@ventasgarzon.com</a>
+                <a href="mailto:info@ventasgarzon.com" className="grove-link tap-link" style={{fontSize: '0.85rem'}}>info@ventasgarzon.com</a>
               </li>
-              <li className="flex items-start gap-2.5 grove-text-soft">
-                <span className="grove-chip w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
-                  <MapPin size={14} />
+              <li className="flex items-start gap-1.5 grove-text-soft">
+                <span className="grove-chip w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0">
+                  <MapPin size={12} />
                 </span>
-                <span>Santiago de Cuba, Cuba</span>
+                <span style={{fontSize: '0.85rem'}}>Santiago de Cuba, Cuba</span>
               </li>
             </ul>
           </div>
@@ -83,9 +83,9 @@ export const Footer: React.FC = () => {
 
         {/* pb extra en móvil: la burbuja flotante de contacto (56px, fija
             abajo a la derecha) taparía el aviso de copyright. */}
-        <div className="border-t border-white/10 mt-10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 grove-text-soft text-sm">
+        <div className="border-t border-white/10 mt-6 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 grove-text-soft text-xs">
           <p>&copy; {currentYear} {meta.name}. Todos los derechos reservados.</p>
-          <div className="grove-chip rounded-full px-4 py-1.5 text-xs font-semibold grove-text">
+          <div className="grove-chip rounded-full px-3 py-1 text-[10px] font-semibold grove-text">
             {meta.id === 'market' ? 'Hecho con orgullo en Cuba 🌿' : 'Moda con historia ♻️'}
           </div>
         </div>
