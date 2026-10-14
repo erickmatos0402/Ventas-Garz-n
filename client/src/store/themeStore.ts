@@ -36,8 +36,17 @@ export const useThemeStore = create<ThemeStore>()(
     }),
     {
       name: 'store-theme',
+      // Solo el tema es un dato persistente: `switching` y `pendingTheme`
+      // son transitorios. Si se guardaran y una recarga cortara la
+      // animación a medias, `setTheme` saldría antes de tiempo para
+      // siempre y el conmutador de tienda quedaría bloqueado.
+      partialize: (state) => ({ theme: state.theme }),
       onRehydrateStorage: () => (state) => {
-        if (state?.theme) applyToDocument(state.theme);
+        if (!state) return;
+        // Red de seguridad para un estado ya guardado con el fallo.
+        state.switching = false;
+        state.pendingTheme = null;
+        applyToDocument(state.theme);
       },
     }
   )

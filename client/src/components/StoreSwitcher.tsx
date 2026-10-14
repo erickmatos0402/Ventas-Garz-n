@@ -22,7 +22,7 @@ export const StoreSwitcher: React.FC = () => {
       items={OPTIONS}
       activeId={theme}
       onChange={(id) => setTheme(id as StoreTheme)}
-      className="text-xs sm:text-sm"
+      size="sm"
     />
   );
 };

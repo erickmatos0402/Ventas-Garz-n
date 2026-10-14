@@ -79,12 +79,10 @@ const CarouselCard: React.FC<CarouselCardProps> = ({
       className="rounded-3xl overflow-hidden flex flex-col transition-all duration-500 ease-in-out cursor-pointer"
       style={{
         width,
-        background: isBoutique
-          ? 'linear-gradient(165deg, #fffaf3 0%, #f6ecdc 100%)'
-          : 'linear-gradient(165deg, #ffffff 0%, #eaf5f2 100%)',
-        border: isBoutique
-          ? '1px solid rgba(185, 154, 111, 0.30)'
-          : '1px solid rgba(84, 131, 24, 0.20)',
+        // Superficie del tema: blanco -> tinte del tema (--c-soft-rgb) con
+        // borde del primario. Sin hex propios, así cada tienda usa su paleta.
+        background: 'linear-gradient(165deg, rgba(255, 255, 255, 0.94) 0%, rgba(var(--c-soft-rgb), 0.92) 100%)',
+        border: '1px solid rgba(var(--c-primary-rgb), 0.28)',
         boxShadow: isActive
           ? '0 26px 60px -14px rgba(var(--c-shadow-rgb), 0.45), 0 10px 26px rgba(var(--c-shadow-rgb), 0.18), inset 0 1px 0 rgba(255,255,255,0.85)'
           : '0 8px 22px rgba(var(--c-shadow-rgb), 0.10), inset 0 1px 0 rgba(255,255,255,0.6)',
@@ -108,11 +106,9 @@ const CarouselCard: React.FC<CarouselCardProps> = ({
 
         <span
           className="absolute top-3 left-3 z-10 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white shadow-sm"
-          style={{
-            background: isBoutique
-              ? 'linear-gradient(135deg, #b99a6f, #9a7b4f)'
-              : 'linear-gradient(135deg, #548318, #40660f)',
-          }}
+          // Tokens oscuros del tema: la etiqueta va en blanco y debe
+          // mantener contraste en las dos tiendas.
+          style={{ background: 'linear-gradient(135deg, var(--c-primary-dark), var(--c-grove-2))' }}
         >
           {status}
         </span>

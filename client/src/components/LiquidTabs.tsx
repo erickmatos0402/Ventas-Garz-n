@@ -1,7 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { trackBubblePointer, resetBubblePointer } from '../utils';
 
 export interface LiquidTabItem {
   id: string;
@@ -20,14 +18,19 @@ interface LiquidTabsProps {
   orientation?: 'horizontal' | 'vertical';
   /** Permite que las opciones salten de línea (grupos anchos). */
   wrap?: boolean;
+  /** `sm` para barras estrechas (conmutador de tienda en el header). */
+  size?: 'sm' | 'md';
 }
 
 /**
- * LiquidTabs — grupo de opciones con el MISMO efecto del menú: un blob
- * líquido marca la opción activa y un blob "viajero" se derrama hacia la
- * opción apuntada. Sirve tanto para botones como para enlaces (item.to) y
- * se usa en el menú, el conmutador de tienda, el menú móvil y los accesos
- * rápidos del Hero, de modo que el efecto sea idéntico en todo el sitio.
+ * LiquidTabs — grupo de opciones con la opción activa marcada por una
+ * pastilla de cristal estática. Sirve tanto para botones como para
+ * enlaces (item.to) y se usa en el menú, el conmutador de tienda y los
+ * filtros del catálogo.
+ *
+ * El efecto "burbuja" original (blob que viajaba hacia la opción apuntada
+ * y brillo especular que seguía al puntero) se retiró: competía con el
+ * foco de teclado y hacía ruido en la navegación.
  */
 export const LiquidTabs: React.FC<LiquidTabsProps> = ({
   items,
@@ -36,15 +39,14 @@ export const LiquidTabs: React.FC<LiquidTabsProps> = ({
   className = '',
   orientation = 'horizontal',
   wrap = false,
+  size = 'md',
 }) => {
-  const [hoverId, setHoverId] = React.useState<string | null>(null);
-  // Aísla las animaciones de layout entre grupos que conviven en pantalla
-  // (p. ej. el menú y los accesos del Hero): sin esto, el blob "volaría"
-  // de un grupo a otro al compartir el mismo layoutId.
-  const uid = React.useId();
-
+  // El padding va en la opción (no en el contenedor) para poder ajustarlo
+  // sin tocar la pastilla activa, que se mide con `inset` negativo.
+  const tabSize = size === 'sm' ? 'px-3 py-1.5 text-xs' : 'px-4 py-2 text-sm';
   const containerClass = [
     'liquid-tabs',
+    size === 'sm' ? 'is-compact' : '',
     orientation === 'vertical' ? 'is-vertical' : '',
     wrap ? 'is-wrap' : '',
     className,
@@ -53,46 +55,19 @@ export const LiquidTabs: React.FC<LiquidTabsProps> = ({
     .join(' ');
 
   return (
-    <div className={containerClass} onMouseLeave={() => setHoverId(null)}>
+    <div className={containerClass}>
       {items.map((item) => {
         const isActive = item.id === activeId;
-        const isHover = hoverId === item.id;
 
         const sharedProps = {
-          onMouseEnter: () => setHoverId(item.id),
-          onPointerMove: trackBubblePointer,
-          onPointerLeave: resetBubblePointer,
-          className: `liquid-tab px-4 py-2 text-sm ${isActive ? 'text-primary-deep' : ''}`,
+          className: `liquid-tab ${tabSize} ${isActive ? 'text-primary-deep' : ''}`,
           'aria-current': isActive ? ('true' as const) : undefined,
           'aria-pressed': item.to ? undefined : isActive,
         };
 
         const content = (
           <>
-            {/* Blob viajero: se derrama hacia la opción apuntada */}
-            <AnimatePresence>
-              {isHover && !isActive && (
-                <motion.span
-                  key="traveler"
-                  layoutId={`${uid}-traveler`}
-                  className="liquid-tab-traveler"
-                  initial={{ opacity: 0, scaleX: 0.35 }}
-                  animate={{ opacity: 1, scaleX: 1 }}
-                  exit={{ opacity: 0, scaleX: 0.35 }}
-                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                />
-              )}
-            </AnimatePresence>
-
-            {/* Blob principal de la opción activa */}
-            {isActive && (
-              <motion.span
-                layoutId={`${uid}-blob`}
-                className="liquid-tab-blob"
-                transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-              />
-            )}
-
+            {isActive && <span className="liquid-tab-blob" aria-hidden />}
             <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
               {item.icon}
               {item.label}
@@ -109,12 +84,7 @@ export const LiquidTabs: React.FC<LiquidTabsProps> = ({
         }
 
         return (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => onChange?.(item.id)}
-            {...sharedProps}
-          >
+          <button key={item.id} type="button" onClick={() => onChange?.(item.id)} {...sharedProps}>
             {content}
           </button>
         );

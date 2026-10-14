@@ -51,7 +51,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
       transition={{ type: 'spring', stiffness: 300, damping: 22 }}
       onPointerMove={trackBubblePointer}
       onPointerLeave={resetBubblePointer}
-      className="ios-glass bubble-hl rounded-3xl overflow-hidden flex flex-col h-full"
+      className="ios-glass bubble-hl rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col h-full"
     >
       {/* Imagen del producto: ventana ancha con relación fija, recorta con object-cover */}
       <div className="relative w-full aspect-[16/10] overflow-hidden bg-white/60">
@@ -63,13 +63,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
           onError={onError}
         />
       </div>
-      <div className="p-5 flex flex-col flex-1">
-        <h3 className="font-bold text-lg text-dark mb-1.5 line-clamp-2">{product.name}</h3>
-        <p className="text-gray-500 text-sm mb-3 line-clamp-2">{product.description}</p>
+      {/* La tarjeta debe caber en dos columnas de móvil: tipografía y aire
+          se reducen por debajo de `sm` para que quepan la foto, el precio,
+          la cantidad y el botón sin apilarse en una sola columna. */}
+      <div className="p-3 sm:p-5 flex flex-col flex-1">
+        <h3 className="font-bold text-[13px] sm:text-lg text-dark mb-1 sm:mb-1.5 line-clamp-2 leading-tight">{product.name}</h3>
+        <p className="text-gray-500 text-[11px] sm:text-sm mb-2 sm:mb-3 line-clamp-2 leading-snug">{product.description}</p>
 
         {/* Rating */}
         {product.rating && (
-          <div className="flex items-center space-x-1 mb-3">
+          <div className="flex items-center space-x-0.5 sm:space-x-1 mb-2 sm:mb-3">
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
@@ -82,35 +85,36 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
         )}
 
         {/* Precio */}
-        <div className="mb-4">
+        <div className="mb-2.5 sm:mb-4">
           {product.discount ? (
             <>
-              <p className="text-sm text-gray-400 line-through">{formatPrice(product.price)}</p>
-              <p className="text-2xl font-bold text-primary-deep">{formatPrice(finalPrice)}</p>
+              <p className="text-[11px] sm:text-sm text-gray-400 line-through">{formatPrice(product.price)}</p>
+              <p className="text-base sm:text-2xl font-bold text-primary-deep leading-tight">{formatPrice(finalPrice)}</p>
             </>
           ) : (
-            <p className="text-2xl font-bold text-primary-deep">{formatPrice(product.price)}</p>
+            <p className="text-base sm:text-2xl font-bold text-primary-deep leading-tight">{formatPrice(product.price)}</p>
           )}
-          <p className={`text-xs ${product.stock > 0 ? 'text-gray-500' : 'text-danger font-semibold'}`}>
+          <p className={`text-[11px] sm:text-xs ${product.stock > 0 ? 'text-gray-500' : 'text-danger font-semibold'}`}>
             {product.stock > 0 ? `${product.stock} disponibles` : 'Agotado'}
           </p>
         </div>
 
-        {/* Cantidad y acción */}
-        <div className="mt-auto flex items-center gap-2">
-          <div className="liquid-badge flex items-center rounded-full px-1">
+        {/* Cantidad y acción: en columnas estrechas van uno debajo del otro,
+            en cuanto hay ancho suficiente vuelven a la misma fila. */}
+        <div className="mt-auto flex flex-col min-[400px]:flex-row items-stretch min-[400px]:items-center gap-2">
+          <div className="liquid-badge flex items-center justify-center min-[400px]:justify-start rounded-full px-1 min-[400px]:flex-shrink-0">
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="w-11 h-11 sm:w-9 sm:h-9 rounded-full text-dark hover:bg-white/70 transition text-lg leading-none"
+              className="hit-expand flex-1 min-[400px]:flex-none w-9 h-9 rounded-full text-dark hover:bg-white/70 transition text-lg leading-none"
               disabled={product.stock === 0}
               aria-label="Restar cantidad"
             >
               −
             </button>
-            <span className="w-8 text-center font-bold text-dark text-sm">{quantity}</span>
+            <span className="w-7 sm:w-8 text-center font-bold text-dark text-sm">{quantity}</span>
             <button
               onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-              className="w-11 h-11 sm:w-9 sm:h-9 rounded-full text-dark hover:bg-white/70 transition text-lg leading-none"
+              className="hit-expand flex-1 min-[400px]:flex-none w-9 h-9 rounded-full text-dark hover:bg-white/70 transition text-lg leading-none"
               disabled={product.stock === 0}
               aria-label="Sumar cantidad"
             >
@@ -121,9 +125,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
             whileTap={{ scale: product.stock > 0 ? 0.95 : 1 }}
             onClick={handleAddToCart}
             disabled={product.stock === 0}
-            className={`btn-liquid flex-1 py-3 sm:py-2.5 flex items-center justify-center space-x-2 disabled:cursor-not-allowed ${justAdded ? 'text-primary-deep' : ''}`}
+            className={`btn-liquid flex-1 min-[400px]:py-2.5 py-3 text-[13px] sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 disabled:cursor-not-allowed ${justAdded ? 'text-primary-deep' : ''}`}
           >
-            {justAdded ? <Check size={18} /> : <ShoppingCart size={18} />}
+            {justAdded ? <Check size={17} /> : <ShoppingCart size={17} />}
             <span>{product.stock === 0 ? 'Agotado' : justAdded ? '¡Añadido!' : 'Agregar'}</span>
           </motion.button>
         </div>

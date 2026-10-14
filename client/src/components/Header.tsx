@@ -96,10 +96,10 @@ export const Header: React.FC = () => {
               <Link
                 key={item.to}
                 to={item.to}
-                className="nav-link md:inline-block min-h-[36px] px-2 md:px-3 text-[10px] sm:text-sm font-medium tracking-wide"
+                className="nav-link md:inline-block min-h-[40px] px-3 md:px-4 text-[12px] sm:text-base font-medium tracking-wide"
                 aria-current={isActive(item.to) ? 'page' : undefined}
               >
-                {item.to === '/admin' && <Settings size={12} aria-hidden />}
+                {item.to === '/admin' && <Settings size={14} aria-hidden />}
                 {item.label}
               </Link>
             ))}

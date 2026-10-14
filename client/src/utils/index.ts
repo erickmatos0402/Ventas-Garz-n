@@ -2,8 +2,9 @@ import type { PointerEvent } from 'react';
 
 /**
  * Bubble Highlight (estilo iOS): guarda la posición del puntero dentro de la
- * burbuja en las variables --mx / --my para que el brillo especular la siga
- * (ver `.liquid-tab::after` en index.css).
+ * superficie en las variables --mx / --my para que el brillo especular la
+ * siga (ver `.bubble-hl::after` en index.css). Ya no se usa en el menú: solo
+ * en las tarjetas y bloques que mantienen ese brillo.
  */
 export function trackBubblePointer(event: PointerEvent<HTMLElement>): void {
   const element = event.currentTarget;

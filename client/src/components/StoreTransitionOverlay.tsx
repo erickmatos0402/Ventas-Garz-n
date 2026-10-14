@@ -8,15 +8,17 @@ const STORE_META = {
     label: 'Ventas Garzón',
     tagline: 'Tu mercado de confianza',
     icon: ShoppingBasket,
-    colors: ['#0B7A43', '#10A55E', '#2C9DB0'],
+    // Paleta del cliente: verde azulado -> azul -> azul profundo
+    colors: ['#0A7F5E', '#0675A0', '#14406D'],
     logo: '/img/Fotos/logo.jpg',
   },
   boutique: {
     label: 'Garzón Chic',
     tagline: 'Venta de garaje online',
     icon: ShoppingBag,
-    // Colores muestreados del propio logo de la boutique (crema, cobre y dorado)
-    colors: ['#3A3128', '#906030', '#C09060'],
+    // Paleta del cliente en sus tonos oscuros: la etiqueta sobre la onda
+    // va en blanco, así que el barrido necesita luminancia baja.
+    colors: ['#7D5A44', '#66462F', '#453021'],
     logo: '/img/logo_chic.jpg',
   },
 } as const;

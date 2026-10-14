@@ -15,7 +15,7 @@ module.exports = {
         'primary-deep': 'var(--c-primary-deep)',
         'primary-dark': 'var(--c-primary-dark)',
         'primary-ink': 'var(--c-grove-2)',
-        leaf: '#2E7D57',
+        leaf: '#0A7F5E',
         mint: 'var(--c-soft)',
         moss: 'var(--c-soft-2)',
         // Acento "agua" del mercado: ahora sale del eje azul marino del
@@ -24,8 +24,8 @@ module.exports = {
         'aqua-deep': 'var(--c-grove-1)',
         'aqua-soft': 'var(--c-soft)',
         // Acentos de moda sostenible (boutique Garzón Chic)
-        wicker: '#C2A383',
-        'wicker-deep': '#9A7B54',
+        wicker: '#B2967D',
+        'wicker-deep': '#7D5A44',
         denim: '#4B637B',
         'denim-deep': '#3A4E61',
         sage: '#818D7A',

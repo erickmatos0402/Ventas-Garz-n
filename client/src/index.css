@@ -56,104 +56,157 @@ body {
 
 /* Tema 1: Ventas Garzón (mercado)
    ------------------------------------------------------------
-   PALETA ARMONIZADA — DOS EJES tomados de la foto del Hero
-   (Fotos/hero0.jpg) y del logo del mercado (Fotos/logo.jpg):
-     · fondos menta/agua muy claros  #e1f2f2 · #e0edd5 · #c4e5f1
-     · verde oliva (eje 1)           #598e15 · #548318 · #d9ecc0
-     · azul marino (eje 2)           #0d2e54 · #12365e · #1d4e7a
-   Se retiró el oro #e1ab4e/#c8b359 y el azul vivo de acento para
-   evitar variedad: todo color del sitio sale de estos dos ejes más
-   la menta de fondo. */
+   PALETA DEL CLIENTE (4 colores base):
+     #0A7F5E  verde azulado  -> primario, botones, acentos
+     #0675A0  azul          -> acento de texto y detalles
+     #14406D  azul profundo -> superficies oscuras (footer, velos)
+     #05242B  casi negro    -> texto y velo más denso
+   Los pasos intermedios (hover, bordes, velos con alfa, tintes
+   claros de fondo) son derivaciones de esos cuatro; no se añade
+   ningún tono fuera de la paleta. */
 html[data-theme='market'],
 :root {
-  --c-bg-1: #f2f9f6; /* menta claro de la foto (#e1f2f2) */
-  --c-bg-2: #e4f0ea; /* menta/agua un paso más densa (#e0edd5 + #c4e5f1) */
-  --c-bg-glow-1: rgba(84, 131, 24, 0.10); /* oliva (eje 1) */
-  --c-bg-glow-2: rgba(13, 46, 84, 0.09); /* azul marino (eje 2) */
-  --c-bg-glow-3: rgba(196, 229, 241, 0.16); /* menta/agua de la foto */
-  --c-ink: #10283c; /* azul marino del logo (#0d2e54), apto para texto */
-  --c-primary: #548318; /* verde oliva de la foto y del logo (#598e15) */
-  --c-primary-deep: #40660f;
-  --c-primary-dark: #2f4c0a;
-  --c-soft: #eaf4dc; /* oliva pálido de la foto (#e0edd5) */
-  --c-soft-2: #d3e6b3; /* (#c6ddab) */
-  --c-grove-1: #12365e;
-  --c-grove-2: #0d2e54; /* azul marino del logo */
-  --c-grove-3: #071c37;
-  --c-soft-rgb: 234, 244, 220;
-  --c-deep-rgb: 64, 102, 15;
-  --c-ink-rgb: 16, 40, 60;
-  --c-primary-rgb: 84, 131, 24;
-  --c-btn-text: #2f4c0a;
-  --c-tab-text: #2b4a12;
-  --c-eyebrow: #3f6d0e; /* oliva profundo, legible sobre menta */
-  --c-disabled: #96ab84;
-  --c-scrollbar-track: #e1efe6;
-  --c-text-mid: #6f9d22;
-  --c-text-accent: #1d4e7a; /* azul marino legible (eje 2) */
-  --c-grove-text: #eaf2f9;
-  --c-grove-link: #d7e8f7; /* cielo muy claro: legible sobre el velo de la foto */
-  --c-glow-soft: #d9ecc0; /* oliva muy claro: acento legible sobre el marino */
-  --c-glow-soft-rgb: 217, 236, 192;
-  --c-btn-grove-1: #5e8f1a;
-  --c-btn-grove-2: #3f6b0c;
-  --c-aurora-1: rgba(142, 189, 104, 0.30); /* oliva claro */
-  --c-aurora-2: rgba(196, 229, 241, 0.42); /* agua clara */
-  --c-aurora-3: rgba(234, 244, 220, 0.55); /* oliva crema */
-  --c-shadow-rgb: 16, 40, 60;
-  --c-shadow-2-rgb: 13, 46, 84;
-  --c-btn-inset-rgb: 47, 76, 10;
-  --c-photo-1: rgba(13, 46, 84, 0.55);
-  --c-photo-2: rgba(7, 28, 55, 0.82);
-  /* Foto compartida por la barra (Header) y la sección Hero */
-  --c-hero-photo: url('/img/Fotos/hero0.jpg');
-  --c-disabled-1: rgba(242, 249, 246, 0.9);
-  --c-disabled-2: rgba(228, 240, 234, 0.8);
+  --c-bg-1: #f1f8f6; /* velo claro de #0A7F5E */
+  --c-bg-2: #e2f0ec;
+  --c-bg-glow-1: rgba(10, 127, 94, 0.10); /* #0A7F5E */
+  --c-bg-glow-2: rgba(6, 117, 160, 0.09); /* #0675A0 */
+  --c-bg-glow-3: rgba(195, 225, 216, 0.18);
+  --c-ink: #05242b; /* #05242B */
+  --c-primary: #0a7f5e; /* #0A7F5E */
+  --c-primary-deep: #086a4e;
+  --c-primary-dark: #05543d;
+  --c-soft: #e4f3ee;
+  --c-soft-2: #c3e1d8;
+  --c-grove-1: #14406d; /* #14406D */
+  --c-grove-2: #0e3358;
+  --c-grove-3: #05242b; /* #05242B */
+  --c-soft-rgb: 228, 243, 238;
+  --c-deep-rgb: 8, 106, 78;
+  --c-ink-rgb: 5, 36, 43;
+  --c-primary-rgb: 10, 127, 94;
+  --c-btn-text: #05543d;
+  --c-tab-text: #0a6c50;
+  --c-eyebrow: #086a4e;
+  --c-disabled: #8fb3ae;
+  --c-scrollbar-track: #e2f0ec;
+  --c-text-mid: #0675a0; /* #0675A0 */
+  --c-text-accent: #0675a0; /* #0675A0 */
+  --c-grove-text: #eaf4f2;
+  --c-grove-link: #c6e0da;
+  --c-glow-soft: #a8e3d2;
+  --c-glow-soft-rgb: 168, 227, 210;
+  --c-btn-grove-1: #0a7f5e; /* #0A7F5E */
+  --c-btn-grove-2: #05543d; /* verde oscuro derivado */
+  --c-aurora-1: rgba(10, 127, 94, 0.28); /* #0A7F5E */
+  --c-aurora-2: rgba(6, 117, 160, 0.26); /* #0675A0 */
+  --c-aurora-3: rgba(233, 245, 242, 0.55);
+  --c-shadow-rgb: 5, 36, 43;
+  --c-shadow-2-rgb: 10, 127, 94;
+  --c-btn-inset-rgb: 5, 66, 48;
+  --c-photo-1: rgba(10, 127, 94, 0.55);
+  --c-photo-2: rgba(5, 36, 43, 0.82);
+  /* Foto del header y del hero (736×1619, vertical, rotación grabada) */
+  --c-hero-photo: url('/img/Fotos/hero.jpg');
+  /* Velos: barra (h) y hero (x), desde #14406D y #05242B */
+  --c-veil-h1: rgba(6, 90, 70, 0.91); /* cristal verde desde #0A7F5E */
+  --c-veil-h2: rgba(5, 62, 52, 0.93);
+  --c-veil-h3: rgba(5, 36, 43, 0.95);
+  --c-veil-x1: rgba(4, 74, 58, 0.84); /* velo verde del hero (#0A7F5E) */
+  --c-veil-x2: rgba(4, 58, 48, 0.80);
+  --c-veil-x3: rgba(5, 36, 43, 0.86);
+  /* Capas de legibilidad sobre foto: categorías, ofertas y cross-sell */
+  --c-scrim-1: rgba(5, 36, 43, 0.86);
+  --c-scrim-2: rgba(10, 127, 94, 0.34); /* #0A7F5E */
+  --c-scrim-3: rgba(4, 74, 58, 0.55);
+  --c-scrim-4: rgba(3, 24, 29, 0.94);
+  --c-scrim-5: rgba(6, 117, 160, 0.42); /* #0675A0 */
+  /* Capa del bloque cross-sell cuando muestra la tienda CONTRARIA:
+     siempre la paleta de Boutique, no la del tema activo. */
+  --c-cross-1: rgba(56, 38, 26, 0.94);
+  --c-cross-2: rgba(178, 150, 125, 0.38); /* #B2967D */
+  --c-disabled-1: rgba(241, 248, 246, 0.9);
+  --c-disabled-2: rgba(226, 240, 236, 0.8);
+  /* Footer (nuevo estilo líquido): verde dominante */
+  --c-footer-1: rgba(10, 127, 94, 0.62); /* #0A7F5E */
+  --c-footer-2: rgba(6, 117, 160, 0.40); /* #0675A0 */
+  --c-footer-base-1: #053a2d; /* verde profundo derivado de #0A7F5E */
+  --c-footer-base-2: #05242b; /* #05242B */
 }
 
-/* Tema 2: Garzón Chic (moda sostenible segunda mano — paleta CREMA / BEIGE HUEVO y Dorado) */
+/* Tema 2: Garzón Chic (moda sostenible de segunda mano)
+   ------------------------------------------------------------
+   PALETA DEL CLIENTE (4 colores base):
+     #D7C9B8  arena          -> fondos suaves y acentos claros
+     #B2967D  topo           -> primario (botones, chips)
+     #F5F1EA  crema          -> fondo principal y texto sobre oscuro
+     #7D5A44  marrón         -> texto, superficies oscuras y velos
+   Los pasos intermedios son derivaciones de esos cuatro. */
 html[data-theme='boutique'] {
-  --c-bg-1: #faf6f0; /* crema bebé claro */
-  --c-bg-2: #f4ecdc; /* beige crema suave */
-  --c-bg-glow-1: rgba(233, 224, 200, 0.28); /* crema dorada */
-  --c-bg-glow-2: rgba(214, 192, 156, 0.14); /* crema dorada suave */
-  --c-bg-glow-3: rgba(168, 146, 114, 0.08); /* dorado suave */
-  --c-ink: #3a3128; /* cantimplora cálido */
-  --c-primary: #b99a6f; /* dorado suave */
-  --c-primary-deep: #9a7b4f;
-  --c-primary-dark: #7d5f3d;
-  --c-soft: #f8f1e3; /* crema sutil */
-  --c-soft-2: #f0e3cf; /* crema dorada claro */
-  --c-grove-1: #4a3e2b;
-  --c-grove-2: #3a3128;
-  --c-grove-3: #2a231b;
-  --c-soft-rgb: 248, 241, 227;
-  --c-deep-rgb: 154, 123, 79;
-  --c-ink-rgb: 58, 49, 40;
-  --c-primary-rgb: 185, 154, 111;
-  --c-btn-text: #5a4932;
-  --c-tab-text: #7a6248;
-  --c-eyebrow: #c9a96e; /* dorado crema */
-  --c-disabled: #d8c9ad;
-  --c-scrollbar-track: #f2e8d4;
-  --c-text-mid: #b89462; /* dorado crema */
-  --c-text-accent: #7a6248; /* dorado suave */
-  --c-grove-text: #fbf5e6; /* crema dorada */
-  --c-grove-link: #e6d4ad;
-  --c-glow-soft: #e6d3a6; /* dorado crema */
-  --c-glow-soft-rgb: 230, 211, 166; /* dorado crema */
-  --c-btn-grove-1: #bfa07c;
-  --c-btn-grove-2: #ba916a;
-  --c-aurora-1: rgba(238, 227, 204, 0.4);
-  --c-aurora-2: rgba(216, 195, 156, 0.3);
-  --c-aurora-3: rgba(250, 246, 233, 0.6);
-  --c-shadow-rgb: 144, 118, 79;
-  --c-shadow-2-rgb: 168, 137, 93;
-  --c-btn-inset-rgb: 74, 60, 44;
-  --c-photo-1: rgba(74, 62, 45, 0.45);
-  --c-photo-2: rgba(42, 35, 27, 0.65);
-  --c-disabled-1: rgba(250, 246, 233, 0.9);
-  --c-disabled-2: rgba(240, 231, 211, 0.85);
+  --c-bg-1: #f5f1ea; /* #F5F1EA */
+  --c-bg-2: #ece4d6;
+  --c-bg-glow-1: rgba(215, 201, 184, 0.32); /* #D7C9B8 */
+  --c-bg-glow-2: rgba(178, 150, 125, 0.16); /* #B2967D */
+  --c-bg-glow-3: rgba(125, 90, 68, 0.07); /* #7D5A44 */
+  --c-ink: #7d5a44; /* #7D5A44 */
+  --c-primary: #b2967d; /* #B2967D */
+  --c-primary-deep: #9a7e66;
+  --c-primary-dark: #7d5a44; /* #7D5A44 */
+  --c-soft: #f3ede3;
+  --c-soft-2: #d7c9b8; /* #D7C9B8 */
+  --c-grove-1: #7d5a44; /* #7D5A44 */
+  --c-grove-2: #66462f;
+  --c-grove-3: #453021;
+  --c-soft-rgb: 243, 237, 227;
+  --c-deep-rgb: 154, 126, 102;
+  --c-ink-rgb: 125, 90, 68;
+  --c-primary-rgb: 178, 150, 125;
+  --c-btn-text: #66462f;
+  --c-tab-text: #7d5a44;
+  --c-eyebrow: #7d5a44; /* #7D5A44 */
+  --c-disabled: #c9bbaa;
+  --c-scrollbar-track: #ede4d7;
+  --c-text-mid: #b2967d; /* #B2967D */
+  --c-text-accent: #7d5a44; /* #7D5A44 */
+  --c-grove-text: #f5f1ea; /* #F5F1EA */
+  --c-grove-link: #d7c9b8; /* #D7C9B8 */
+  --c-glow-soft: #d7c9b8; /* #D7C9B8 */
+  --c-glow-soft-rgb: 215, 201, 184;
+  --c-btn-grove-1: #b2967d; /* #B2967D */
+  --c-btn-grove-2: #7d5a44; /* #7D5A44 */
+  --c-aurora-1: rgba(215, 201, 184, 0.40); /* #D7C9B8 */
+  --c-aurora-2: rgba(178, 150, 125, 0.30); /* #B2967D */
+  --c-aurora-3: rgba(245, 241, 234, 0.60); /* #F5F1EA */
+  --c-shadow-rgb: 125, 90, 68;
+  --c-shadow-2-rgb: 178, 150, 125;
+  --c-btn-inset-rgb: 102, 70, 47;
+  --c-photo-1: rgba(125, 90, 68, 0.45);
+  --c-photo-2: rgba(69, 48, 33, 0.65);
+  --c-disabled-1: rgba(245, 241, 234, 0.9);
+  --c-disabled-2: rgba(236, 228, 214, 0.85);
+  /* Foto del header y del hero (600×738, vertical) */
+  --c-hero-photo: url('/img/Fotos/hero4.jpg');
+  /* Velos cálidos: desde #7D5A44 y #453021 */
+  --c-veil-h1: rgba(84, 60, 42, 0.91); /* cristal cálido */
+  --c-veil-h2: rgba(66, 47, 33, 0.93);
+  --c-veil-h3: rgba(45, 31, 22, 0.95);
+  --c-veil-x1: rgba(125, 90, 68, 0.84);
+  --c-veil-x2: rgba(102, 70, 47, 0.70);
+  --c-veil-x3: rgba(69, 48, 33, 0.82);
+  /* Capas de legibilidad sobre foto */
+  --c-scrim-1: rgba(69, 48, 33, 0.84);
+  --c-scrim-2: rgba(125, 90, 68, 0.32);
+  --c-scrim-3: rgba(102, 70, 47, 0.52);
+  --c-scrim-4: rgba(56, 38, 26, 0.94);
+  --c-scrim-5: rgba(178, 150, 125, 0.38);
+  /* Capa del bloque cross-sell cuando muestra la tienda CONTRARIA:
+     siempre la paleta de Mercado, no la del tema activo. */
+  --c-cross-1: rgba(3, 24, 29, 0.94);
+  --c-cross-2: rgba(6, 117, 160, 0.42); /* #0675A0 */
+  /* Footer (nuevo estilo líquido): cálido, derivado de la paleta */
+  --c-footer-1: rgba(178, 150, 125, 0.40); /* #B2967D */
+  --c-footer-2: rgba(215, 201, 184, 0.35); /* #D7C9B8 */
+  --c-footer-base-1: #453021;
+  --c-footer-base-2: #2a1d14;
 }
 
 ::selection {
@@ -403,6 +456,13 @@ html[data-theme='boutique'] {
     inset 0 -1px 1px rgba(255, 255, 255, 0.25);
 }
 
+/* Variante compacta: pastilla más ajustada (conmutador de tienda, que
+   convive con el logo y el carrito en pantallas estrechas) */
+.liquid-tabs.is-compact {
+  gap: 2px;
+  padding: 4px;
+}
+
 /* Variante vertical (menú móvil): opciones a ancho completo */
 .liquid-tabs.is-vertical {
   display: flex;
@@ -426,9 +486,8 @@ html[data-theme='boutique'] {
   border-radius: 1.5rem;
 }
 
-/* En columna, la burbuja apenas se sale para no invadir la opción vecina */
-.liquid-tabs.is-vertical .liquid-tab > .liquid-tab-blob,
-.liquid-tabs.is-vertical .liquid-tab > .liquid-tab-traveler {
+/* En columna, la marca apenas se sale para no invadir la opción vecina */
+.liquid-tabs.is-vertical .liquid-tab > .liquid-tab-blob {
   inset: -2px;
 }
 
@@ -449,99 +508,28 @@ html[data-theme='boutique'] {
 .liquid-tab > * { position: relative; z-index: 1; }
 
 /* ============================================================
-   BUBBLE HIGHLIGHT (estilo iOS)
+   OPCIÓN ACTIVA
    ------------------------------------------------------------
-   La opción activa del menú se marca con una BURBUJA de cristal
-   líquido: reflejo superior, tinte del tema por debajo y sombra
-   suave. Un blob "viajero" más translúcido se estira hacia la
-   opción apuntada y la burbuja se asienta con un rebote elástico.
-   El brillo especular sigue al puntero gracias a --mx / --my, que
-   escribe trackBubblePointer() (ver src/utils/index.ts).
+   Se marca solo la opción seleccionada, con una pastilla de
+   cristal estática. El efecto "burbuja" que viajaba hacia la
+   opción apuntada (blob móvil + brillo que seguía al puntero)
+   se retiró: ensuciaba el menú y competía con el foco de teclado.
    ============================================================ */
 
-/* Brillo especular que persigue el cursor dentro de cada opción */
-.liquid-tab::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(
-    70px 70px at var(--mx, 50%) var(--my, 50%),
-    rgba(255, 255, 255, 0.55),
-    rgba(255, 255, 255, 0) 70%
-  );
-  opacity: 0;
-  transition: opacity 0.28s ease;
-  pointer-events: none;
-}
-
-.liquid-tab:hover::after,
-.liquid-tab:focus-visible::after { opacity: 1; }
-
-/* Burbuja activa: gota plana y translúcida. Se agranda con `inset`
-   negativo (2px por fuera del relleno del contenedor) para despegar del
-   cuadro de opciones, y pierde el degradado alto-brillo y los reflejos
-   internos para verse más plana y más líquida. */
+/* Pastilla de la opción activa: plana, translúcida y sin animación.
+   Sin backdrop-filter: en fondos oscuros ya se distingue por el tinte
+   y ahorra una capa de composición (importante en móvil). */
 .liquid-tab > .liquid-tab-blob {
   position: absolute;
-  inset: -8px;
+  inset: -4px;
   z-index: 0;
   border-radius: inherit;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.5) 0%,
-    rgba(var(--c-soft-rgb), 0.42) 55%,
-    rgba(var(--c-soft-rgb), 0.3) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(18px) saturate(170%);
-  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  background: rgba(var(--c-primary-rgb), 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow:
-    0 6px 16px rgba(var(--c-shadow-rgb), 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  /* Usa `scale` (no transform) para no pelear con la proyección de
-     layout que anima framer-motion sobre el mismo elemento. */
-  animation: liquidBubbleSettle 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+    0 4px 12px rgba(var(--c-shadow-rgb), 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
   pointer-events: none;
-}
-
-/* Reflejo tenue (arriba) + tinte del tema (abajo), ambos suaves */
-.liquid-tab > .liquid-tab-blob::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    radial-gradient(60% 50% at 50% 0%, rgba(255, 255, 255, 0.55), transparent 68%),
-    radial-gradient(40% 42% at 26% 94%, rgba(var(--c-primary-rgb), 0.14), transparent 74%);
-  pointer-events: none;
-}
-
-@keyframes liquidBubbleSettle {
-  0% { scale: 0.9 0.7; }
-  55% { scale: 1.06 1.08; }
-  100% { scale: 1 1; }
-}
-
-/* Blob viajero: previsualización desenfocada que "se derrama" hacia
-   la opción apuntada antes de que la burbuja se asiente en ella. */
-.liquid-tab > .liquid-tab-traveler {
-  position: absolute;
-  inset: -8px;
-  z-index: 0;
-  border-radius: inherit;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.2));
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(14px) saturate(160%);
-  -webkit-backdrop-filter: blur(14px) saturate(160%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.55),
-    0 4px 12px rgba(var(--c-shadow-rgb), 0.10);
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .liquid-tab > .liquid-tab-blob { animation: none; }
 }
 
 /* TEMA VERDE PROFUNDO: footer y bloques oscuros del sitio */
@@ -762,13 +750,17 @@ h1, h2, h3, h4 {
 
 .header-dark {
   position: relative;
-  /* Foto del tema activo + velo oscuro para contraste del contenido,
-     sin decoración de borrosidad ni burbujas sobre la barra. */
+  /* Foto del tema activo + velo del tema para contraste del contenido. */
   background-image:
-    linear-gradient(160deg, rgba(9, 32, 58, 0.76) 0%, rgba(13, 46, 84, 0.70) 55%, rgba(7, 28, 55, 0.80) 100%),
-    var(--c-hero-photo, url('/img/Fotos/hero0.jpg'));
-  background-size: cover, cover;
-  background-position: center 30%, center 30%;
+    linear-gradient(160deg, var(--c-veil-h1) 0%, var(--c-veil-h2) 55%, var(--c-veil-h3) 100%),
+    var(--c-hero-photo);
+  /* La barra es una franja muy corta: `cover` la recorta a una banda de
+     la foto, que solo aporta textura y color. `background-color` evita
+     cualquier hueco si la foto no llega a cubrirla. */
+  background-size: auto, cover;
+  background-position: center, center 30%;
+  background-repeat: no-repeat, no-repeat;
+  background-color: var(--c-grove-2);
   color: var(--c-grove-text);
   border: none;
   border-bottom: none;
@@ -812,45 +804,20 @@ h1, h2, h3, h4 {
     inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
-/* Reflejo tenue solo en el borde superior: la zona del texto queda limpia */
-.header-dark .liquid-tab > .liquid-tab-blob::before,
-.hero-dark .liquid-tab > .liquid-tab-blob::before {
-  background:
-    radial-gradient(58% 42% at 50% 0%, rgba(255, 255, 255, 0.28), transparent 64%),
-    radial-gradient(38% 34% at 26% 96%, rgba(var(--c-glow-soft-rgb), 0.16), transparent 72%);
-}
-
-.header-dark .liquid-tab > .liquid-tab-traveler,
-.hero-dark .liquid-tab > .liquid-tab-traveler {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
-  border-color: rgba(255, 255, 255, 0.28);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    0 4px 12px rgba(0, 0, 0, 0.22);
-}
-
-.header-dark .liquid-tab::after,
-.hero-dark .liquid-tab::after {
-  background: radial-gradient(
-    70px 70px at var(--mx, 50%) var(--my, 50%),
-    rgba(255, 255, 255, 0.22),
-    rgba(255, 255, 255, 0) 70%
-  );
-}
-
 /* ---------- HERO: misma superficie, esquinas inferiores ovaladas ---------- */
 
 .hero-dark {
   position: relative;
   isolation: isolate;
-  /* FOTO del tema activo + velos oscuro y de color para legibilidad.
-     La foto cubre toda la sección (cover) con foco superior visual. */
+  /* FOTO del tema activo + velos del tema para legibilidad. La foto
+     cubre toda la sección (cover): nunca deja huecos ni se deforma. */
   background-image:
-    linear-gradient(180deg, rgba(7, 28, 55, 0.78) 0%, rgba(9, 36, 64, 0.70) 55%, rgba(7, 28, 55, 0.80) 100%),
-    var(--c-hero-photo, url('/img/Fotos/hero0.jpg'));
+    linear-gradient(180deg, var(--c-veil-x1) 0%, var(--c-veil-x2) 55%, var(--c-veil-x3) 100%),
+    var(--c-hero-photo);
   background-size: auto, cover;
   background-position: center, center 35%;
-  background-repeat: no-repeat;
+  background-repeat: no-repeat, no-repeat;
+  background-color: var(--c-grove-2);
   color: var(--c-grove-text);
   /* BORDE INFERIOR SEMI-OVALADO: la superficie oscura curva al cerrar */
   border-radius: 0 0 50% 50% / 0 0 44px 44px;
@@ -888,20 +855,25 @@ h1, h2, h3, h4 {
   z-index: 1;
 }
 
-/* Tema boutique: foto vertical de moda, centro más alto + velo crema oscuro */
-html[data-theme='boutique'] .header-dark,
-html[data-theme='boutique'] .hero-dark { --c-hero-photo: url('/img/Fotos/hero4.jpg'); }
-html[data-theme='boutique'] .header-dark {
-  background-image:
-    linear-gradient(160deg, rgba(42, 35, 27, 0.88) 0%, rgba(58, 49, 40, 0.80) 55%, rgba(74, 62, 45, 0.72) 100%),
-    var(--c-hero-photo);
-}
+/* Tema boutique: foto de moda en vertical (600×738). Al ser una foto
+   retrato en una franja ancha, el encuadre se ancla arriba para no
+   cortar la prenda y cada capa conserva su propio `background-size`
+   (el bug anterior dejaba la foto en `auto`, sin cubrir la sección). */
 html[data-theme='boutique'] .hero-dark {
   background-image:
-    radial-gradient(1000px 480px at 15% 0%, rgba(185, 154, 111, 0.18), transparent 55%),
-    linear-gradient(180deg, rgba(42, 35, 27, 0.84) 0%, rgba(58, 49, 40, 0.70) 55%, rgba(58, 49, 40, 0.82) 100%),
+    radial-gradient(1000px 480px at 15% 0%, rgba(178, 150, 125, 0.18), transparent 55%),
+    linear-gradient(180deg, var(--c-veil-x1) 0%, var(--c-veil-x2) 55%, var(--c-veil-x3) 100%),
     var(--c-hero-photo);
-  background-position: center, center, center 20%;
+  background-size: auto, auto, cover;
+  background-position: center, center, center 22%;
+}
+
+/* Franjas muy cortas (móvil): la barra recorta la foto a una banda tan
+   fina que conviene elegir qué parte se ve, en ambos temas. */
+@media (max-width: 767px) {
+  .header-dark { background-position: center, center 26%; }
+  .hero-dark { background-position: center, center 28%; }
+  html[data-theme='boutique'] .hero-dark { background-position: center, center, center 16%; }
 }
 
 /* Sobre el velo las etiquetas y el enlace activo van en claro: el oro de
@@ -1149,6 +1121,9 @@ button,
     padding-bottom: 0.75rem;
   }
 
+  /* Enlaces del menú: mismo mínimo táctil que el resto de controles */
+  .nav-link { min-height: 44px; }
+
   /* Opciones horizontales (chips del Hero, filtros del catálogo):
      también 44px de alto. En <a> el min-height solo surte efecto si
      el elemento deja de ser inline, así que se centra con flex. */
@@ -1197,8 +1172,6 @@ h3 {
   .liquid-panel,
   .liquid-badge,
   .liquid-tabs,
-  .liquid-tab > .liquid-tab-blob,
-  .liquid-tab > .liquid-tab-traveler,
   .grove-chip,
   .grove-panel,
   .hero-dark .glass-panel,
@@ -1265,8 +1238,7 @@ body {
   }
 
   .liquid-photo > .liquid-photo-bg > img,
-  .glass-hover,
-  .liquid-tab > .liquid-tab-blob {
+  .glass-hover {
     transform: none !important;
     scale: none !important;
   }
@@ -1283,25 +1255,26 @@ body {
    ------------------------------------------------------------
    Material translúcido al estilo iOS: blur + saturación, canto
    especular superior, borde fino y sombra baja. Se apoya en la
-   paleta del medallón de Mercado: oliva -> verde-agua -> cian ->
-   marino (--c-sig-*), con equivalencia cálida en Boutique.
+   paleta de cada tienda tal cual la dio el cliente (--c-sig-*):
+   verde -> azul -> azul profundo en Mercado, arena -> topo ->
+   marrón en Boutique.
    ============================================================ */
 
 html[data-theme='market'],
 :root {
-  --c-sig-1: #6fa62b; /* oliva vivo del medallón */
-  --c-sig-2: #2f9e7a; /* puente verde-agua */
-  --c-sig-3: #1b6fa8; /* cian del medallón */
-  --c-sig-4: #0d2e54; /* azul marino del medallón */
-  --c-sig-glow: rgba(47, 158, 122, 0.35);
+  --c-sig-1: #0a7f5e; /* #0A7F5E */
+  --c-sig-2: #0675a0; /* #0675A0 */
+  --c-sig-3: #14406d; /* #14406D */
+  --c-sig-4: #05242b; /* #05242B */
+  --c-sig-glow: rgba(6, 117, 160, 0.35);
 }
 
 html[data-theme='boutique'] {
-  --c-sig-1: #d8b877;
-  --c-sig-2: #c69a6b;
-  --c-sig-3: #9a7b54;
-  --c-sig-4: #3a3128;
-  --c-sig-glow: rgba(198, 154, 107, 0.32);
+  --c-sig-1: #d7c9b8; /* #D7C9B8 */
+  --c-sig-2: #b2967d; /* #B2967D */
+  --c-sig-3: #7d5a44; /* #7D5A44 */
+  --c-sig-4: #453021;
+  --c-sig-glow: rgba(178, 150, 125, 0.35);
 }
 
 /* ---------- Superficies iOS ---------- */
@@ -1422,7 +1395,7 @@ html[data-theme='boutique'] {
 
 /* ---------- Acentos de la firma del medallón ---------- */
 
-/* Barra corta con el arco verde -> azul del medallón */
+/* Barra corta con el arco verde del medallón */
 .section-rule {
   display: block;
   width: 48px;
@@ -1441,9 +1414,11 @@ html[data-theme='boutique'] {
   color: transparent;
 }
 
-/* Sobre el velo oscuro del hero el gradiente se aclara para contrastar */
+/* Sobre el velo oscuro del hero el gradiente se aclara para contrastar.
+   Se arma con tokens del tema, así Mercado va en verde/azul y Boutique
+   en crema, sin ningún hex fuera de cada paleta. */
 .hero-dark .text-signature {
-  background: linear-gradient(118deg, #dcefc2 0%, #bfe6d5 46%, #cfe6f7 100%);
+  background: linear-gradient(118deg, var(--c-glow-soft) 0%, var(--c-soft-2) 46%, var(--c-grove-text) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1460,7 +1435,7 @@ html[data-theme='boutique'] {
   .ios-press:hover { transform: none; }
 }
 
-/* Botón firma: gradiente del medallón (oliva -> agua -> cian) */
+/* Botón firma: gradiente del medallón (oliva -> verde -> bosque) */
 .btn-signature {
   position: relative;
   isolation: isolate;
@@ -1561,4 +1536,80 @@ summary:focus-visible {
     align-items: center;
     min-height: 44px;
   }
+}
+
+/* ============================================================
+   NAVEGACIÓN DEL HEADER
+   ------------------------------------------------------------
+   Enlaces planos: sin burbujas ni blobs que viajen. La sección
+   activa se marca con una línea corta bajo el texto, de modo que
+   las cuatro opciones se lean de un vistazo y el foco de teclado
+   quede limpio (el anillo visible lo pone la regla global).
+   ============================================================ */
+
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.7rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+  color: var(--c-grove-link);
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.nav-link:hover { color: #ffffff; background: rgba(255, 255, 255, 0.08); }
+
+.nav-link[aria-current='page'] { color: #ffffff; }
+
+.nav-link[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  left: 0.65rem;
+  right: 0.65rem;
+  bottom: 0.25rem;
+  height: 2px;
+  border-radius: 9999px;
+  background: var(--c-glow-soft);
+}
+
+/* El nombre de la tienda va en claro: sobre el velo oscuro, el `text-dark`
+   del tema (verde profundo) no tendría contraste suficiente. */
+.header-dark .text-dark { color: var(--c-grove-text); }
+
+/* Sugerencias de búsqueda del hero: cada una es un botón independiente
+   sobre el velo oscuro, no una opción dentro de un grupo de pestañas. */
+.quick-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--c-grove-text);
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.quick-chip:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.38);
+}
+
+.quick-chip:active { transform: scale(0.97); }
+
+@media (pointer: coarse) {
+  .quick-chip { min-height: 44px; }
+}
+
+@media (hover: none) {
+  .nav-link:hover { background: transparent; }
 }
