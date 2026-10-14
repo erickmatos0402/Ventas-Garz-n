@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Settings } from 'lucide-react';
+import { ShoppingCart, Settings, ChevronDown } from 'lucide-react';
 import { useThemeStore } from '../store/themeStore';
 import { StoreSwitcher } from './StoreSwitcher';
 import { STORE_META_DATA, MARKET_LOGO_PATH } from '../data/boutiqueData';
@@ -9,10 +9,10 @@ import { useCartStore } from '../store';
 const NAV_ITEMS = [
   { to: '/market', label: 'Mercado' },
   { to: '/boutique', label: 'Boutique' },
-  { to: '/products', label: 'Tienda' },
-  { to: '/about', label: 'Acerca de' },
-  { to: '/faq', label: 'FAQ' },
-  { to: '/admin', label: 'Admin' },];
+  { id: 'tienda', to: '/products', label: 'Tienda' },
+  { id: 'about', to: '/about', label: 'Acerca de' },
+  { id: 'faq', to: '/faq', label: 'FAQ' },
+  { id: 'admin', to: '/admin', label: 'Admin' },];
 
 
 /**
@@ -92,17 +92,57 @@ export const Header: React.FC = () => {
 
           {/* Todas las secciones, siempre visibles (sin menú desplegable) */}
           <div className="order-2 md:order-2 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2 basis-full md:basis-auto">
-            {NAV_ITEMS.map((item) => (
+            {/* Mercado y Boutique como enlaces directos */}
+            <div className="flex items-center gap-2">
               <Link
-                key={item.to}
-                to={item.to}
+                to="/market"
                 className="nav-link md:inline-block min-h-[40px] px-3 md:px-4 text-[12px] sm:text-base font-medium tracking-wide"
-                aria-current={isActive(item.to) ? 'page' : undefined}
-              >
-                {item.to === '/admin' && <Settings size={14} aria-hidden />}
-                {item.label}
+              > Mercado
               </Link>
-            ))}
+              <Link
+                to="/boutique"
+                className="nav-link md:inline-block min-h-[40px] px-3 md:px-4 text-[12px] sm:text-base font-medium tracking-wide"
+              >
+ Boutique
+              </Link>
+            </div>
+            {/* Tienda, Acerca de, FAQ y Admin en un menú dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setIsMenuOpen(true)}
+                className="nav-link md:inline-block min-h-[40px] px-3 md:px-4 text-[12px] sm:text-base font-medium tracking-wide bg-white/5 hover:bg-white/10 rounded-md"
+                aria-haspopup="true"
+                aria-label="Menú"
+              >
+ Menú
+                <ChevronDown size={12} className="ml-1 opacity-60" />
+              </button>
+              {isMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 rounded-md bg-white p-1 shadow-lg z-30" style={{ borderRadius: '0.5rem' }}>
+                  <Link
+                    to="/products"
+                    className="block px-3 py-2 text-sm text-dark hover:bg-white/10"
+                  >
+                    Tienda
+                  </Link>                  <Link
+                    to="/about"
+                    className="block px-3 py-2 text-sm text-dark hover:bg-white/10"
+                  >
+                    Acerca de
+                  </Link>                  <Link
+                    to="/faq"
+                    className="block px-3 py-2 text-sm text-dark hover:bg-white/10"
+                  >
+                    FAQ
+                  </Link>                  <Link
+                    to="/admin"
+                    className="block px-3 py-2 text-sm text-dark hover:bg-white/10"
+                  >
+                    Admin
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </nav>

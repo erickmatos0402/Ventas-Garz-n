@@ -446,7 +446,7 @@ export const LandingPage: React.FC = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 items-stretch"
+            className="grid grid-cols-3 gap-3 sm:gap-6 items-stretch"
           >
             {featuredProducts.map((product: Product) => (
               <motion.div key={product.id} variants={itemVariants} className="h-full">
