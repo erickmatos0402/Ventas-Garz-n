@@ -53,6 +53,8 @@ function AppShell() {
       <Header />
       <main key={pathname} className="flex-1 page-fade">
         <Routes>
+          <Route path="/market" element={<LandingPage />} />
+          <Route path="/boutique" element={<LandingPage />} />
           <Route path="/" element={<LandingPage />} />
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/cart" element={<CartPage />} />

@@ -1,119 +1,79 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Menu, X, Settings } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ShoppingCart, Settings } from 'lucide-react';
 import { useThemeStore } from '../store/themeStore';
 import { StoreSwitcher } from './StoreSwitcher';
-import { LiquidTabs } from './LiquidTabs';
 import { STORE_META_DATA, MARKET_LOGO_PATH } from '../data/boutiqueData';
-import { useCartStore } from '../store'
-import { useEffect, useState } from 'react';
-import { trackBubblePointer, resetBubblePointer } from '../utils';
-
+import { useCartStore } from '../store';
 const NAV_ITEMS = [
+  { to: '/market', label: 'Mercado' },
+  { to: '/boutique', label: 'Boutique' },
   { to: '/products', label: 'Tienda' },
   { to: '/about', label: 'Acerca de' },
   { to: '/faq', label: 'FAQ' },
-  { to: '/admin', label: 'Admin' },
-];
+  { to: '/admin', label: 'Admin' },];
 
+
+/**
+ * Header — barra superior con la foto del tema de fondo.
+ *
+ * Las cuatro secciones están siempre visibles: en pantallas estrechas la
+ * navegación baja a su propia línea en lugar de esconderse tras una
+ * hamburguesa, y el alto se mantiene compacto para no comerse la página.
+ */
 export const Header: React.FC = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const theme = useThemeStore((s) => s.theme);
   const { items } = useCartStore(theme)()
   const totalItems = items.reduce((sum: number, item: any) => sum + item.quantity, 0);
-  const [hovered, setHovered] = useState<string | null>(null);
   const location = useLocation();
   const meta = STORE_META_DATA[theme];
 
-  // En móvil el menú se cierra solo al cambiar de sección
-  useEffect(() => {
-    setIsMenuOpen(false);
-  }, [location.pathname]);
+  const isActive = (to: string) => location.pathname.startsWith(to);
 
   return (
     // safe-t/safe-l/safe-r: el notch y la barra gestual no deben tapar la barra.
-    <header className="sticky top-0 z-50 glass-strong header-dark safe-t safe-l safe-r">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 md:h-[72px] gap-3">
-          <Link to="/" className="flex items-center gap-2.5 min-h-[44px] transition hover:opacity-90 flex-shrink-0">
+    <header className="sticky top-0 z-50 header-dark safe-t safe-l safe-r">
+      <nav className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8" aria-label="Principal">
+        {/* flex-wrap + order: las acciones quedan arriba junto al logo y la
+            navegación ocupa su propia línea cuando no cabe al lado. */}
+        <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 py-1.5 md:py-0 md:h-[56px]">
+          <Link
+            to="/"
+            className="order-1 flex items-center gap-1.5 min-h-[36px] transition hover:opacity-90 flex-shrink-0"
+          >
             <img
               src={theme === 'market' ? MARKET_LOGO_PATH : meta.logo}
               alt={meta.name}
-              className="h-10 w-10 md:h-11 md:w-11 rounded-full object-cover object-center border border-moss bg-white shadow-sm"
+              className="h-8 w-8 md:h-9 md:w-9 rounded-full object-cover object-center border border-moss bg-white shadow-sm"
             />
-            <div className="leading-tight">
-              <p className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-primary-deep font-bold">
+            <span className="hidden min-[400px]:block leading-tight">
+              <span className="block text-[7px] uppercase tracking-[0.2em] text-primary-deep font-bold">
                 {meta.name.split(' ')[0]}
-              </p>
-              <span className="text-lg md:text-xl font-bold text-dark">{meta.name.split(' ').slice(1).join(' ')}</span>
-            </div>
+              </span>
+              <span className="block text-base md:text-sm font-bold text-dark">
+                {meta.name.split(' ').slice(1).join(' ')}
+              </span>
+            </span>
           </Link>
 
-          {/* Conmutador de tienda */}
-          <div className="hidden sm:block">
+          {/* Acciones: conmutador de tienda + carrito */}
+          <div className="order-2 md:order-2 flex items-center gap-1.5 sm:gap-2.5">
             <StoreSwitcher />
-          </div>
 
-          {/* Desktop Navigation: opciones en burbuja líquida transparente (sin brillo de gota, solo cristal) */}
-          <div className="hidden md:flex items-center">
-            <div className="liquid-tabs" onMouseLeave={() => setHovered(null)}>
-              {NAV_ITEMS.map((item) => {
-                const isActive = location.pathname.startsWith(item.to);
-                const isHover = hovered === item.to;
-                return (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    onMouseEnter={() => setHovered(item.to)}
-                    onPointerMove={trackBubblePointer}
-                    onPointerLeave={resetBubblePointer}
-                    className={`liquid-tab px-4 py-2 text-sm ${isActive ? 'text-primary-deep' : ''}`}
-                  >
-                    <AnimatePresence>
-                      {isHover && !isActive && (
-                        <motion.span
-                          layoutId="header-traveler"
-                          className="liquid-tab-traveler"
-                          initial={{ opacity: 0, scaleX: 0.35 }}
-                          animate={{ opacity: 1, scaleX: 1 }}
-                          exit={{ opacity: 0, scaleX: 0.35 }}
-                          transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                        />
-                      )}
-                    </AnimatePresence>
-                    {isActive && (
-                      <motion.span
-                        layoutId="header-active"
-                        className="liquid-tab-blob"
-                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                      />
-                    )}
-                    <span className="inline-flex items-center gap-1.5">
-                      {item.to === '/admin' && <Settings size={14} />}
-                      {item.label}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Acciones */}
-          <div className="flex items-center gap-2.5">
             <Link
               to="/cart"
               aria-label={`Carrito con ${totalItems} artículos`}
-              className="relative flex-shrink-0 flex items-center justify-center min-w-[44px] min-h-[44px]"
+              className="relative flex-shrink-0 flex items-center justify-center min-w-[36px] min-h-[36px]"
             >
               <motion.div
-                whileHover={{ scale: 1.08 }}
-                animate={totalItems > 0 ? { scale: [1, 1.18, 1] } : {}}
+                whileHover={{ scale: 1.05 }}
+                animate={totalItems > 0 ? { scale: [1, 1.15, 1] } : {}}
                 key={`cart-${totalItems}`}
-                transition={{ duration: 0.35 }}
-                className="btn-liquid-ghost w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center"
+                transition={{ duration: 0.25 }}
+                className="btn-liquid-ghost w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center"
               >
-                <ShoppingCart size={20} className="text-primary-deep" />
+                <ShoppingCart size={18} className="text-primary-deep" />
               </motion.div>
               {/* Badge fuera de la burbuja para que nunca se recorte */}
               {totalItems > 0 && (
@@ -122,56 +82,29 @@ export const Header: React.FC = () => {
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 18 }}
-                  className="absolute -top-1.5 -right-1.5 z-10 min-w-[22px] h-[22px] px-1 rounded-full bg-primary text-white text-[11px] leading-[22px] text-center font-bold shadow-glass ring-2 ring-white"
+                  className="absolute -top-1 -right-1 z-10 min-w-[18px] h-[18px] px-0.5 rounded-full bg-primary text-white text-[10px] leading-[18px] text-center font-bold shadow-glass ring-2 ring-white"
                 >
                   {totalItems > 99 ? '99+' : totalItems}
                 </motion.span>
               )}
             </Link>
+          </div>
 
-            {/* Mobile menu button */}
-            <button
-              className="md:hidden btn-liquid-ghost w-11 h-11 flex items-center justify-center"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
-              aria-expanded={isMenuOpen}
-              aria-controls="mobile-nav"
-            >
-              {isMenuOpen ? <X size={20} className="text-primary-deep" /> : <Menu size={20} className="text-primary-deep" />}
-            </button>
+          {/* Todas las secciones, siempre visibles (sin menú desplegable) */}
+          <div className="order-2 md:order-2 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2 basis-full md:basis-auto">
+            {NAV_ITEMS.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="nav-link md:inline-block min-h-[36px] px-2 md:px-3 text-[10px] sm:text-sm font-medium tracking-wide"
+                aria-current={isActive(item.to) ? 'page' : undefined}
+              >
+                {item.to === '/admin' && <Settings size={12} aria-hidden />}
+                {item.label}
+              </Link>
+            ))}
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div
-              id="mobile-nav"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="md:hidden mt-1 space-y-2 border-t border-white/60 py-3 overflow-hidden"
-            >
-              {/* Conmutador de tienda en móvil */}
-              <div className="px-2 pb-2">
-                <StoreSwitcher />
-              </div>
-              {/* Mismo efecto burbuja del menú de escritorio, en vertical */}
-              <LiquidTabs
-                orientation="vertical"
-                items={NAV_ITEMS.map((item) => ({
-                  id: item.to,
-                  label: item.label,
-                  to: item.to,
-                  icon: item.to === '/admin' ? <Settings size={14} /> : undefined,
-                }))}
-                activeId={NAV_ITEMS.find((item) => location.pathname.startsWith(item.to))?.to ?? ''}
-                onChange={() => setIsMenuOpen(false)}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
       </nav>
     </header>
   );
