@@ -57,6 +57,8 @@ const CarouselCard: React.FC<CarouselCardProps> = ({
   const cart = useCartStore(theme);
   const { addItem } = cart();
   const [justAdded, setJustAdded] = useState(false);
+  // La cantidad se elige aquí, en Tienda (en Destacados solo se agrega).
+  const [quantity, setQuantity] = useState(1);
   const { src, failed, onError } = useImageWithFallback(product.image, product.fallbackImage);
 
   const hasImage = !!src && !failed;
@@ -66,7 +68,8 @@ const CarouselCard: React.FC<CarouselCardProps> = ({
 
   const handleAdd = () => {
     if (soldOut) return;
-    addItem(product, 1);
+    addItem(product, quantity);
+    setQuantity(1);
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 1200);
   };
@@ -177,7 +180,37 @@ const CarouselCard: React.FC<CarouselCardProps> = ({
         </div>
 
         {/* Acción: se expande solo en la tarjeta activa */}
-        <div className="mt-auto flex">
+        <div className="mt-auto flex flex-col gap-2">
+          {isActive && !soldOut && (
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-semibold text-gray-500">Cantidad</span>
+              <div className="liquid-badge flex items-center rounded-full px-1">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setQuantity((q) => Math.max(1, q - 1));
+                  }}
+                  className="w-8 h-8 rounded-full text-dark hover:bg-white/70 transition flex items-center justify-center text-lg leading-none"
+                  aria-label="Restar cantidad"
+                >
+                  −
+                </button>
+                <span className="w-7 text-center font-bold text-dark text-sm">{quantity}</span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setQuantity((q) => Math.min(product.stock, q + 1));
+                  }}
+                  className="w-8 h-8 rounded-full text-dark hover:bg-white/70 transition flex items-center justify-center text-lg leading-none"
+                  aria-label="Sumar cantidad"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          )}
           <motion.button
             type="button"
             whileTap={{ scale: soldOut ? 1 : 0.96 }}

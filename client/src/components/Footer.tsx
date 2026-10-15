@@ -1,9 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, MapPin, Phone, Clock } from 'lucide-react';
 import { useThemeStore } from '../store';
 import { STORE_META_DATA } from '../data/boutiqueData';
 
+/**
+ * Footer compacto: marca, enlaces y contacto en columnas cortas y una barra
+ * final fina. Se omite la descripción larga, los iconos y la dirección para
+ * que no se coma la página.
+ */
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
   const theme = useThemeStore((s) => s.theme);
@@ -11,33 +15,27 @@ export const Footer: React.FC = () => {
 
   return (
     <footer className="grove-theme border-t border-white/10 safe-b safe-l safe-r">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-10 sm:pt-8 sm:pb-10">
-        {/* 1 col en móvil → 2 en tablet → 4 en escritorio */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-          {/* About */}
-          <div>
-            <div className="flex items-center gap-3 mb-3">
-              <img src={meta.logo} alt={meta.name} className="h-10 w-10 rounded-full border border-white/25" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {/* Marca */}
+          <div className="col-span-2 sm:col-span-3 lg:col-span-1">
+            <div className="flex items-center gap-2.5">
+              <img src={meta.logo} alt={meta.name} className="h-9 w-9 rounded-full border border-white/25" />
               <div className="leading-tight">
-                <p className="text-xs uppercase tracking-[0.3em] grove-accent font-bold">{meta.name.split(' ')[0]}</p>
-                <span className="text-xl font-bold text-white">{meta.name.split(' ').slice(1).join(' ')}</span>
+                <p className="text-[10px] uppercase tracking-[0.3em] grove-accent font-bold">
+                  {meta.name.split(' ')[0]}
+                </p>
+                <span className="text-base font-bold text-white">
+                  {meta.name.split(' ').slice(1).join(' ')}
+                </span>
               </div>
-            </div>
-            <p className="grove-text-soft text-sm leading-relaxed">
-              {meta.id === 'market'
-                ? 'Tu tienda de confianza para productos de aseo y alimentos de calidad, a precio justo.'
-                : 'Venta de garaje online: prendas y accesorios únicos seleccionados con ojo de boutique.'}
-            </p>
-            <div className="grove-chip inline-flex items-center gap-2 mt-3 rounded-full px-3.5 py-1.5 text-xs font-semibold grove-text">
-              <Clock size={13} />
-              Lun a Sáb · 8:00 am – 6:00 pm
             </div>
           </div>
 
-          {/* Links */}
+          {/* Navegación */}
           <div>
-            <h4 className="text-base font-bold mb-2.5">Navegación</h4>
-            <ul className="space-y-1.5 text-sm">
+            <h4 className="text-sm font-bold mb-1.5">Navegación</h4>
+            <ul className="space-y-1 text-sm">
               <li><Link to="/products" className="grove-link tap-link">Productos</Link></li>
               <li><Link to="/about" className="grove-link tap-link">Acerca de</Link></li>
               <li><Link to="/faq" className="grove-link tap-link">Preguntas Frecuentes</Link></li>
@@ -45,45 +43,29 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Customer Service */}
+          {/* Soporte */}
           <div>
-            <h4 className="text-base font-bold mb-2.5">Soporte</h4>
-            <ul className="space-y-1.5 text-sm">
+            <h4 className="text-sm font-bold mb-1.5">Soporte</h4>
+            <ul className="space-y-1 text-sm">
               <li><Link to="/faq" className="grove-link tap-link">Medios de Pago</Link></li>
               <li><Link to="/faq" className="grove-link tap-link">Devoluciones</Link></li>
               <li><Link to="/faq" className="grove-link tap-link">Compra al por mayor</Link></li>
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Contacto */}
           <div>
-            <h4 className="text-base font-bold mb-2.5">Contacto</h4>
-            <ul className="space-y-1.5 text-[10px]">
-              <li className="flex items-center gap-1.5 grove-text-soft">
-                <span className="grove-chip w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Phone size={12} />
-                </span>
-                <a href="tel:+5356072398" className="grove-link tap-link" style={{fontSize: '0.85rem'}}>+53 56072398</a>
-              </li>
-              <li className="flex items-center gap-1.5 grove-text-soft">
-                <span className="grove-chip w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Mail size={12} />
-                </span>
-                <a href="mailto:info@ventasgarzon.com" className="grove-link tap-link" style={{fontSize: '0.85rem'}}>info@ventasgarzon.com</a>
-              </li>
-              <li className="flex items-start gap-1.5 grove-text-soft">
-                <span className="grove-chip w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0">
-                  <MapPin size={12} />
-                </span>
-                <span style={{fontSize: '0.85rem'}}>Santiago de Cuba, Cuba</span>
-              </li>
+            <h4 className="text-sm font-bold mb-1.5">Contacto</h4>
+            <ul className="space-y-1 text-sm">
+              <li><a href="tel:+5356072398" className="grove-link tap-link">+53 56072398</a></li>
+              <li><a href="mailto:info@ventasgarzon.com" className="grove-link tap-link break-all">info@ventasgarzon.com</a></li>
+              <li className="grove-text-soft">Santiago de Cuba</li>
             </ul>
           </div>
         </div>
 
-        {/* pb extra en móvil: la burbuja flotante de contacto (56px, fija
-            abajo a la derecha) taparía el aviso de copyright. */}
-        <div className="border-t border-white/10 mt-4 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 grove-text-soft text-xs">
+        {/* pb mínimo: la burbuja flotante de contacto vive abajo a la derecha */}
+        <div className="border-t border-white/10 mt-4 pt-3 flex flex-col sm:flex-row items-center justify-between gap-2 grove-text-soft text-xs">
           <p>&copy; {currentYear} {meta.name}. Todos los derechos reservados.</p>
           <div className="grove-chip rounded-full px-3 py-1 text-[10px] font-semibold grove-text">
             {meta.id === 'market' ? 'Hecho con orgullo en Cuba 🌿' : 'Moda con historia ♻️'}

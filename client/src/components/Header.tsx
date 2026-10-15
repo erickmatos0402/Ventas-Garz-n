@@ -99,14 +99,25 @@ export const Header: React.FC = () => {
                   initial={{ opacity: 0, y: -6, scale: 0.97 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ duration: 0.18, ease: 'easeOut' }}
-                  className="absolute right-0 mt-2 w-44 rounded-2xl bg-white p-1 shadow-lg z-30"
+                  // Panel OSCURO de alto contraste: sobre la foto del header y
+                  // también sobre el fondo claro de la página se lee siempre.
+                  className="absolute right-0 mt-2 w-48 rounded-2xl p-1.5 z-30 border border-white/15 shadow-2xl"
+                  style={{
+                    background: 'rgba(5, 28, 24, 0.95)',
+                    backdropFilter: 'blur(14px) saturate(150%)',
+                    WebkitBackdropFilter: 'blur(14px) saturate(150%)',
+                  }}
                 >
                   {MENU_ITEMS.map((item) => (
                     <Link
                       key={item.to}
                       to={item.to}
                       onClick={() => setIsMenuOpen(false)}
-                      className="block px-3 py-2.5 rounded-xl text-sm font-medium text-dark hover:bg-mint/60 transition-colors"
+                      className={`block px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                        location.pathname.startsWith(item.to)
+                          ? 'bg-white/15 text-white'
+                          : 'text-white/90 hover:bg-white/10 hover:text-white'
+                      }`}
                     >
                       {item.label}
                     </Link>

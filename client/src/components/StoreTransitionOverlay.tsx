@@ -85,15 +85,6 @@ export const StoreTransitionOverlay: React.FC = () => {
               'radial-gradient(600px 300px at 20% 20%, rgba(255,255,255,0.5), transparent 60%), radial-gradient(500px 400px at 80% 70%, rgba(255,255,255,0.35), transparent 60%)',
           }}
         />
-        {/* Malla sutil que da profundidad mientras la onda se asienta */}
-        <div
-          className="absolute inset-0 opacity-[0.12]"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)',
-            backgroundSize: '46px 46px',
-          }}
-        />
       </motion.div>
 
       {/* Segunda onda con retardo (efecto arrastre) */}

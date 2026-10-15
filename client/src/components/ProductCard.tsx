@@ -11,9 +11,14 @@ import { getDiscountedPrice } from '../data/mockData';
 interface ProductCardProps {
   product: Product;
   onAddToCart?: (product: Product, quantity: number) => void;
+  /**
+   * Selector de cantidad. En "Productos Destacados" se oculta: ahí solo se
+   * agrega al carrito, y la cantidad se elige en Tienda.
+   */
+  showQuantity?: boolean;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, showQuantity = true }) => {
   const theme = useThemeStore((s) => s.theme);
   const cart = useCartStore(theme);
   const { addItem } = cart()
@@ -102,6 +107,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
         {/* Cantidad y acción: en columnas estrechas van uno debajo del otro,
             en cuanto hay ancho suficiente vuelven a la misma fila. */}
         <div className="mt-auto flex flex-col min-[400px]:flex-row items-stretch min-[400px]:items-center gap-2">
+          {showQuantity && (
           <div className="liquid-badge flex items-center justify-center min-[400px]:justify-start rounded-full px-1 min-[400px]:flex-shrink-0">
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -121,6 +127,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
               +
             </button>
           </div>
+          )}
           <motion.button
             whileTap={{ scale: product.stock > 0 ? 0.95 : 1 }}
             onClick={handleAddToCart}

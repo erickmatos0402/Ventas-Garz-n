@@ -445,7 +445,8 @@ export const LandingPage: React.FC = () => {
           >
             {featuredProducts.map((product: Product) => (
               <motion.div key={product.id} variants={itemVariants} className="h-full">
-                <ProductCard product={product} />
+                {/* Destacados: solo "Agregar"; la cantidad se elige en Tienda. */}
+                <ProductCard product={product} showQuantity={false} />
               </motion.div>
             ))}
           </motion.div>

@@ -1690,6 +1690,46 @@ summary:focus-visible {
     inset 0 -1px 1px rgba(255, 255, 255, 0.12);
 }
 
+/* Crystal al pasar el cursor: al ir de una opción a otra, la superficie de
+   cristal aparece bajo el puntero y viaja con él (hover real, no táctil). */
+.liquid-tab {
+  border: 1px solid transparent;
+  transition:
+    color 0.25s ease,
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.liquid-tab:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.14));
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 6px 16px rgba(var(--c-shadow-rgb), 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.28),
+    inset 0 0 14px rgba(255, 255, 255, 0.18);
+}
+
+/* Sobre superficie oscura el hover se aclara con vidrio esmerilado */
+.header-dark .liquid-tab:hover,
+.hero-dark .liquid-tab:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.08) 100%);
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.40),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.12);
+}
+
+@media (hover: none) {
+  .liquid-tab:hover {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+  }
+}
+
 /* --- 3) BOTONES --- */
 .btn-liquid,
 .btn-liquid-ghost {
