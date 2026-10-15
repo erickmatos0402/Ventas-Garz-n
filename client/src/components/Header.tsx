@@ -1,19 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Settings, ChevronDown } from 'lucide-react';
+import { ShoppingCart, ChevronDown } from 'lucide-react';
 import { useThemeStore } from '../store/themeStore';
 import { StoreSwitcher } from './StoreSwitcher';
 import { STORE_META_DATA, MARKET_LOGO_PATH } from '../data/boutiqueData';
 import { useCartStore } from '../store';
-const NAV_ITEMS = [
-  { to: '/market', label: 'Mercado' },
-  { to: '/boutique', label: 'Boutique' },
-  { id: 'tienda', to: '/products', label: 'Tienda' },
-  { id: 'about', to: '/about', label: 'Acerca de' },
-  { id: 'faq', to: '/faq', label: 'FAQ' },
-  { id: 'admin', to: '/admin', label: 'Admin' },];
-
 
 /**
  * Header — barra superior con la foto del tema de fondo.
@@ -28,8 +20,12 @@ export const Header: React.FC = () => {
   const totalItems = items.reduce((sum: number, item: any) => sum + item.quantity, 0);
   const location = useLocation();
   const meta = STORE_META_DATA[theme];
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const isActive = (to: string) => location.pathname.startsWith(to);
+  // El desplegable del menú se cierra al cambiar de sección.
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
 
   return (
     // safe-t/safe-l/safe-r: el notch y la barra gestual no deben tapar la barra.
@@ -121,22 +117,25 @@ export const Header: React.FC = () => {
                 <div className="absolute right-0 mt-2 w-48 rounded-md bg-white p-1 shadow-lg z-30" style={{ borderRadius: '0.5rem' }}>
                   <Link
                     to="/products"
-                    className="block px-3 py-2 text-sm text-dark hover:bg-white/10"
+                    className="block px-3 py-2 text-sm text-dark hover:bg-dark/5 rounded"
                   >
                     Tienda
-                  </Link>                  <Link
+                  </Link>
+                  <Link
                     to="/about"
-                    className="block px-3 py-2 text-sm text-dark hover:bg-white/10"
+                    className="block px-3 py-2 text-sm text-dark hover:bg-dark/5 rounded"
                   >
                     Acerca de
-                  </Link>                  <Link
+                  </Link>
+                  <Link
                     to="/faq"
-                    className="block px-3 py-2 text-sm text-dark hover:bg-white/10"
+                    className="block px-3 py-2 text-sm text-dark hover:bg-dark/5 rounded"
                   >
                     FAQ
-                  </Link>                  <Link
+                  </Link>
+                  <Link
                     to="/admin"
-                    className="block px-3 py-2 text-sm text-dark hover:bg-white/10"
+                    className="block px-3 py-2 text-sm text-dark hover:bg-dark/5 rounded"
                   >
                     Admin
                   </Link>

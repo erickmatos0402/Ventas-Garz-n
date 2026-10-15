@@ -25,11 +25,6 @@ import { formatPrice, trackBubblePointer, resetBubblePointer } from '../utils';
 
 const BOUTIQUE_FALLBACK = BOUTIQUE_PRODUCTS;
 
-const QUICK_SEARCHES = {
-  market: ['Shampoo', 'Jabón de baño', 'Caldito', 'Jugos', 'Sopitas', 'Refrescos'],
-  boutique: ['Vestido', 'Jeans', 'Bolso', 'Sombrero', 'Tacones', 'Collar'],
-} as const;
-
 /**
  * Bubble highlight (estilo iOS): el brillo especular sigue al puntero.
  * Los handlers escriben --mx / --my, que consume `.bubble-hl` en index.css.
