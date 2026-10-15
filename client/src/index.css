@@ -66,11 +66,13 @@ body {
    ningún tono fuera de la paleta. */
 html[data-theme='market'],
 :root {
-  --c-bg-1: #f1f8f6; /* velo claro de #0A7F5E */
-  --c-bg-2: #e2f0ec;
-  --c-bg-glow-1: rgba(10, 127, 94, 0.10); /* #0A7F5E */
-  --c-bg-glow-2: rgba(6, 117, 160, 0.09); /* #0675A0 */
-  --c-bg-glow-3: rgba(195, 225, 216, 0.18);
+  /* Fondo neutro: sin tinte verde (el color de marca vive en los
+     acentos, botones y superficies, no en el lienzo). */
+  --c-bg-1: #fbfcfc;
+  --c-bg-2: #eef1f1;
+  --c-bg-glow-1: rgba(15, 23, 42, 0.035);
+  --c-bg-glow-2: rgba(15, 23, 42, 0.03);
+  --c-bg-glow-3: rgba(15, 23, 42, 0.045);
   --c-ink: #05242b; /* #05242B */
   --c-primary: #0a7f5e; /* #0A7F5E */
   --c-primary-deep: #086a4e;
@@ -107,6 +109,16 @@ html[data-theme='market'],
   --c-photo-2: rgba(5, 36, 43, 0.82);
   /* Foto del header y del hero (736×1619, vertical, rotación grabada) */
   --c-hero-photo: url('/img/Fotos/hero.jpg');
+  /* Fondo COMPARTIDO por la barra (header) y el hero. Al usar la misma
+     imagen con `fixed`, ambos se pintan anclados al viewport y se leen
+     como UNA sola foto continua, sin repetir el recorte en cada parte. */
+  --c-hero-bg-image:
+    linear-gradient(180deg, var(--c-veil-x1) 0%, var(--c-veil-x2) 55%, var(--c-veil-x3) 100%),
+    var(--c-hero-photo);
+  --c-hero-bg-size: auto, cover;
+  --c-hero-bg-position: center, center 35%;
+  --c-hero-bg-attachment: fixed, fixed;
+  --c-hero-bg-repeat: no-repeat, no-repeat;
   /* Velos: barra (h) y hero (x), desde #14406D y #05242B */
   --c-veil-h1: rgba(6, 90, 70, 0.91); /* cristal verde desde #0A7F5E */
   --c-veil-h2: rgba(5, 62, 52, 0.93);
@@ -185,6 +197,15 @@ html[data-theme='boutique'] {
   --c-disabled-2: rgba(236, 228, 214, 0.85);
   /* Foto del header y del hero (600×738, vertical) */
   --c-hero-photo: url('/img/Fotos/hero4.jpg');
+  /* Mismo fondo compartido, con la capa extra de luz cálida del tema. */
+  --c-hero-bg-image:
+    radial-gradient(1000px 480px at 15% 0%, rgba(178, 150, 125, 0.18), transparent 55%),
+    linear-gradient(180deg, var(--c-veil-x1) 0%, var(--c-veil-x2) 55%, var(--c-veil-x3) 100%),
+    var(--c-hero-photo);
+  --c-hero-bg-size: auto, auto, cover;
+  --c-hero-bg-position: center, center, center 22%;
+  --c-hero-bg-attachment: fixed, fixed, fixed;
+  --c-hero-bg-repeat: no-repeat, no-repeat, no-repeat;
   /* Velos cálidos: desde #7D5A44 y #453021 */
   --c-veil-h1: rgba(84, 60, 42, 0.91); /* cristal cálido */
   --c-veil-h2: rgba(66, 47, 33, 0.93);
@@ -750,16 +771,14 @@ h1, h2, h3, h4 {
 
 .header-dark {
   position: relative;
-  /* Foto del tema activo + velo del tema para contraste del contenido. */
-  background-image:
-    linear-gradient(160deg, var(--c-veil-h1) 0%, var(--c-veil-h2) 55%, var(--c-veil-h3) 100%),
-    var(--c-hero-photo);
-  /* La barra es una franja muy corta: `cover` la recorta a una banda de
-     la foto, que solo aporta textura y color. `background-color` evita
-     cualquier hueco si la foto no llega a cubrirla. */
-  background-size: auto, cover;
-  background-position: center, center 30%;
-  background-repeat: no-repeat, no-repeat;
+  /* MISMA imagen y anclaje que el hero (--c-hero-bg-*): así la barra y el
+     hero se leen como una sola foto continua en vez de dos recortes.
+     `background-color` evita cualquier hueco si la foto no carga. */
+  background-image: var(--c-hero-bg-image);
+  background-size: var(--c-hero-bg-size);
+  background-position: var(--c-hero-bg-position);
+  background-attachment: var(--c-hero-bg-attachment);
+  background-repeat: var(--c-hero-bg-repeat);
   background-color: var(--c-grove-2);
   color: var(--c-grove-text);
   border: none;
@@ -811,69 +830,24 @@ h1, h2, h3, h4 {
   isolation: isolate;
   /* FOTO del tema activo + velos del tema para legibilidad. La foto
      cubre toda la sección (cover): nunca deja huecos ni se deforma. */
-  background-image:
-    linear-gradient(180deg, var(--c-veil-x1) 0%, var(--c-veil-x2) 55%, var(--c-veil-x3) 100%),
-    var(--c-hero-photo);
-  background-size: auto, cover;
-  background-position: center, center 35%;
-  background-repeat: no-repeat, no-repeat;
+  background-image: var(--c-hero-bg-image);
+  background-size: var(--c-hero-bg-size);
+  background-position: var(--c-hero-bg-position);
+  background-attachment: var(--c-hero-bg-attachment);
+  background-repeat: var(--c-hero-bg-repeat);
   background-color: var(--c-grove-2);
   color: var(--c-grove-text);
   /* BORDE INFERIOR SEMI-OVALADO: la superficie oscura curva al cerrar */
   border-radius: 0 0 50% 50% / 0 0 44px 44px;
 }
 
-/* CIERRE INFERIOR CON GOTA: una lágrima colgando del centro del arco */
-.hero-dark::after {
-  content: '';
-  position: absolute;
-  bottom: -26px;
-  left: 50%;
-  width: 56px;
-  height: 56px;
-  transform: translateX(-50%);
-  border-radius: 50% 50% 50% 50% / 42% 42% 58% 58%;
-  background: linear-gradient(180deg, rgba(var(--c-primary-rgb), 0.55), rgba(var(--c-primary-rgb), 0.25) 60%, transparent);
-  filter: blur(0.5px);
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Halo suave que acompaña la gota para integrarla con el arco */
-.hero-dark::before {
-  content: '';
-  position: absolute;
-  bottom: -34px;
-  left: 50%;
-  width: 120px;
-  height: 34px;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(var(--c-primary-rgb), 0.28), transparent 70%);
-  filter: blur(6px);
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Tema boutique: foto de moda en vertical (600×738). Al ser una foto
-   retrato en una franja ancha, el encuadre se ancla arriba para no
-   cortar la prenda y cada capa conserva su propio `background-size`
-   (el bug anterior dejaba la foto en `auto`, sin cubrir la sección). */
-html[data-theme='boutique'] .hero-dark {
-  background-image:
-    radial-gradient(1000px 480px at 15% 0%, rgba(178, 150, 125, 0.18), transparent 55%),
-    linear-gradient(180deg, var(--c-veil-x1) 0%, var(--c-veil-x2) 55%, var(--c-veil-x3) 100%),
-    var(--c-hero-photo);
-  background-size: auto, auto, cover;
-  background-position: center, center, center 22%;
-}
-
 /* Franjas muy cortas (móvil): la barra recorta la foto a una banda tan
    fina que conviene elegir qué parte se ve, en ambos temas. */
 @media (max-width: 767px) {
-  .header-dark { background-position: center, center 26%; }
-  .hero-dark { background-position: center, center 28%; }
-  html[data-theme='boutique'] .hero-dark { background-position: center, center, center 16%; }
+  /* Franjas cortas: el encuadre se ancla más arriba, pero la barra y el
+     hero comparten el MISMO valor para no romper la continuidad. */
+  :root { --c-hero-bg-position: center, center 28%; }
+  html[data-theme='boutique'] { --c-hero-bg-position: center, center, center 16%; }
 }
 
 /* Sobre el velo las etiquetas y el enlace activo van en claro: el oro de
@@ -1613,3 +1587,147 @@ summary:focus-visible {
 @media (hover: none) {
   .nav-link:hover { background: transparent; }
 }
+
+/* ============================================================
+   LENTE DE CRISTAL — Glassmorphism avanzado con refracción
+   ------------------------------------------------------------
+   Aspecto de burbuja / lente física para BARRAS DE NAVEGACIÓN,
+   SELECCIÓN y BOTONES. La receta combina:
+     1. Desenfoque pronunciado del fondo (backdrop-filter).
+     2. Refracción: sombras internas que curvan la superficie y un
+        borde fino de cristal que aporta grosor.
+     3. Translucidez (blanco muy tenue) + reflejo de luz diagonal
+        que atraviesa la pieza.
+     4. Silueta: borde de 1px blanco translúcido.
+     5. Profundidad: sombra exterior suave y difusa.
+   Los valores viven en variables para poder afinarlos en un sitio.
+   ============================================================ */
+
+:root {
+  --lens-blur: 15px;
+  --lens-sat: 185%;
+  --lens-edge: rgba(255, 255, 255, 0.22);
+  --lens-tint: rgba(255, 255, 255, 0.10);
+  /* Reflejo diagonal: simula la luz que cruza el cristal */
+  --lens-sheen: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.06) 28%,
+    rgba(255, 255, 255, 0) 56%,
+    rgba(255, 255, 255, 0.16) 100%
+  );
+  /* Grosor del cristal: canto superior iluminado + bordes tenues */
+  --lens-thickness:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.24),
+    inset 1px 0 0 rgba(255, 255, 255, 0.18),
+    inset -1px 0 0 rgba(255, 255, 255, 0.18);
+  /* Concavidad de la lente: brillo perimetral + curvatura interna */
+  --lens-refract:
+    inset 0 0 22px rgba(255, 255, 255, 0.14),
+    inset 0 14px 30px -18px rgba(var(--c-shadow-rgb), 0.5);
+  /* Profundidad exterior */
+  --lens-depth:
+    0 12px 32px rgba(var(--c-shadow-rgb), 0.16),
+    0 3px 8px rgba(var(--c-shadow-rgb), 0.10);
+}
+
+/* --- 1) BARRAS DE NAVEGACIÓN / PANELES DE SECCIÓN --- */
+.glass-panel {
+  background: var(--lens-sheen), var(--lens-tint);
+  backdrop-filter: blur(var(--lens-blur)) saturate(var(--lens-sat));
+  -webkit-backdrop-filter: blur(var(--lens-blur)) saturate(var(--lens-sat));
+  border: 1px solid var(--lens-edge);
+  box-shadow: var(--lens-depth), var(--lens-thickness), var(--lens-refract);
+}
+
+/* La barra del header NO lleva lámina ni sombra encima: comparte fondo
+   con el hero (--c-hero-bg-*) y cualquier tinte en su borde inferior
+   rompería la sensación de una sola foto. El cristal vive en los
+   controles de la barra (selección y botones), más abajo. */
+
+/* --- 2) SELECCIÓN (pestañas líquidas y conmutador de tienda) --- */
+.liquid-tabs {
+  background: var(--lens-sheen), var(--lens-tint);
+  backdrop-filter: blur(var(--lens-blur)) saturate(var(--lens-sat));
+  -webkit-backdrop-filter: blur(var(--lens-blur)) saturate(var(--lens-sat));
+  border: 1px solid var(--lens-edge);
+  box-shadow: var(--lens-depth), var(--lens-thickness), var(--lens-refract);
+}
+
+/* La opción activa es una lente más pequeña, con su propio canto */
+.liquid-tab > .liquid-tab-blob {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.16));
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 6px 16px rgba(var(--c-shadow-rgb), 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.30),
+    inset 0 0 14px rgba(255, 255, 255, 0.20);
+}
+
+/* --- Variantes sobre superficie oscura (header y hero) --- */
+.header-dark .liquid-tabs,
+.hero-dark .liquid-tabs {
+  background: var(--lens-sheen), rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(var(--lens-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--lens-blur)) saturate(150%);
+  border: 1px solid var(--lens-edge);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.08),
+    inset 0 0 18px rgba(255, 255, 255, 0.08);
+}
+
+.header-dark .liquid-tab > .liquid-tab-blob,
+.hero-dark .liquid-tab > .liquid-tab-blob {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.08) 100%);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.40),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.12);
+}
+
+/* --- 3) BOTONES --- */
+.btn-liquid,
+.btn-liquid-ghost {
+  background: var(--lens-sheen), var(--lens-tint);
+  backdrop-filter: blur(var(--lens-blur)) saturate(var(--lens-sat));
+  -webkit-backdrop-filter: blur(var(--lens-blur)) saturate(var(--lens-sat));
+  border: 1px solid var(--lens-edge);
+  box-shadow:
+    0 6px 18px rgba(var(--c-shadow-rgb), 0.14),
+    0 2px 5px rgba(var(--c-shadow-rgb), 0.10),
+    var(--lens-thickness),
+    inset 0 0 14px rgba(255, 255, 255, 0.16);
+}
+
+.btn-liquid:hover,
+.btn-liquid-ghost:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 8px 22px rgba(var(--c-shadow-rgb), 0.18),
+    0 2px 6px rgba(var(--c-shadow-rgb), 0.12),
+    var(--lens-thickness),
+    inset 0 0 18px rgba(255, 255, 255, 0.24);
+}
+
+/* Botón firma: conserva su gradiente y recibe la lámina de cristal */
+.btn-signature {
+  background:
+    var(--lens-sheen),
+    linear-gradient(125deg, var(--c-sig-1) 0%, var(--c-sig-2) 52%, var(--c-sig-3) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  box-shadow:
+    0 14px 34px rgba(var(--c-shadow-rgb), 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.60),
+    inset 0 -8px 20px rgba(0, 0, 0, 0.18),
+    inset 0 0 20px rgba(255, 255, 255, 0.12);
+}
+
+/* Nota: para distorsión REAL del fondo hace falta un filtro SVG
+   (feDisplacementMap). Ningún motor aplica `url(#...)` dentro de
+   backdrop-filter, así que se demuestra en el ejemplo aparte
+   (glass-lens-demo.html) sobre una capa duplicada del fondo. */

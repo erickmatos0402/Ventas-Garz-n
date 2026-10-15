@@ -27,11 +27,12 @@ export const useThemeStore = create<ThemeStore>()(
       setTheme: (theme) => {
         if (theme === get().theme || get().switching) return;
         set({ switching: true, pendingTheme: theme });
-        // La animación del overlay corre ~1.05s; el swap de tema ocurre a mitad
+        // La onda del overlay tarda ~1.8s en cubrir la pantalla; el swap de
+        // tema ocurre cuando ya la cubre y entonces arranca la salida
         setTimeout(() => {
           applyToDocument(theme);
           set({ theme, switching: false, pendingTheme: null });
-        }, 560);
+        }, 1900);
       },
     }),
     {

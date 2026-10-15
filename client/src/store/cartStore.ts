@@ -77,10 +77,25 @@ const createCartStoreFor = (theme: StoreTheme) =>
     )
   );
 
+type CartStoreHook = ReturnType<typeof createCartStoreFor>;
+
+/** Un único store por tema, creado la primera vez y reutilizado después. */
+const cartStores = new Map<StoreTheme, CartStoreHook>();
+
 /** Selector del carrito que respeta la tienda actual.
  * Cada tienda conserva su carrito en localStorage (clave `cart-storage-<theme>`),
  * por lo que el carrito se comporta como una única cesta compartida:
  * agregar un producto en una tienda y observarlo en otra resuena en la misma lista de items.
+ *
+ * El store se cachea: antes se creaba uno nuevo en cada render, así que
+ * `addItem` escribía en una instancia que se descartaba al instante y
+ * "Agregar al carrito" no surtía efecto.
  */
-export const useCartStore = (theme: StoreTheme = useThemeStore((s) => s.theme)) =>
-  createCartStoreFor(theme);
+export const useCartStore = (theme: StoreTheme = useThemeStore.getState().theme): CartStoreHook => {
+  let store = cartStores.get(theme);
+  if (!store) {
+    store = createCartStoreFor(theme);
+    cartStores.set(theme, store);
+  }
+  return store;
+};

@@ -22,10 +22,12 @@ export function resetBubblePointer(event: PointerEvent<HTMLElement>): void {
 }
 
 export function formatPrice(price: number): string {
+  // Precios en pesos enteros (sin centavos): nunca se muestra valor tras la coma.
   return new Intl.NumberFormat('es-CO', {
     style: 'currency',
     currency: 'COP',
     minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(price);
 }
 
