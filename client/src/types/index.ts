@@ -1,3 +1,9 @@
+/**
+ * Subcategoría de la Boutique: agrupa las prendas por zona del cuerpo
+ * (superior / inferior / conjuntos o vestidos) y los accesorios.
+ */
+export type BoutiqueCategory = 'superior' | 'inferior' | 'conjuntos' | 'accesorios';
+
 export interface Product {
   id: string;
   name: string;
@@ -7,6 +13,8 @@ export interface Product {
   /** Imagen alternativa (ilustración) si la principal falla */
   fallbackImage?: string;
   category: 'aseo' | 'alimentos';
+  /** Solo en productos de la Boutique: filtro del catálogo de moda */
+  subcategory?: BoutiqueCategory;
   stock: number;
   rating?: number;
   reviews?: number;

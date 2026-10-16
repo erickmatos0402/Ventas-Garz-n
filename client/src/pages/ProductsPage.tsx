@@ -1,18 +1,28 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ShoppingBasket, Sparkles, Star, Tag, SearchX } from 'lucide-react';
+import { ShoppingBasket, Sparkles, Star, Tag, SearchX, Shirt, Layers, Gem } from 'lucide-react';
 import { SlideUp } from '../utils/animations';
 import { useMockAdminStore, useThemeStore } from '../store';
 import { ProductCarousel, LiquidTabs } from '../components';
-import { BOUTIQUE_PRODUCTS, STORE_META_DATA } from '../data/boutiqueData';
+import { BOUTIQUE_PRODUCTS, BOUTIQUE_CATEGORIES, STORE_META_DATA } from '../data/boutiqueData';
 
 type SortOption = 'relevance' | 'price-asc' | 'price-desc' | 'rating';
+
+/** Ícono de cada filtro de la Boutique (por id de subcategoría). */
+const BOUTIQUE_TAB_ICONS: Record<string, React.ReactNode> = {
+  '': <ShoppingBasket size={15} />,
+  superior: <Shirt size={15} />,
+  inferior: <Layers size={15} />,
+  conjuntos: <Sparkles size={15} />,
+  accesorios: <Gem size={15} />,
+};
 
 export const ProductsPage: React.FC = () => {
   const marketProducts = useMockAdminStore((s) => s.products);
   const theme = useThemeStore((s) => s.theme);
   const meta = STORE_META_DATA[theme];
-  const products = theme === 'market' ? marketProducts : BOUTIQUE_PRODUCTS;
+  const isBoutique = theme === 'boutique';
+  const products = isBoutique ? BOUTIQUE_PRODUCTS : marketProducts;
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState<string>(searchParams.get('category') || '');
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
@@ -31,6 +41,10 @@ export const ProductsPage: React.FC = () => {
 
     if (selectedCategory === 'ofertas') {
       filtered = filtered.filter((p) => !!p.discount);
+    } else if (selectedCategory && isBoutique) {
+      // La Boutique filtra por zona de la prenda (superior, inferior,
+      // conjuntos/vestidos) y accesorios, en vez de aseo/alimentos.
+      filtered = filtered.filter((p) => p.subcategory === selectedCategory);
     } else if (selectedCategory) {
       filtered = filtered.filter((p) => p.category === selectedCategory);
     }
@@ -59,7 +73,7 @@ export const ProductsPage: React.FC = () => {
     }
 
     return filtered;
-  }, [products, selectedCategory, searchQuery, sortBy]);
+  }, [products, selectedCategory, searchQuery, sortBy, isBoutique]);
 
   const handleCategoryChange = (cat: string) => {
     setSelectedCategory(cat);
@@ -70,12 +84,22 @@ export const ProductsPage: React.FC = () => {
     setSearchParams(params, { replace: true });
   };
 
-  const categoryTabs = [
-    { id: '', label: 'Todos', icon: <ShoppingBasket size={15} /> },
-    { id: 'aseo', label: meta.categoryLabelA, icon: <Sparkles size={15} /> },
-    { id: 'alimentos', label: meta.categoryLabelB, icon: <ShoppingBasket size={15} /> },
-    { id: 'ofertas', label: 'Ofertas', icon: <Star size={15} /> },
-  ];
+  // Mercado filtra por aseo / alimentos; Boutique, por tipo de prenda.
+  const categoryTabs = isBoutique
+    ? [
+        ...BOUTIQUE_CATEGORIES.map((cat) => ({
+          id: cat.id,
+          label: cat.label,
+          icon: BOUTIQUE_TAB_ICONS[cat.id],
+        })),
+        { id: 'ofertas', label: 'Ofertas', icon: <Star size={15} /> },
+      ]
+    : [
+        { id: '', label: 'Todos', icon: <ShoppingBasket size={15} /> },
+        { id: 'aseo', label: meta.categoryLabelA, icon: <Sparkles size={15} /> },
+        { id: 'alimentos', label: meta.categoryLabelB, icon: <ShoppingBasket size={15} /> },
+        { id: 'ofertas', label: 'Ofertas', icon: <Star size={15} /> },
+      ];
 
   const sortOptions = [
     { value: 'relevance', label: 'Más relevantes' },

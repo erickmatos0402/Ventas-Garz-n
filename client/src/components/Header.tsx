@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
-import { ShoppingCart, Menu, ChevronRight } from 'lucide-react';
+import { ShoppingCart, Menu, ChevronRight, Sun, Moon } from 'lucide-react';
 import { useThemeStore } from '../store/themeStore';
+import { useAppearanceStore } from '../store/appearanceStore';
 import { StoreSwitcher } from './StoreSwitcher';
 import { STORE_META_DATA, MARKET_LOGO_PATH } from '../data/boutiqueData';
 import { useCartStore } from '../store';
@@ -44,6 +45,9 @@ const menuItemVariants: Variants = {
  */
 export const Header: React.FC = () => {
   const theme = useThemeStore((s) => s.theme);
+  const mode = useAppearanceStore((s) => s.mode);
+  const toggleMode = useAppearanceStore((s) => s.toggleMode);
+  const isDark = mode === 'dark';
   const { items } = useCartStore(theme)();
   const totalItems = items.reduce((sum: number, item: any) => sum + item.quantity, 0);
   const location = useLocation();
@@ -146,6 +150,26 @@ export const Header: React.FC = () => {
                           </motion.li>
                         );
                       })}
+
+                      {/* Modo claro / oscuro: apariencia del sitio, aparte del tema
+                          de tienda. Interruptor con el estado actual a la vista. */}
+                      <motion.li variants={menuItemVariants}>
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={isDark}
+                          onClick={toggleMode}
+                          className="menu-theme-item w-full"
+                        >
+                          <span className="flex items-center gap-2.5">
+                            {isDark ? <Moon size={16} aria-hidden /> : <Sun size={16} aria-hidden />}
+                            {isDark ? 'Modo oscuro' : 'Modo claro'}
+                          </span>
+                          <span className={`menu-theme-switch ${isDark ? 'is-on' : ''}`} aria-hidden>
+                            <span className="menu-theme-switch-dot" />
+                          </span>
+                        </button>
+                      </motion.li>
                     </motion.ul>
                   </motion.div>
                 )}

@@ -1,4 +1,4 @@
-import { Product } from '../types';
+import { Product, BoutiqueCategory } from '../types';
 
 /**
  * DATOS FALSOS — BOUTIQUE "GARZÓN CHIC" (venta de garaje online)
@@ -13,6 +13,7 @@ export const BOUTIQUE_PRODUCTS: Product[] = [
     price: 28000,
     image: '/img/boutique/real/vestido-floral.webp',
     category: 'aseo',
+    subcategory: 'conjuntos',
     stock: 1,
     rating: 4.9,
     reviews: 12,
@@ -26,6 +27,7 @@ export const BOUTIQUE_PRODUCTS: Product[] = [
     price: 19500,
     image: '/img/boutique/real/camisa-lino.webp',
     category: 'aseo',
+    subcategory: 'superior',
     stock: 1,
     rating: 4.7,
     reviews: 8,
@@ -38,6 +40,7 @@ export const BOUTIQUE_PRODUCTS: Product[] = [
     price: 22000,
     image: '/img/boutique/real/jeans.webp',
     category: 'aseo',
+    subcategory: 'inferior',
     stock: 1,
     rating: 4.8,
     reviews: 15,
@@ -51,6 +54,7 @@ export const BOUTIQUE_PRODUCTS: Product[] = [
     price: 16000,
     image: '/img/boutique/real/blusa-seda.webp',
     category: 'aseo',
+    subcategory: 'superior',
     stock: 1,
     rating: 4.6,
     reviews: 6,
@@ -63,6 +67,7 @@ export const BOUTIQUE_PRODUCTS: Product[] = [
     price: 26000,
     image: '/img/boutique/real/chaqueta-denim.webp',
     category: 'aseo',
+    subcategory: 'superior',
     stock: 1,
     rating: 4.9,
     reviews: 11,
@@ -76,6 +81,7 @@ export const BOUTIQUE_PRODUCTS: Product[] = [
     price: 17500,
     image: '/img/boutique/real/falda.webp',
     category: 'aseo',
+    subcategory: 'inferior',
     stock: 1,
     rating: 4.5,
     reviews: 5,
@@ -88,6 +94,7 @@ export const BOUTIQUE_PRODUCTS: Product[] = [
     price: 12000,
     image: '/img/boutique/real/sombrero.webp',
     category: 'alimentos',
+    subcategory: 'accesorios',
     stock: 2,
     rating: 4.7,
     reviews: 9,
@@ -100,6 +107,7 @@ export const BOUTIQUE_PRODUCTS: Product[] = [
     price: 34000,
     image: '/img/boutique/real/bolso.webp',
     category: 'alimentos',
+    subcategory: 'accesorios',
     stock: 1,
     rating: 5.0,
     reviews: 14,
@@ -113,6 +121,7 @@ export const BOUTIQUE_PRODUCTS: Product[] = [
     price: 9500,
     image: '/img/boutique/real/bufanda.webp',
     category: 'alimentos',
+    subcategory: 'accesorios',
     stock: 3,
     rating: 4.8,
     reviews: 7,
@@ -125,6 +134,7 @@ export const BOUTIQUE_PRODUCTS: Product[] = [
     price: 21000,
     image: '/img/boutique/real/zapatos.webp',
     category: 'alimentos',
+    subcategory: 'accesorios',
     stock: 1,
     rating: 4.6,
     reviews: 10,
@@ -137,6 +147,7 @@ export const BOUTIQUE_PRODUCTS: Product[] = [
     price: 14000,
     image: '/img/boutique/real/collar.webp',
     category: 'alimentos',
+    subcategory: 'accesorios',
     stock: 2,
     rating: 4.9,
     reviews: 13,
@@ -149,12 +160,26 @@ export const BOUTIQUE_PRODUCTS: Product[] = [
     price: 8500,
     image: '/img/boutique/real/gafas.webp',
     category: 'alimentos',
+    subcategory: 'accesorios',
     stock: 4,
     rating: 4.4,
     reviews: 6,
     discount: 10,
     emoji: '🕶️',
   },
+];
+
+/**
+ * Filtros del catálogo de Boutique: las prendas agrupadas por zona del
+ * cuerpo (parte superior / parte inferior / conjuntos o vestidos) y los
+ * accesorios. El `id` es el valor de `Product.subcategory`.
+ */
+export const BOUTIQUE_CATEGORIES: { id: '' | BoutiqueCategory; label: string }[] = [
+  { id: '', label: 'Todos' },
+  { id: 'superior', label: 'Parte superior' },
+  { id: 'inferior', label: 'Parte inferior' },
+  { id: 'conjuntos', label: 'Conjuntos o vestidos' },
+  { id: 'accesorios', label: 'Accesorios' },
 ];
 
 /** Precio final aplicando el descuento (si lo tiene) */

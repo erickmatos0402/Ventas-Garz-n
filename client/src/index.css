@@ -1110,6 +1110,38 @@ h1, h2, h3, h4 {
 .menu-theme-item svg { opacity: 0.55; transition: opacity 0.2s ease, transform 0.2s ease; }
 .menu-theme-item:hover svg { opacity: 1; transform: translateX(2px); }
 
+/* Interruptor claro/oscuro dentro del menú */
+.menu-theme-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 1.375rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.menu-theme-switch-dot {
+  position: absolute;
+  top: 50%;
+  left: 0.15rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  background: #ffffff;
+  transform: translateY(-50%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  transition: left 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.menu-theme-switch.is-on {
+  background: rgba(var(--c-primary-rgb), 0.85);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.menu-theme-switch.is-on .menu-theme-switch-dot { left: calc(100% - 1.15rem); }
+
 /* ============================================================
    MOBILE-FIRST — ajustes para pantallas táctiles y teléfonos
    ============================================================ */
@@ -1859,3 +1891,168 @@ summary:focus-visible {
    (feDisplacementMap). Ningún motor aplica `url(#...)` dentro de
    backdrop-filter, así que se demuestra en el ejemplo aparte
    (glass-lens-demo.html) sobre una capa duplicada del fondo. */
+
+/* ============================================================
+   MODO OSCURO — apariencia clara / oscura del sitio
+   ------------------------------------------------------------
+   html[data-mode='dark'] se combina con html[data-theme='...']: el tema
+   elige la PALETA DE MARCA (verde-azul en Mercado, arena-marrón en
+   Boutique) y el modo decide si el lienzo y el cristal son claros u
+   oscuros. El header y el hero ya son oscuros por diseño: no cambian.
+   Los overrides de utilidades usan `:where()` (especificidad 0) para no
+   pisar las reglas propias de .header-dark / .hero-dark.
+   ============================================================ */
+
+html[data-mode='dark'] {
+  color-scheme: dark;
+
+  /* Lienzo */
+  --c-bg-1: #0a1310;
+  --c-bg-2: #050c0a;
+  --c-bg-glow-1: rgba(255, 255, 255, 0.045);
+  --c-bg-glow-2: rgba(255, 255, 255, 0.032);
+  --c-bg-glow-3: rgba(255, 255, 255, 0.04);
+
+  /* Tinta y acentos: derivados claros de la paleta de Mercado */
+  --c-ink: #e8f1ed;
+  --c-ink-rgb: 232, 241, 237;
+  --c-primary: #2fa583;
+  --c-primary-deep: #6ecdb0;
+  --c-primary-dark: #9fe0c9;
+  --c-primary-rgb: 47, 165, 131;
+  --c-eyebrow: #7ed4b6;
+  --c-tab-text: #a8d9c9;
+  --c-btn-text: #eaf7f2;
+  --c-text-mid: #8ec9dd;
+  --c-text-accent: #8ec9dd;
+
+  /* Superficies suaves */
+  --c-soft: #14231e;
+  --c-soft-2: #1d312b;
+  --c-soft-rgb: 24, 40, 35;
+
+  /* Sombras: en oscuro pesan más y sin tinte */
+  --c-shadow-rgb: 0, 0, 0;
+  --c-shadow-2-rgb: 0, 0, 0;
+  --c-scrollbar-track: #0d1714;
+  --c-disabled: #4c6b63;
+  --c-disabled-1: rgba(30, 46, 42, 0.9);
+  --c-disabled-2: rgba(22, 34, 31, 0.85);
+
+  /* Aurora: brillos tenues, no manchas claras */
+  --c-aurora-1: rgba(47, 165, 131, 0.18);
+  --c-aurora-2: rgba(6, 117, 160, 0.16);
+  --c-aurora-3: rgba(255, 255, 255, 0.04);
+
+  /* Lente de cristal: se apaga la lámina blanca */
+  --lens-edge: rgba(255, 255, 255, 0.14);
+  --lens-tint: rgba(255, 255, 255, 0.05);
+  --lens-sheen: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.03) 30%,
+    rgba(255, 255, 255, 0) 58%,
+    rgba(255, 255, 255, 0.07) 100%
+  );
+  --lens-thickness:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.05),
+    inset 1px 0 0 rgba(255, 255, 255, 0.05),
+    inset -1px 0 0 rgba(255, 255, 255, 0.05);
+  --lens-refract:
+    inset 0 0 22px rgba(255, 255, 255, 0.05),
+    inset 0 14px 30px -18px rgba(0, 0, 0, 0.7);
+  --lens-depth:
+    0 12px 32px rgba(0, 0, 0, 0.55),
+    0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+html[data-mode='dark'][data-theme='boutique'] {
+  --c-bg-1: #17120e;
+  --c-bg-2: #0c0907;
+  --c-ink: #f1e8dd;
+  --c-ink-rgb: 241, 232, 221;
+  --c-primary: #c9a98d;
+  --c-primary-deep: #dcc3a8;
+  --c-primary-dark: #efdcc6;
+  --c-primary-rgb: 201, 169, 141;
+  --c-eyebrow: #e0c9ae;
+  --c-tab-text: #d9c3a9;
+  --c-btn-text: #f6efe6;
+  --c-text-mid: #c9a98d;
+  --c-text-accent: #dcc3a8;
+  --c-soft: #241c15;
+  --c-soft-2: #33271d;
+  --c-soft-rgb: 46, 36, 28;
+  --c-scrollbar-track: #1b1510;
+  --c-disabled: #6b5a4b;
+  --c-disabled-1: rgba(52, 42, 33, 0.9);
+  --c-disabled-2: rgba(38, 30, 23, 0.85);
+  --c-aurora-1: rgba(201, 169, 141, 0.16);
+  --c-aurora-2: rgba(215, 201, 184, 0.12);
+  --c-aurora-3: rgba(255, 255, 255, 0.04);
+}
+
+/* Superficies de cristal: se oscurecen (el header y el hero no se tocan) */
+:where(html[data-mode='dark']) .glass-strong,
+:where(html[data-mode='dark']) .ios-glass {
+  background: linear-gradient(
+    140deg,
+    rgba(255, 255, 255, 0.10),
+    rgba(var(--c-soft-rgb), 0.36) 58%,
+    rgba(255, 255, 255, 0.03)
+  );
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.4),
+    0 10px 28px rgba(0, 0, 0, 0.45),
+    0 26px 60px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+:where(html[data-mode='dark']) .liquid-panel {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(var(--c-soft-rgb), 0.30));
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+:where(html[data-mode='dark']) .liquid-badge {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04));
+  border-color: rgba(255, 255, 255, 0.13);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+/* Opción activa de las pestañas: pastilla oscura, no blanca */
+:where(html[data-mode='dark']) .liquid-tab > .liquid-tab-blob {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08));
+  border-color: rgba(255, 255, 255, 0.30);
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
+}
+
+:where(html[data-mode='dark']) .liquid-tab:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.06));
+  border-color: rgba(255, 255, 255, 0.24);
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+/* Grises de Tailwind: se aclaran sobre el lienzo oscuro */
+:where(html[data-mode='dark']) .text-gray-400 { color: #8ba49c; }
+:where(html[data-mode='dark']) .text-gray-500 { color: #a6b9b2; }
+:where(html[data-mode='dark']) .text-gray-600 { color: #c1cfca; }
+:where(html[data-mode='dark']) .placeholder\:text-gray-400::placeholder { color: #8ba49c; }
+
+/* Blancos translúcidos (miniaturas, campos, pastillas) → cristal oscuro */
+:where(html[data-mode='dark']) .bg-white\/50 { background-color: rgba(255, 255, 255, 0.05); }
+:where(html[data-mode='dark']) .bg-white\/60 { background-color: rgba(255, 255, 255, 0.07); }
+:where(html[data-mode='dark']) .bg-white\/70 { background-color: rgba(255, 255, 255, 0.09); }
+:where(html[data-mode='dark']) .bg-white\/80 { background-color: rgba(255, 255, 255, 0.11); }
+:where(html[data-mode='dark']) .bg-white\/85 { background-color: rgba(255, 255, 255, 0.13); }
+:where(html[data-mode='dark']) .border-white\/70 { border-color: rgba(255, 255, 255, 0.12); }
+:where(html[data-mode='dark']) .border-white\/80 { border-color: rgba(255, 255, 255, 0.14); }
+
+/* Velos de los modales del admin: sobre oscuro deben ser negros */
+:where(html[data-mode='dark']) .bg-dark\/40 { background-color: rgba(0, 0, 0, 0.62); }
