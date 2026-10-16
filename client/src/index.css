@@ -1107,8 +1107,12 @@ h1, h2, h3, h4 {
 }
 
 .menu-theme-item[aria-current='page'] svg { opacity: 1; }
-.menu-theme-item svg { opacity: 0.55; transition: opacity 0.2s ease, transform 0.2s ease; }
-.menu-theme-item:hover svg { opacity: 1; transform: translateX(2px); }
+.menu-theme-item svg { opacity: 0.6; transition: opacity 0.2s ease, transform 0.2s ease; }
+.menu-theme-item:hover svg { opacity: 1; }
+/* Solo el ícono del canto se desliza (el chevron de los enlaces y el de
+   cerrar sesión); los íconos de la izquierda apenas ganan opacidad. */
+.menu-theme-item:hover > svg,
+.menu-theme-item:hover > span:last-child > svg { transform: translateX(2px); }
 
 /* Interruptor claro/oscuro dentro del menú */
 .menu-theme-switch {

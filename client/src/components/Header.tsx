@@ -1,12 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
-import { ShoppingCart, Menu, ChevronRight, Sun, Moon } from 'lucide-react';
+import {
+  ShoppingCart,
+  Menu,
+  ChevronRight,
+  Sun,
+  Moon,
+  Store,
+  Info,
+  HelpCircle,
+  ShieldCheck,
+  LogIn,
+  LogOut,
+  UserCircle,
+} from 'lucide-react';
 import { useThemeStore } from '../store/themeStore';
 import { useAppearanceStore } from '../store/appearanceStore';
 import { StoreSwitcher } from './StoreSwitcher';
 import { STORE_META_DATA, MARKET_LOGO_PATH } from '../data/boutiqueData';
-import { useCartStore } from '../store';
+import { useCartStore, useAuthStore } from '../store';
 
 /**
  * Secciones del sitio que viven dentro del menú desplegable. La tienda
@@ -14,10 +27,10 @@ import { useCartStore } from '../store';
  * se repite.
  */
 const MENU_ITEMS = [
-  { to: '/products', label: 'Tienda' },
-  { to: '/about', label: 'Acerca de' },
-  { to: '/faq', label: 'FAQ' },
-  { to: '/admin', label: 'Admin' },
+  { to: '/products', label: 'Tienda', icon: <Store size={16} /> },
+  { to: '/about', label: 'Acerca de', icon: <Info size={16} /> },
+  { to: '/faq', label: 'FAQ', icon: <HelpCircle size={16} /> },
+  { to: '/admin', label: 'Admin', icon: <ShieldCheck size={16} /> },
 ];
 
 /** El panel entra como una gota y las opciones lo hacen en cascada. */
@@ -48,6 +61,8 @@ export const Header: React.FC = () => {
   const mode = useAppearanceStore((s) => s.mode);
   const toggleMode = useAppearanceStore((s) => s.toggleMode);
   const isDark = mode === 'dark';
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
   const { items } = useCartStore(theme)();
   const totalItems = items.reduce((sum: number, item: any) => sum + item.quantity, 0);
   const location = useLocation();
@@ -144,12 +159,48 @@ export const Header: React.FC = () => {
                               aria-current={active ? 'page' : undefined}
                               className="menu-theme-item"
                             >
-                              {item.label}
+                              <span className="flex items-center gap-2.5 min-w-0">
+                                {item.icon}
+                                {item.label}
+                              </span>
                               <ChevronRight size={16} aria-hidden />
                             </Link>
                           </motion.li>
                         );
                       })}
+
+                      {/* Cuenta: registrarse o iniciar sesión; con sesión
+                          abierta la fila se convierte en "cerrar sesión". */}
+                      <motion.li variants={menuItemVariants}>
+                        {user ? (
+                          <button
+                            type="button"
+                            onClick={logout}
+                            className="menu-theme-item w-full"
+                          >
+                            <span className="flex items-center gap-2.5 min-w-0">
+                              <UserCircle size={16} aria-hidden />
+                              <span className="truncate">{user.name.split(' ')[0]}</span>
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                              <span className="sr-only">Cerrar sesión</span>
+                              <LogOut size={16} aria-hidden />
+                            </span>
+                          </button>
+                        ) : (
+                          <Link
+                            to="/login"
+                            onClick={() => setIsMenuOpen(false)}
+                            className="menu-theme-item"
+                          >
+                            <span className="flex items-center gap-2.5 min-w-0">
+                              <LogIn size={16} aria-hidden />
+                              Ingresar o registrarse
+                            </span>
+                            <ChevronRight size={16} aria-hidden />
+                          </Link>
+                        )}
+                      </motion.li>
 
                       {/* Modo claro / oscuro: apariencia del sitio, aparte del tema
                           de tienda. Interruptor con el estado actual a la vista. */}

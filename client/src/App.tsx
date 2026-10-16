@@ -10,6 +10,7 @@ import {
   AboutPage,
   FAQPage,
   AdminPage,
+  AuthPage,
 } from './pages';
 import { useMockAdminStore, useThemeStore } from './store';
 import { STORE_META_DATA } from './data/boutiqueData';
@@ -23,6 +24,7 @@ const SECTION_TITLES: Record<string, string> = {
   '/about': 'Nosotros',
   '/faq': 'Preguntas frecuentes',
   '/admin': 'Administración',
+  '/login': 'Mi cuenta',
 };
 
 /**
@@ -62,6 +64,7 @@ function AppShell() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/login" element={<AuthPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

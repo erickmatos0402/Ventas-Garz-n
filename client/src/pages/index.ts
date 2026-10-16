@@ -5,3 +5,4 @@ export { CartPage } from './CartPage';
 export { AboutPage } from './AboutPage';
 export { FAQPage } from './FAQPage';
 export { AdminPage } from './AdminPage';
+export { AuthPage } from './AuthPage';
