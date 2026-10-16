@@ -979,6 +979,14 @@ h1, h2, h3, h4 {
     0 5px 16px rgba(0, 0, 0, 0.16);
 }
 
+/* Los CTA del hero recuperan la forma ANTERIOR: la pastilla (mismo radio
+   que el resto de botones del sitio). El vidrio plano se mantiene; solo
+   cambia el radio, que en header/hero era 0.9rem. */
+.hero-dark .btn-liquid,
+.hero-dark .btn-liquid-ghost {
+  border-radius: 9999px;
+}
+
 .hero-dark .btn-liquid:active,
 .hero-dark .btn-liquid-ghost:active,
 .header-dark .btn-liquid:active,

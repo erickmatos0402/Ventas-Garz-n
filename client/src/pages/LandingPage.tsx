@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Zap,
@@ -32,6 +32,36 @@ const BOUTIQUE_FALLBACK = BOUTIQUE_PRODUCTS;
 const bubbleProps = {
   onPointerMove: trackBubblePointer,
   onPointerLeave: resetBubblePointer,
+};
+
+/**
+ * Entrada del hero: cada bloque entra en cascada cuando la sección aparece
+ * en pantalla. A propósito NO se anima `filter`: aplicar blur a un elemento
+ * que usa backdrop-filter rompería el cristal esmerilado mientras corre.
+ */
+const heroStagger: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.13, delayChildren: 0.08 } },
+};
+
+const heroItem: Variants = {
+  hidden: { opacity: 0, y: 30, scale: 0.98 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { type: 'spring', stiffness: 240, damping: 26, mass: 0.9 },
+  },
+};
+
+const heroMedallion: Variants = {
+  hidden: { opacity: 0, y: 26, scale: 0.86 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { type: 'spring', stiffness: 170, damping: 22, mass: 1 },
+  },
 };
 
 /** Encabezado de sección: barra con el arco del medallón + título + bajada. */
@@ -188,28 +218,46 @@ export const LandingPage: React.FC = () => {
   return (
     <div className="min-h-dvh">
       {/* ============ HERO ============ */}
-      <section className="relative pt-4 sm:pt-8 md:pt-12 pb-10 sm:pb-16 hero-dark">
+      {/* md:min-h fija una altura generosa en pantallas grandes (el aire
+          sobrante se reparte porque la rejilla centra su contenido). */}
+      <section className="relative flex flex-col justify-center pt-6 sm:pt-10 md:pt-14 pb-14 sm:pb-20 md:pb-24 md:min-h-[620px] hero-dark">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 sm:gap-8 md:gap-10 items-center">
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-8 sm:gap-12 md:gap-16 items-center">
             {/* Texto */}
             <div className="sm:col-span-7 text-center sm:text-left">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+                variants={heroStagger}
+                initial="hidden"
+                whileInView="visible"
+                // Umbral bajo: el disparo no debe depender de cuánto del
+                // bloque largo entre en pantalla (pantallas bajas incluidas).
+                viewport={{ once: true, amount: 0.1 }}
               >
-                <div className="space-y-4 sm:space-y-5">
-                  <p className="ios-glass-dark inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-semibold text-primary-deep">
+                {/* Más aire entre bloques: el hero gana altura y cada
+                    elemento queda separado con un ritmo parecido. */}
+                <div className="space-y-5 sm:space-y-7 md:space-y-9">
+                  <motion.p
+                    variants={heroItem}
+                    className="ios-glass-dark inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-semibold text-primary-deep"
+                  >
                     <span className="h-2 w-2 rounded-full" style={{ background: 'var(--c-sig-1)' }}></span>
                     {meta.badgeText}
-                  </p>
-                  <h1 className="font-display text-[1.65rem] min-[400px]:text-[1.85rem] sm:text-4xl lg:text-5xl font-extrabold text-dark leading-[1.12] sm:leading-[1.08] text-balance">
+                  </motion.p>
+                  <motion.h1
+                    variants={heroItem}
+                    className="font-display text-[1.65rem] min-[400px]:text-[1.85rem] sm:text-4xl lg:text-5xl font-extrabold text-dark leading-[1.12] sm:leading-[1.08] text-balance"
+                  >
                     {meta.heroTitleA}{' '}
                     <span className="text-signature">{meta.heroTitleB}</span>
-                  </h1>
+                  </motion.h1>
 
                   {/* Buscador hero */}
-                  <form onSubmit={submitSearch} className="max-w-xl mx-auto lg:mx-0" role="search">
+                  <motion.form
+                    variants={heroItem}
+                    onSubmit={submitSearch}
+                    className="max-w-xl mx-auto lg:mx-0"
+                    role="search"
+                  >
                     <div className="ios-glass-dark bubble-hl rounded-full p-1.5 flex items-center gap-2">
                       <Search size={18} className="ml-4 text-gray-400 flex-shrink-0" />
                       <input
@@ -227,9 +275,12 @@ export const LandingPage: React.FC = () => {
                         <span className="sr-only sm:hidden">Buscar productos</span>
                       </button>
                     </div>
-                  </form>
+                  </motion.form>
 
-                  <div className="flex flex-col gap-3 min-[420px]:flex-row justify-center sm:justify-start">
+                  <motion.div
+                    variants={heroItem}
+                    className="flex flex-col gap-3 min-[420px]:flex-row justify-center sm:justify-start"
+                  >
                     <Link to="/products" className="btn-liquid px-8 py-3.5">
                       Compra Ahora
                       <ArrowRight size={18} className="ml-2" />
@@ -237,16 +288,17 @@ export const LandingPage: React.FC = () => {
                     <Link to="/about" className="btn-liquid-ghost px-8 py-3.5">
                       Conoce Más
                     </Link>
-                  </div>
+                  </motion.div>
                 </div>
               </motion.div>
             </div>
 
             {/* Medallón del logo con órbitas de burbujas */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.15 }}
+              variants={heroMedallion}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.1 }}
               className="sm:col-span-5 flex justify-center"
             >
               <LogoMedallion withChips />
