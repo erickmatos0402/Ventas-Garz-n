@@ -65,20 +65,19 @@ export const CartPage: React.FC = () => {
               variants={containerVariants}
               initial="hidden"
               animate="visible"
-              className="space-y-2.5"
+              className="grid grid-cols-2 min-[420px]:grid-cols-3 gap-2.5 sm:gap-3 items-stretch"
             >
               {items.map((item) => (
                 <motion.div
                   key={item.id}
                   variants={itemVariants}
                   layout
-                  className="glass-panel rounded-xl p-2.5 sm:p-3 flex flex-col sm:flex-row gap-2.5 sm:gap-3"
+                  className="glass-panel rounded-xl p-2 flex flex-col"
                 >
-                  {/* Miniatura real del producto (con emoji de respaldo) */}
-                  {/* Miniatura y tarjeta compactas: la lista se ve más densa
-                      y entran más productos por pantalla. */}
-                  <div className="relative w-full h-20 sm:w-14 sm:h-14 flex-shrink-0 bg-white/60 border border-white/70 rounded-lg overflow-hidden flex items-center justify-center">
-                    <span className="text-xl">{item.emoji || '🛒'}</span>
+                  {/* Ficha compacta: la foto manda y el botón de eliminar se
+                      superpone para no robarle alto a la tarjeta. */}
+                  <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-white/60 border border-white/70 flex items-center justify-center">
+                    <span className="text-2xl">{item.emoji || '🛒'}</span>
                     {item.image && (
                       <img
                         src={item.image}
@@ -87,45 +86,45 @@ export const CartPage: React.FC = () => {
                         onError={(e) => (e.currentTarget.style.display = 'none')}
                       />
                     )}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-sm text-dark leading-tight">{item.name}</h3>
-                    <p className="text-gray-500 text-[11px] mb-0.5 line-clamp-1">{item.description}</p>
-                    <p className="font-bold text-[13px] text-primary-deep">{formatPrice(item.price)}</p>
-                  </div>
-
-                  <div className="flex flex-wrap items-center sm:flex-col sm:items-end justify-between gap-1.5 sm:gap-2">
                     <button
                       onClick={() => removeItem(item.id)}
-                      className="btn-liquid-ghost tap-icon text-danger p-2 sm:p-1.5"
+                      className="absolute top-1 right-1 z-10 rounded-full bg-white/85 text-danger p-1.5 shadow-sm hover:bg-white transition"
                       aria-label={`Eliminar ${item.name}`}
                     >
-                      <Trash2 size={15} />
+                      <Trash2 size={13} />
                     </button>
+                  </div>
 
-                    <div className="liquid-badge flex items-center rounded-full px-0.5">
-                      <button
-                        onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                        className="w-8 h-8 sm:w-7 sm:h-7 rounded-full hover:bg-white/70 transition flex items-center justify-center"
-                        aria-label="Restar"
-                      >
-                        <Minus size={13} />
-                      </button>
-                      <span className="px-1.5 font-bold text-dark text-[13px]">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="w-8 h-8 sm:w-7 sm:h-7 rounded-full hover:bg-white/70 transition flex items-center justify-center"
-                        aria-label="Sumar"
-                      >
-                        <Plus size={13} />
-                      </button>
-                    </div>
-
-                    <p className="font-bold text-[13px] text-dark">
-                      {formatPrice(item.price * item.quantity)}
+                  <div className="mt-1.5 flex-1 min-w-0">
+                    <h3 className="font-bold text-[12px] sm:text-[13px] text-dark leading-tight line-clamp-2">
+                      {item.name}
+                    </h3>
+                    <p className="mt-0.5 font-bold text-[12px] sm:text-[13px] text-primary-deep">
+                      {formatPrice(item.price)}
                     </p>
                   </div>
+
+                  <div className="mt-1.5 liquid-badge flex items-center justify-between rounded-full px-0.5">
+                    <button
+                      onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                      className="w-7 h-7 rounded-full hover:bg-white/70 transition flex items-center justify-center"
+                      aria-label="Restar"
+                    >
+                      <Minus size={12} />
+                    </button>
+                    <span className="px-1 font-bold text-dark text-[12px]">{item.quantity}</span>
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      className="w-7 h-7 rounded-full hover:bg-white/70 transition flex items-center justify-center"
+                      aria-label="Sumar"
+                    >
+                      <Plus size={12} />
+                    </button>
+                  </div>
+
+                  <p className="mt-1 text-[11px] sm:text-xs font-bold text-dark text-right">
+                    {formatPrice(item.price * item.quantity)}
+                  </p>
                 </motion.div>
               ))}
             </motion.div>
