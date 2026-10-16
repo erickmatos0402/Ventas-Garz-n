@@ -65,20 +65,20 @@ export const CartPage: React.FC = () => {
               variants={containerVariants}
               initial="hidden"
               animate="visible"
-              className="space-y-4"
+              className="space-y-2.5"
             >
               {items.map((item) => (
                 <motion.div
                   key={item.id}
                   variants={itemVariants}
                   layout
-                  className="glass-panel rounded-3xl p-5 flex flex-col sm:flex-row gap-5"
+                  className="glass-panel rounded-xl p-2.5 sm:p-3 flex flex-col sm:flex-row gap-2.5 sm:gap-3"
                 >
                   {/* Miniatura real del producto (con emoji de respaldo) */}
-                  {/* Miniatura compacta: en móvil la lista se ve más densa
+                  {/* Miniatura y tarjeta compactas: la lista se ve más densa
                       y entran más productos por pantalla. */}
-                  <div className="relative w-full h-32 sm:w-24 sm:h-24 flex-shrink-0 bg-white/60 border border-white/70 rounded-2xl overflow-hidden flex items-center justify-center">
-                    <span className="text-3xl">{item.emoji || '🛒'}</span>
+                  <div className="relative w-full h-20 sm:w-14 sm:h-14 flex-shrink-0 bg-white/60 border border-white/70 rounded-lg overflow-hidden flex items-center justify-center">
+                    <span className="text-xl">{item.emoji || '🛒'}</span>
                     {item.image && (
                       <img
                         src={item.image}
@@ -90,39 +90,39 @@ export const CartPage: React.FC = () => {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-lg text-dark">{item.name}</h3>
-                    <p className="text-gray-500 text-sm mb-2 line-clamp-1">{item.description}</p>
-                    <p className="font-bold text-primary-deep">{formatPrice(item.price)}</p>
+                    <h3 className="font-bold text-sm text-dark leading-tight">{item.name}</h3>
+                    <p className="text-gray-500 text-[11px] mb-0.5 line-clamp-1">{item.description}</p>
+                    <p className="font-bold text-[13px] text-primary-deep">{formatPrice(item.price)}</p>
                   </div>
 
-                  <div className="flex flex-wrap items-center sm:flex-col sm:items-end justify-between gap-3">
+                  <div className="flex flex-wrap items-center sm:flex-col sm:items-end justify-between gap-1.5 sm:gap-2">
                     <button
                       onClick={() => removeItem(item.id)}
-                      className="btn-liquid-ghost tap-icon text-danger p-3 sm:p-2.5"
+                      className="btn-liquid-ghost tap-icon text-danger p-2 sm:p-1.5"
                       aria-label={`Eliminar ${item.name}`}
                     >
-                      <Trash2 size={18} />
+                      <Trash2 size={15} />
                     </button>
 
-                    <div className="liquid-badge flex items-center rounded-full px-1">
+                    <div className="liquid-badge flex items-center rounded-full px-0.5">
                       <button
                         onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                        className="w-11 h-11 sm:w-9 sm:h-9 rounded-full hover:bg-white/70 transition flex items-center justify-center"
+                        className="w-8 h-8 sm:w-7 sm:h-7 rounded-full hover:bg-white/70 transition flex items-center justify-center"
                         aria-label="Restar"
                       >
-                        <Minus size={15} />
+                        <Minus size={13} />
                       </button>
-                      <span className="px-3 font-bold text-dark text-sm">{item.quantity}</span>
+                      <span className="px-1.5 font-bold text-dark text-[13px]">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="w-11 h-11 sm:w-9 sm:h-9 rounded-full hover:bg-white/70 transition flex items-center justify-center"
+                        className="w-8 h-8 sm:w-7 sm:h-7 rounded-full hover:bg-white/70 transition flex items-center justify-center"
                         aria-label="Sumar"
                       >
-                        <Plus size={15} />
+                        <Plus size={13} />
                       </button>
                     </div>
 
-                    <p className="font-bold text-dark">
+                    <p className="font-bold text-[13px] text-dark">
                       {formatPrice(item.price * item.quantity)}
                     </p>
                   </div>
@@ -144,14 +144,14 @@ export const CartPage: React.FC = () => {
                     <span className="font-semibold">{formatPrice(total)}</span>
                   </div>
                   <div className="flex justify-between text-dark">
-                    <span>Impuesto (19%):</span>
-                    <span className="font-semibold">{formatPrice(total * 0.19)}</span>
+                    <span>Impuesto (20%):</span>
+                    <span className="font-semibold">{formatPrice(total * 0.2)}</span>
                   </div>
                 </div>
 
                 <div className="flex justify-between text-2xl font-bold text-dark mb-6">
                   <span>Total:</span>
-                  <span className="text-primary-deep">{formatPrice(total * 1.19)}</span>
+                  <span className="text-primary-deep">{formatPrice(total * 1.2)}</span>
                 </div>
 
                 <motion.button

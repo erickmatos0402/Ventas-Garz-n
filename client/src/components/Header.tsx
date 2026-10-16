@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ShoppingCart, Menu } from 'lucide-react';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { ShoppingCart, Menu, ChevronRight } from 'lucide-react';
 import { useThemeStore } from '../store/themeStore';
 import { StoreSwitcher } from './StoreSwitcher';
 import { STORE_META_DATA, MARKET_LOGO_PATH } from '../data/boutiqueData';
@@ -18,6 +18,22 @@ const MENU_ITEMS = [
   { to: '/faq', label: 'FAQ' },
   { to: '/admin', label: 'Admin' },
 ];
+
+/** El panel entra como una gota y las opciones lo hacen en cascada. */
+const menuVariants: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.06, delayChildren: 0.08 } },
+};
+
+const menuItemVariants: Variants = {
+  hidden: { opacity: 0, y: 12, filter: 'blur(4px)' },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: { type: 'spring', stiffness: 480, damping: 30 },
+  },
+};
 
 /**
  * Header — barra superior con la foto del tema de fondo.
@@ -94,36 +110,46 @@ export const Header: React.FC = () => {
                 <Menu size={18} className="text-primary-deep" />
               </motion.button>
 
-              {isMenuOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -6, scale: 0.97 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ duration: 0.18, ease: 'easeOut' }}
-                  // Panel OSCURO de alto contraste: sobre la foto del header y
-                  // también sobre el fondo claro de la página se lee siempre.
-                  className="absolute right-0 mt-2 w-48 rounded-2xl p-1.5 z-30 border border-white/15 shadow-2xl"
-                  style={{
-                    background: 'rgba(5, 28, 24, 0.95)',
-                    backdropFilter: 'blur(14px) saturate(150%)',
-                    WebkitBackdropFilter: 'blur(14px) saturate(150%)',
-                  }}
-                >
-                  {MENU_ITEMS.map((item) => (
-                    <Link
-                      key={item.to}
-                      to={item.to}
-                      onClick={() => setIsMenuOpen(false)}
-                      className={`block px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
-                        location.pathname.startsWith(item.to)
-                          ? 'bg-white/15 text-white'
-                          : 'text-white/90 hover:bg-white/10 hover:text-white'
-                      }`}
+              <AnimatePresence>
+                {isMenuOpen && (
+                  <motion.div
+                    key="sections-menu"
+                    initial={{ opacity: 0, y: -18, scale: 0.86, rotateX: -14, transformPerspective: 900 }}
+                    animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0, transformPerspective: 900 }}
+                    exit={{ opacity: 0, y: -12, scale: 0.92, rotateX: -8, transformPerspective: 900 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 24, mass: 0.9 }}
+                    style={{ transformOrigin: 'top right' }}
+                    // Panel con la paleta de firma del TEMA activo: sobre la
+                    // foto del header y sobre el fondo claro de la página se
+                    // lee siempre, y cada tienda abre con sus colores.
+                    className="menu-theme-panel absolute right-0 mt-3.5 w-64 sm:w-80 rounded-[2rem] p-3 z-30 overflow-hidden"
+                  >
+                    <motion.ul
+                      variants={menuVariants}
+                      initial="hidden"
+                      animate="visible"
+                      className="relative flex flex-col gap-1"
                     >
-                      {item.label}
-                    </Link>
-                  ))}
-                </motion.div>
-              )}
+                      {MENU_ITEMS.map((item) => {
+                        const active = location.pathname.startsWith(item.to);
+                        return (
+                          <motion.li key={item.to} variants={menuItemVariants}>
+                            <Link
+                              to={item.to}
+                              onClick={() => setIsMenuOpen(false)}
+                              aria-current={active ? 'page' : undefined}
+                              className="menu-theme-item"
+                            >
+                              {item.label}
+                              <ChevronRight size={16} aria-hidden />
+                            </Link>
+                          </motion.li>
+                        );
+                      })}
+                    </motion.ul>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 

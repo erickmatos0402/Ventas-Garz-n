@@ -12,6 +12,7 @@ import {
   Truck,
   Phone,
   Lock,
+  Landmark,
 } from 'lucide-react';
 import { useCartStore } from '../store';
 import { useThemeStore } from '../store';
@@ -19,6 +20,10 @@ import { SlideUp } from '../utils/animations';
 import { formatPrice } from '../utils';
 
 type DeliveryMode = 'pickup' | 'delivery';
+type PaymentMode = 'cash' | 'transfer';
+
+/** Al pagar por transferencia el cliente adelanta este porcentaje del total. */
+const TRANSFER_ADVANCE = 0.2;
 
 export const CheckoutPage: React.FC = () => {
   const theme = useThemeStore((s) => s.theme);
@@ -27,6 +32,7 @@ export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
 
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('pickup');
+  const [paymentMode, setPaymentMode] = useState<PaymentMode>('cash');
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
@@ -39,9 +45,12 @@ export const CheckoutPage: React.FC = () => {
   const clearCartTheme = useCartStore(theme);
 
   const subtotal = items.reduce((sum: number, item: any) => sum + Number(item.price) * item.quantity, 0);
-  const tax = subtotal * 0.19;
+  const tax = subtotal * 0.2;
   const deliveryFee = deliveryMode === 'delivery' ? 5000 : 0;
   const total = subtotal + tax + deliveryFee;
+  // Importe que se paga por adelantado al elegir transferencia (20% del total).
+  const transferAdvance = total * TRANSFER_ADVANCE;
+  const transferBalance = total - transferAdvance;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,6 +111,12 @@ export const CheckoutPage: React.FC = () => {
             <p className="text-gray-500 mb-6">
               Gracias por tu compra. Te llamaremos al {phone || 'tu teléfono'} para coordinar{' '}
               {deliveryMode === 'pickup' ? 'la recogida en tienda' : 'la entrega a domicilio'}.
+              {paymentMode === 'transfer' && (
+                <>
+                  {' '}Te enviaremos los datos de la cuenta para adelantar por transferencia{' '}
+                  <span className="font-semibold text-primary-deep">{formatPrice(transferAdvance)}</span> (20% del total).
+                </>
+              )}
             </p>
             <button onClick={() => navigate('/products')} className="btn-liquid w-full py-3">
               Seguir Comprando
@@ -217,10 +232,59 @@ export const CheckoutPage: React.FC = () => {
                   <Banknote size={20} className="text-primary" />
                   Método de Pago
                 </h2>
-                <div className="liquid-badge rounded-2xl p-4 text-sm text-gray-600 flex items-center gap-2">
-                  <Banknote size={18} className="text-primary" />
-                  Pago en efectivo contra entrega (único método disponible por ahora)
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {([
+                    {
+                      id: 'cash' as PaymentMode,
+                      icon: <Banknote size={20} />,
+                      title: 'Efectivo contra entrega',
+                      subtitle: 'Pagas el 100% al recibir',
+                    },
+                    {
+                      id: 'transfer' as PaymentMode,
+                      icon: <Landmark size={20} />,
+                      title: 'Transferencia bancaria',
+                      subtitle: `Adelantas el 20% (${formatPrice(transferAdvance)})`,
+                    },
+                  ]).map((mode) => {
+                    const selected = paymentMode === mode.id;
+                    return (
+                      <button
+                        key={mode.id}
+                        type="button"
+                        onClick={() => setPaymentMode(mode.id)}
+                        className={`relative rounded-2xl p-4 text-left transition cursor-pointer ${
+                          selected
+                            ? 'liquid-tab-blob !rounded-2xl ring-2 ring-primary'
+                            : 'liquid-badge hover:scale-[1.02]'
+                        }`}
+                      >
+                        <span className="flex items-center gap-3">
+                          <span className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${selected ? 'bg-primary text-white' : 'bg-white/70 text-primary-deep'}`}>
+                            {mode.icon}
+                          </span>
+                          <span>
+                            <span className="block font-bold text-dark text-sm">{mode.title}</span>
+                            <span className="block text-xs text-gray-500 mt-0.5">{mode.subtitle}</span>
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
+                {paymentMode === 'transfer' && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-3 liquid-badge rounded-2xl p-4 flex items-start gap-3 text-sm text-gray-600">
+                      <Landmark size={18} className="text-primary flex-shrink-0 mt-0.5" />
+                      Adelantas el 20% del total por transferencia bancaria y el resto lo pagas
+                      {' '}al recibir tu pedido. Te enviamos los datos de la cuenta para completar el pago.
+                    </div>
+                  </motion.div>
+                )}
               </div>
 
               {error && (
@@ -278,7 +342,7 @@ export const CheckoutPage: React.FC = () => {
                   <span>{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-dark">
-                  <span>Impuesto (19%):</span>
+                  <span>Impuesto (20%):</span>
                   <span>{formatPrice(tax)}</span>
                 </div>
                 {deliveryMode === 'delivery' && (
@@ -291,6 +355,19 @@ export const CheckoutPage: React.FC = () => {
                   <span>Total:</span>
                   <span className="text-primary-deep">{formatPrice(total)}</span>
                 </div>
+
+                {paymentMode === 'transfer' && (
+                  <div className="mt-3 rounded-2xl bg-white/50 border border-white/70 p-3 space-y-1.5">
+                    <div className="flex justify-between text-sm text-dark">
+                      <span>Pago por transferencia (20%):</span>
+                      <span className="font-bold text-primary-deep">{formatPrice(transferAdvance)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>Resto al recibir:</span>
+                      <span>{formatPrice(transferBalance)}</span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <p className="mt-4 text-xs text-gray-400 text-center">Modo demo: el pedido no se guarda</p>

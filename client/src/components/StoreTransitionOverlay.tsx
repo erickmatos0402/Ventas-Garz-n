@@ -162,18 +162,29 @@ export const StoreTransitionOverlay: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* Etiqueta con el nombre de la tienda destino */}
+      {/* Etiqueta con el nombre de la tienda destino.
+          El centrado horizontal va en los valores de framer-motion (x: -50%)
+          y no en una clase `-translate-x-1/2`: al animar `y` la librería
+          escribe su propio `transform` y anulaba la clase, así que el bloque
+          quedaba desplazado a la derecha (sobre todo en móvil).
+          Además se ancla justo debajo de la gota central en cualquier alto
+          de pantalla, en vez del `bottom-[16%]` que lo dejaba suelto.
+          En móvil (la gota mide 9rem de alto) el bloque se sube para quedar
+          pegado a ella, se estrecha para que ninguna palabra se salga del
+          ancho y la etiqueta usa un ícono en línea con menos tracking: el
+          `flex` anterior partía el texto en dos renglones centrados que se
+          veían descolgados. */}
       <motion.div
-        className="absolute left-1/2 bottom-[16%] -translate-x-1/2 text-center w-full px-4"
-        initial={{ opacity: 0, y: 26 }}
-        animate={out ? { opacity: 0, y: -14 } : { opacity: 1, y: 0 }}
+        className="absolute left-1/2 top-[calc(50%+5.25rem)] sm:top-[calc(50%+5.75rem)] md:top-[calc(50%+6.75rem)] w-full max-w-[17rem] min-[380px]:max-w-[21rem] sm:max-w-[26rem] px-5 text-center"
+        initial={{ opacity: 0, x: '-50%', y: 26 }}
+        animate={out ? { opacity: 0, x: '-50%', y: -14 } : { opacity: 1, x: '-50%', y: 0 }}
         transition={out ? { duration: 0.45 } : { delay: 1.0, duration: 0.7 }}
       >
-        <p className="text-white/90 text-xs md:text-sm font-semibold tracking-[0.35em] uppercase flex items-center justify-center gap-2">
-          <Icon size={16} />
+        <p className="text-white/85 text-[11px] sm:text-xs md:text-sm font-semibold tracking-[0.12em] sm:tracking-[0.28em] md:tracking-[0.35em] uppercase leading-relaxed text-balance">
+          <Icon size={13} className="mr-1.5 inline-block align-middle" aria-hidden />
           {meta.tagline}
         </p>
-        <h2 className="font-display text-3xl md:text-5xl font-extrabold text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.35)]">
+        <h2 className="mt-1.5 px-2 font-display text-2xl sm:text-3xl md:text-5xl font-extrabold text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.4)] text-balance">
           {meta.label}
         </h2>
       </motion.div>
