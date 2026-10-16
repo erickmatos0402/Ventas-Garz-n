@@ -207,9 +207,6 @@ export const LandingPage: React.FC = () => {
                     {meta.heroTitleA}{' '}
                     <span className="text-signature">{meta.heroTitleB}</span>
                   </h1>
-                  <p className="text-sm sm:text-lg text-gray-500 font-light max-w-xl mx-auto sm:mx-0">
-                    {meta.heroSubtitle}
-                  </p>
 
                   {/* Buscador hero */}
                   <form onSubmit={submitSearch} className="max-w-xl mx-auto lg:mx-0" role="search">
@@ -233,7 +230,7 @@ export const LandingPage: React.FC = () => {
                   </form>
 
                   <div className="flex flex-col gap-3 min-[420px]:flex-row justify-center sm:justify-start">
-                    <Link to="/products" className="btn-signature px-8 py-3.5">
+                    <Link to="/products" className="btn-liquid px-8 py-3.5">
                       Compra Ahora
                       <ArrowRight size={18} className="ml-2" />
                     </Link>

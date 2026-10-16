@@ -81,6 +81,32 @@ export const LogoMedallion: React.FC<LogoMedallionProps> = ({ withChips = false 
         }}
       />
 
+      {/* AURORA alrededor del medallón: dos anillos de luz girando en
+          sentidos opuestos. Se apoyan en los tokens --c-aurora-* del tema,
+          así Mercado brilla en verde-azul y Boutique en tonos cálidos, en
+          claro y en oscuro. El disco opaco del logo tapa el centro, de modo
+          que solo se ve el anillo. */}
+      <motion.div
+        aria-hidden
+        animate={{ rotate: 360 }}
+        transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
+        className="absolute -inset-8 min-[400px]:-inset-10 sm:-inset-14 md:-inset-20 rounded-full blur-xl sm:blur-2xl pointer-events-none"
+        style={{
+          background:
+            'conic-gradient(from 0deg, var(--c-aurora-1), var(--c-aurora-2) 32%, transparent 52%, var(--c-aurora-3) 70%, var(--c-aurora-1))',
+        }}
+      />
+      <motion.div
+        aria-hidden
+        animate={{ rotate: -360 }}
+        transition={{ duration: 36, repeat: Infinity, ease: 'linear' }}
+        className="absolute -inset-4 min-[400px]:-inset-5 sm:-inset-7 md:-inset-9 rounded-full blur-md sm:blur-lg pointer-events-none opacity-80"
+        style={{
+          background:
+            'conic-gradient(from 180deg, transparent, var(--c-aurora-2) 24%, transparent 48%, var(--c-aurora-1) 76%, transparent)',
+        }}
+      />
+
       {/* Sombra proyectada en el suelo: bien visible justo debajo del medallón */}
       <motion.div
         aria-hidden
