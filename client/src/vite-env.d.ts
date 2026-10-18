@@ -1,6 +1,9 @@
+/// <reference types="vite/client" />
+
 /* Archivo para variables globales de Vite (frontend) */
 interface ImportMetaEnv {
-  readonly VITE_API_URL: string
+  readonly VITE_SUPABASE_URL: string
+  readonly VITE_SUPABASE_PUBLISHABLE_KEY: string
 }
 
 interface ImportMeta {

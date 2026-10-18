@@ -1,87 +1,132 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { User } from '../types';
-
-/**
- * Sesión de usuario (DEMO, temporal).
- *
- * La app funciona sin backend: el pedido y el panel de admin también son
- * simulados, así que aquí se replica el contrato de `authService`
- * (services/api.ts) en local para que la pantalla de acceso funcione sola.
- * Cuando se conecte el backend real basta con reemplazar el cuerpo de
- * `login` / `register` por `authService.login` / `authService.register`.
- *
- * A propósito NO se guardan contraseñas: solo la lista de cuentas creadas
- * (correo + nombre) para que iniciar sesión después de registrarse funcione.
- */
-interface DemoAccount {
-  email: string;
-  name: string;
-}
+import { supabase } from '../utils/supabase';
+import type { ProfileRow } from '../types/database';
 
 interface AuthStore {
   user: User | null;
-  accounts: DemoAccount[];
+  loading: boolean;
+  initialized: boolean;
+  /** Carga la sesión persistida y escucha cambios de Supabase Auth. */
+  initialize: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
-/** Latencia simulada para que el botón muestre su estado de carga. */
-const fakeLatency = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const AUTH_ERRORS: Record<string, string> = {
+  'Invalid login credentials': 'Correo o contraseña incorrectos',
+  'Email not confirmed': 'Confirma tu correo electrónico antes de iniciar sesión',
+  'User already registered': 'Ese correo ya está registrado. Inicia sesión.',
+  'Password should be at least 6 characters': 'La contraseña debe tener al menos 6 caracteres',
+  'Email rate limit exceeded': 'Demasiados intentos. Espera un momento e inténtalo otra vez.',
+  'Unable to validate email address: invalid format': 'Escribe un correo válido',
+};
 
-const buildUser = (email: string, name: string): User => ({
-  id: `u-${email}`,
-  email,
-  name,
-  role: 'customer',
-  createdAt: new Date().toISOString(),
-});
+function authError(message: string): Error {
+  return new Error(AUTH_ERRORS[message] ?? message);
+}
 
-export const useAuthStore = create<AuthStore>()(
-  persist(
-    (set, get) => ({
-      user: null,
-      accounts: [],
+function mapProfile(profile: ProfileRow): User {
+  return {
+    id: profile.id,
+    email: profile.email,
+    name: profile.name,
+    role: profile.role,
+    avatar: profile.avatar_url ?? undefined,
+    createdAt: profile.created_at,
+  };
+}
 
-      login: async (email, password) => {
-        await fakeLatency(600);
-        const normalized = email.trim().toLowerCase();
-        if (password.length < 6) {
-          throw new Error('La contraseña debe tener al menos 6 caracteres');
-        }
-        const account = get().accounts.find((a) => a.email === normalized);
-        if (!account) {
-          throw new Error('No encontramos una cuenta con ese correo. Regístrate primero.');
-        }
-        set({ user: buildUser(normalized, account.name) });
-      },
+/** Sesión sin perfil (esquema aún sin crear): mantiene la app usable. */
+function fallbackUser(authUser: SupabaseUser): User {
+  const name = (authUser.user_metadata?.name as string | undefined)?.trim();
+  return {
+    id: authUser.id,
+    email: authUser.email ?? '',
+    name: name || authUser.email?.split('@')[0] || 'Cliente',
+    role: 'customer',
+    createdAt: authUser.created_at,
+  };
+}
 
-      register: async (name, email, password) => {
-        await fakeLatency(700);
-        const normalized = email.trim().toLowerCase();
-        const cleanName = name.trim();
-        if (cleanName.length < 2) {
-          throw new Error('Escribe tu nombre');
+async function loadUser(authUser: SupabaseUser): Promise<User> {
+  const { data } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', authUser.id)
+    .maybeSingle();
+
+  return data ? mapProfile(data) : fallbackUser(authUser);
+}
+
+/** Evita registrar el listener dos veces con el doble montaje de StrictMode. */
+let authListenerAttached = false;
+
+export const useAuthStore = create<AuthStore>((set, get) => ({
+  user: null,
+  loading: true,
+  initialized: false,
+
+  initialize: async () => {
+    if (get().initialized) return;
+    set({ initialized: true, loading: true });
+
+    const { data } = await supabase.auth.getSession();
+    const session: Session | null = data.session;
+    set({
+      user: session?.user ? await loadUser(session.user) : null,
+      loading: false,
+    });
+
+    if (!authListenerAttached) {
+      authListenerAttached = true;
+      supabase.auth.onAuthStateChange((event, nextSession) => {
+        if (event === 'SIGNED_OUT' || !nextSession?.user) {
+          useAuthStore.setState({ user: null });
+          return;
         }
-        if (password.length < 6) {
-          throw new Error('La contraseña debe tener al menos 6 caracteres');
-        }
-        if (get().accounts.some((a) => a.email === normalized)) {
-          throw new Error('Ese correo ya está registrado. Inicia sesión.');
-        }
-        set({
-          accounts: [...get().accounts, { email: normalized, name: cleanName }],
-          user: buildUser(normalized, cleanName),
+        void loadUser(nextSession.user).then((user) => {
+          useAuthStore.setState({ user });
         });
-      },
-
-      logout: () => set({ user: null }),
-    }),
-    {
-      name: 'store-auth',
-      // Solo la sesión y las cuentas demo son persistentes.
-      partialize: (state) => ({ user: state.user, accounts: state.accounts }),
+      });
     }
-  )
-);
+  },
+
+  login: async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+
+    if (error) throw authError(error.message);
+    if (data.user) set({ user: await loadUser(data.user) });
+  },
+
+  register: async (name, email, password) => {
+    const cleanName = name.trim();
+    if (cleanName.length < 2) throw new Error('Escribe tu nombre');
+
+    const { data, error } = await supabase.auth.signUp({
+      email: email.trim(),
+      password,
+      options: { data: { name: cleanName } },
+    });
+
+    if (error) throw authError(error.message);
+
+    if (!data.session) {
+      throw new Error(
+        'Cuenta creada. Revisa tu correo para confirmarla y después inicia sesión.'
+      );
+    }
+
+    set({ user: data.user ? await loadUser(data.user) : null });
+  },
+
+  logout: async () => {
+    await supabase.auth.signOut();
+    set({ user: null });
+  },
+}));

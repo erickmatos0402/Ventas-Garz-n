@@ -6,6 +6,8 @@ export type BoutiqueCategory = 'superior' | 'inferior' | 'conjuntos' | 'accesori
 
 export interface Product {
   id: string;
+  /** Tienda a la que pertenece el producto en Supabase */
+  store?: 'market' | 'boutique';
   name: string;
   description: string;
   price: number;

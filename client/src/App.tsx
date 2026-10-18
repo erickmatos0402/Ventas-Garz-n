@@ -12,7 +12,7 @@ import {
   AdminPage,
   AuthPage,
 } from './pages';
-import { useMockAdminStore, useThemeStore } from './store';
+import { useAuthStore, useCatalogStore, useThemeStore } from './store';
 import { STORE_META_DATA } from './data/boutiqueData';
 
 /** Título de documento por sección (navegación más clara) */
@@ -76,9 +76,14 @@ function AppShell() {
 }
 
 function App() {
-  // DEMO (temporal): sin login; los productos provienen de datos falsos.
-  // El store del admin se inicializa solo al montar.
-  useMockAdminStore((s) => s.products);
+  const initializeAuth = useAuthStore((s) => s.initialize);
+  const fetchProducts = useCatalogStore((s) => s.fetchProducts);
+
+  // Restaura la sesión de Supabase y carga el catálogo una sola vez.
+  useEffect(() => {
+    void initializeAuth();
+    void fetchProducts();
+  }, [initializeAuth, fetchProducts]);
 
   return (
     // reducedMotion="user": en móviles que pidan menos movimiento,

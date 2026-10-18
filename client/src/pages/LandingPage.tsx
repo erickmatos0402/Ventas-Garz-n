@@ -15,15 +15,13 @@ import {
   Wallet,
 } from 'lucide-react';
 import { SlideUp, containerVariants, itemVariants } from '../utils/animations';
-import { useMockAdminStore, useThemeStore } from '../store';
+import { useCatalogStore, useThemeStore } from '../store';
 import { Product } from '../types';
 import { ProductCard, LiquidTabs, LogoMedallion } from '../components';
-import { getDiscountedPrice } from '../data/mockData';
+import { getDiscountedPrice, MOCK_PRODUCTS } from '../data/mockData';
 import { BOUTIQUE_PRODUCTS } from '../data/boutiqueData';
 import { STORE_META_DATA } from '../data/boutiqueData';
 import { formatPrice, trackBubblePointer, resetBubblePointer } from '../utils';
-
-const BOUTIQUE_FALLBACK = BOUTIQUE_PRODUCTS;
 
 /**
  * Bubble highlight (estilo iOS): el brillo especular sigue al puntero.
@@ -80,13 +78,20 @@ const SectionHeading: React.FC<{ title: string; subtitle?: string }> = ({ title,
 );
 
 export const LandingPage: React.FC = () => {
-  const marketProducts = useMockAdminStore((s) => s.products);
+  const catalogProducts = useCatalogStore((s) => s.products);
   const theme = useThemeStore((s) => s.theme);
   const setTheme = useThemeStore((s) => s.setTheme);
   const meta = STORE_META_DATA[theme];
   const isMarket = theme === 'market';
-  const products = isMarket ? marketProducts : BOUTIQUE_FALLBACK;
   const navigate = useNavigate();
+
+  // Catálogo de Supabase; si aún no hay filas (o falla la carga) se
+  // mantiene el catálogo local como respaldo para no dejar la vitrina vacía.
+  const products = useMemo(() => {
+    const inStore = catalogProducts.filter((p) => (p.store ?? 'market') === theme);
+    if (inStore.length > 0) return inStore;
+    return isMarket ? MOCK_PRODUCTS : BOUTIQUE_PRODUCTS;
+  }, [catalogProducts, theme, isMarket]);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [quickCategory, setQuickCategory] = React.useState('todos');
 

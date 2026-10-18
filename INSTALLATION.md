@@ -1,5 +1,9 @@
 # Guía de Instalación y Configuración
 
+> ⚠️ **Documento histórico.** La instalación con PostgreSQL local y la API
+> Express ya no aplica. Sigue [`README.md`](README.md) y
+> [`database/supabase/SETUP.md`](database/supabase/SETUP.md).
+
 ## Requisitos Previos
 
 - Node.js v16+ (descargar de https://nodejs.org/)

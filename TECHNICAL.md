@@ -1,5 +1,9 @@
 # Ventas Garzón - Documentación Técnica
 
+> ⚠️ **Documento histórico.** La app migró de Express + PostgreSQL a
+> Supabase. Para la arquitectura vigente consulta el
+> [`README.md`](README.md) y [`database/supabase/SETUP.md`](database/supabase/SETUP.md).
+
 ## 📋 Descripción General
 
 Ventas Garzón es una plataforma de comercio electrónico completa para vender productos de aseo y alimentos. Incluye un frontend atractivo, una API REST robusta y un panel de administrador.

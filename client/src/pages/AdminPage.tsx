@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Package,
@@ -14,8 +15,9 @@ import {
   ImageIcon,
   ZoomIn,
   Upload,
+  AlertCircle,
 } from 'lucide-react';
-import { useMockAdminStore } from '../store';
+import { useAuthStore, useCatalogStore } from '../store';
 import { Product } from '../types';
 import { formatPrice } from '../utils';
 import { useImageWithFallback } from '../hooks/useImageWithFallback';
@@ -180,35 +182,46 @@ const ImagePreviewModal: React.FC<{ product: Product; onClose: () => void }> = (
 };
 
 export const AdminPage: React.FC = () => {
-  const { products, addProduct, updateProduct, deleteProduct } = useMockAdminStore();
+  const user = useAuthStore((s) => s.user);
+  const authLoading = useAuthStore((s) => s.loading);
+  const { products, addProduct, updateProduct, deleteProduct, loading, error } = useCatalogStore();
 
   const [modalMode, setModalMode] = useState<ModalMode>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  // Estadísticas derivadas de los datos falsos
+  // El panel administra el catálogo del Mercado; la Boutique se carga
+  // igual en la tienda, pero se gestiona aparte.
+  const marketProducts = useMemo(
+    () => products.filter((p) => (p.store ?? 'market') !== 'boutique'),
+    [products]
+  );
+
+  // Estadísticas derivadas del catálogo real
   const stats = useMemo(
     () => [
-      { label: 'Productos', value: String(products.length), icon: <Package size={22} className="text-primary" /> },
+      { label: 'Productos', value: String(marketProducts.length), icon: <Package size={22} className="text-primary" /> },
       {
         label: 'Stock total',
-        value: String(products.reduce((sum, p) => sum + (p.stock || 0), 0)),
+        value: String(marketProducts.reduce((sum, p) => sum + (p.stock || 0), 0)),
         icon: <ShoppingCart size={22} className="text-primary" />,
       },
       {
         label: 'Ofertas activas',
-        value: String(products.filter((p) => p.discount).length),
+        value: String(marketProducts.filter((p) => p.discount).length),
         icon: <BadgePercent size={22} className="text-accent" />,
       },
       {
         label: 'Valor inventario',
-        value: formatPrice(products.reduce((sum, p) => sum + getDiscountedPriceSafe(p) * (p.stock || 0), 0)),
+        value: formatPrice(marketProducts.reduce((sum, p) => sum + getDiscountedPriceSafe(p) * (p.stock || 0), 0)),
         icon: <Wallet size={22} className="text-primary-deep" />,
       },
     ],
-    [products]
+    [marketProducts]
   );
 
   const openCreate = () => {
@@ -245,6 +258,85 @@ export const AdminPage: React.FC = () => {
     }
   };
 
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaveError(null);
+    setSaving(true);
+
+    const data = {
+      name: form.name.trim(),
+      description: form.description.trim(),
+      price: Number(form.price) || 0,
+      image: form.image.trim(),
+      category: form.category,
+      stock: Number(form.stock) || 0,
+      rating: 4.5,
+      reviews: 0,
+      discount: form.discount ? Number(form.discount) : undefined,
+      emoji: form.emoji,
+    };
+
+    try {
+      if (modalMode === 'create') {
+        await addProduct(data);
+      } else if (editingId) {
+        const current = products.find((p) => p.id === editingId);
+        await updateProduct({ ...data, id: editingId, store: current?.store ?? 'market' });
+      }
+      setModalMode(null);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : 'No se pudo guardar el producto');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-dvh flex items-center justify-center px-4">
+        <p className="text-gray-500">Comprobando tu sesión…</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-dvh flex items-center justify-center px-4 py-16">
+        <div className="glass-strong rounded-3xl p-6 sm:p-8 max-w-md text-center w-full">
+          <Package size={40} className="mx-auto mb-4 text-primary/50" />
+          <h1 className="font-display text-2xl font-extrabold text-dark mb-2">Panel de administración</h1>
+          <p className="text-gray-500 mb-6">
+            Inicia sesión con una cuenta de administrador para gestionar el catálogo.
+          </p>
+          <Link to="/login" className="btn-liquid inline-flex items-center justify-center w-full py-3">
+            Iniciar sesión
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (user.role !== 'admin') {
+    return (
+      <div className="min-h-dvh flex items-center justify-center px-4 py-16">
+        <div className="glass-strong rounded-3xl p-6 sm:p-8 max-w-md text-center w-full">
+          <AlertCircle size={40} className="mx-auto mb-4 text-danger/70" />
+          <h1 className="font-display text-2xl font-extrabold text-dark mb-2">Sin permisos de administrador</h1>
+          <p className="text-gray-500 mb-3">
+            Tu cuenta <span className="font-semibold text-primary-deep">{user.email}</span> no tiene el rol de administrador.
+          </p>
+          <p className="text-xs text-gray-400 mb-6">
+            Un administrador puede concederlo desde el SQL Editor de Supabase con:
+            {' '}<code>update public.profiles set role = 'admin' where email = '...';</code>
+          </p>
+          <Link to="/" className="btn-liquid inline-flex items-center justify-center w-full py-3">
+            Volver a la tienda
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-dvh pt-10 sm:pt-20 pb-24 sm:pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -255,7 +347,7 @@ export const AdminPage: React.FC = () => {
               <p className="heading-eyebrow">Panel de Control</p>
               <h1 className="heading-page text-3xl sm:text-4xl md:text-5xl">Administrador de Ventas Garzón</h1>
               <p className="mt-3 text-gray-600 max-w-2xl">
-                Gestiona el catálogo con datos falsos: crea, edita y elimina productos de aseo, alimentos y ofertas.
+                Gestiona el catálogo de la tienda: crea, edita y elimina productos de aseo, alimentos y ofertas.
               </p>
             </div>
             <button onClick={openCreate} className="btn-liquid inline-flex items-center gap-2 px-6 py-3">
@@ -264,6 +356,16 @@ export const AdminPage: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {error && (
+          <div className="mb-6 bg-danger/10 border border-danger text-danger px-4 py-3 rounded-2xl flex items-start gap-2 text-sm">
+            <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+        {loading && products.length === 0 && (
+          <p className="mb-6 text-sm text-gray-500">Cargando catálogo…</p>
+        )}
 
         {/* Estadísticas */}
         <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
@@ -288,14 +390,14 @@ export const AdminPage: React.FC = () => {
             <p className="text-sm text-gray-500">Los cambios se reflejan al instante en Productos y ofertas</p>
           </div>
 
-          {products.length === 0 ? (
+          {marketProducts.length === 0 ? (
             <div className="liquid-badge rounded-3xl p-10 text-center">
               <Package size={40} className="mx-auto mb-3 text-primary/40" />
               <p className="text-gray-500">No hay productos. Crea el primero con "Nuevo Producto".</p>
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {products.map((product) => (
+              {marketProducts.map((product) => (
                 <AdminProductCard
                   key={product.id}
                   product={product}
@@ -334,30 +436,7 @@ export const AdminPage: React.FC = () => {
               </button>
             </div>
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const data = {
-                  name: form.name.trim(),
-                  description: form.description.trim(),
-                  price: Number(form.price) || 0,
-                  image: form.image.trim(),
-                  category: form.category,
-                  stock: Number(form.stock) || 0,
-                  rating: 4.5,
-                  reviews: 0,
-                  discount: form.discount ? Number(form.discount) : undefined,
-                  emoji: form.emoji,
-                };
-                if (modalMode === 'create') {
-                  addProduct(data);
-                } else if (editingId) {
-                  updateProduct({ ...data, id: editingId });
-                }
-                setModalMode(null);
-              }}
-              className="space-y-4"
-            >
+            <form onSubmit={handleSave} className="space-y-4">
               <div>
                 <label className="block text-sm font-bold text-dark mb-1.5">Nombre</label>
                 <input
@@ -515,9 +594,20 @@ export const AdminPage: React.FC = () => {
                 </div>
               </div>
 
+              {saveError && (
+                <div className="bg-danger/10 border border-danger text-danger px-4 py-3 rounded-2xl flex items-start gap-2 text-sm">
+                  <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
+                  <span>{saveError}</span>
+                </div>
+              )}
+
               <div className="flex gap-3 pt-2">
-                <button type="submit" className="btn-liquid flex-1 py-3">
-                  {modalMode === 'create' ? 'Crear Producto' : 'Guardar Cambios'}
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="btn-liquid flex-1 py-3 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {saving ? 'Guardando…' : modalMode === 'create' ? 'Crear Producto' : 'Guardar Cambios'}
                 </button>
                 <button
                   type="button"
@@ -546,9 +636,14 @@ export const AdminPage: React.FC = () => {
             <p className="text-sm text-gray-600 mb-5">Esta acción no se puede deshacer.</p>
             <div className="flex gap-3">
               <button
-                onClick={() => {
-                  deleteProduct(confirmDeleteId);
-                  setConfirmDeleteId(null);
+                onClick={async () => {
+                  try {
+                    await deleteProduct(confirmDeleteId);
+                  } catch {
+                    // El error queda visible en el aviso del catálogo.
+                  } finally {
+                    setConfirmDeleteId(null);
+                  }
                 }}
                 className="btn-liquid flex-1 py-3"
               >

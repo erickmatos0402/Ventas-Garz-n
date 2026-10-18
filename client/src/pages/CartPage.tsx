@@ -6,13 +6,15 @@ import { useCartStore } from '../store';
 import { useThemeStore } from '../store';
 import { SlideUp, containerVariants, itemVariants } from '../utils/animations';
 import { formatPrice } from '../utils';
+import { getDiscountedPrice } from '../data/mockData';
 
 export const CartPage: React.FC = () => {
   const theme = useThemeStore((s) => s.theme);
   const cart = useCartStore(theme);
-  const { items, removeItem, updateQuantity, clearCart, getTotalPrice } = cart()
+  const { items, removeItem, updateQuantity, clearCart } = cart()
   const navigate = useNavigate();
-  const total = getTotalPrice();
+  // Carrito y checkout usan el mismo precio con descuento que cobra Supabase.
+  const total = items.reduce((sum, item) => sum + getDiscountedPrice(item) * item.quantity, 0);
   const FREE_SHIPPING_THRESHOLD = 20000;
   const missingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - total);
 
@@ -100,7 +102,7 @@ export const CartPage: React.FC = () => {
                       {item.name}
                     </h3>
                     <p className="mt-0.5 font-bold text-[12px] sm:text-[13px] text-primary-deep">
-                      {formatPrice(item.price)}
+                      {formatPrice(getDiscountedPrice(item))}
                     </p>
                   </div>
 
@@ -123,7 +125,7 @@ export const CartPage: React.FC = () => {
                   </div>
 
                   <p className="mt-1 text-[11px] sm:text-xs font-bold text-dark text-right">
-                    {formatPrice(item.price * item.quantity)}
+                    {formatPrice(getDiscountedPrice(item) * item.quantity)}
                   </p>
                 </motion.div>
               ))}
@@ -144,13 +146,13 @@ export const CartPage: React.FC = () => {
                   </div>
                   <div className="flex justify-between text-dark">
                     <span>Impuesto (20%):</span>
-                    <span className="font-semibold">{formatPrice(total * 0.2)}</span>
+                    <span className="font-semibold">{formatPrice(Math.round(total * 0.2))}</span>
                   </div>
                 </div>
 
                 <div className="flex justify-between text-2xl font-bold text-dark mb-6">
                   <span>Total:</span>
-                  <span className="text-primary-deep">{formatPrice(total * 1.2)}</span>
+                  <span className="text-primary-deep">{formatPrice(total + Math.round(total * 0.2))}</span>
                 </div>
 
                 <motion.button

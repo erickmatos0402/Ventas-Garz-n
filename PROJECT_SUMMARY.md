@@ -1,5 +1,8 @@
 # Ventas Garzón - Resumen del Proyecto
 
+> ⚠️ **Documento histórico.** Describe la versión con API Express. La app
+> actual usa Supabase directamente; consulta el [`README.md`](README.md).
+
 ## ✅ Completado
 
 He creado una **aplicación de comercio electrónico completa** llamada "Ventas Garzón" con todas las funcionalidades solicitadas.
@@ -98,7 +101,7 @@ database/
 - ✅ Modificar cantidades
 - ✅ Cálculo automático de totales
 - ✅ Envío gratis
-- ✅ Cálculo de impuestos (19%)
+- ✅ Cálculo de impuestos (20%)
 - ✅ Persistencia en localStorage
 
 ### Autenticación

@@ -15,7 +15,9 @@ type CartStoreInner = {
 };
 
 function makeStorageKeyFor(theme: StoreTheme) {
-  return `cart-storage-${theme}`;
+  // v2: los ids ahora son UUID de Supabase; los carritos guardados con los
+  // ids falsos de la demo ya no sirven y se descartan al cambiar la clave.
+  return `cart-storage-v2-${theme}`;
 }
 
 const createCartStoreFor = (theme: StoreTheme) =>

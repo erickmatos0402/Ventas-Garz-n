@@ -1,148 +1,104 @@
 # Ventas Garzón - E-commerce
 
-Una aplicación de comercio electrónico moderna para vender productos de aseo y alimentos.
+Aplicación de comercio electrónico para vender productos de aseo y alimentos
+(Mercado) y prendas de segunda mano (Boutique).
 
 ## 🚀 Características
 
-- **Landing Page Atractiva** - Diseño moderno con animaciones suaves
-- **Catálogo de Productos** - Filtrado por categoría con búsqueda
-- **Carrito de Compras** - Gestión completa de compras
-- **Autenticación** - Registro e inicio de sesión seguro
-- **Panel de Administrador** - Gestión de productos, pedidos y usuarios
-- **Análisis de Ventas** - Gráficas y estadísticas
+- **Landing Page Atractiva** - Diseño con animaciones suaves
+- **Catálogo de Productos** - Filtrado por categoría y búsqueda
+- **Carrito de Compras** - Gestión completa, persistido en el navegador
+- **Autenticación** - Registro e inicio de sesión con Supabase Auth
+- **Pedidos reales** - Se guardan en Supabase y descuentan stock
+- **Panel de Administrador** - Alta, edición y borrado de productos
 - **Diseño Responsivo** - Optimizado para móvil, tablet y desktop
 
 ## 🛠️ Tecnologías
 
-- **Frontend**: React.js, TypeScript, Tailwind CSS, Framer Motion
-- **Backend**: Node.js, Express.js
-- **Base de Datos**: PostgreSQL
-- **Autenticación**: JWT
-- **Validación**: Zod
+- **Frontend**: React, TypeScript, Tailwind CSS, Framer Motion, Zustand
+- **Backend as a Service**: Supabase (PostgreSQL, Auth, Row Level Security)
+- **Build**: Vite
 
 ## 📋 Requisitos Previos
 
-- Node.js (v16 o superior)
-- npm o yarn
-- PostgreSQL (v12 o superior)
+- Node.js 18 o superior
+- npm
+- Un proyecto de Supabase (gratuito)
 
 ## 🔧 Instalación y Configuración
 
-### 1. Clonar el Repositorio
+### 1. Instalar dependencias
 
 ```bash
-git clone <repositorio>
-cd ventas-garzon
+npm install
+npm --prefix client install
 ```
 
-### 2. Configurar Backend
+### 2. Configurar Supabase
+
+Sigue [`database/supabase/SETUP.md`](database/supabase/SETUP.md):
+
+1. Ejecuta `database/supabase/schema.sql` en el **SQL Editor**.
+2. Ejecuta `database/supabase/seed.sql` para cargar el catálogo.
+3. Crea `client/.env.local` a partir de `client/.env.example`.
+4. Regístrate en la app y asígnate el rol `admin` con el SQL indicado.
+
+### 3. Arrancar en desarrollo
 
 ```bash
-cd server
-npm install
-cp .env.example .env
-# Edita .env con tus configuraciones
 npm run dev
 ```
 
-### 3. Configurar Frontend
-
-```bash
-cd ../client
-npm install
-npm start
-```
-
-### 4. Configurar Base de Datos
-
-```bash
-cd ../database
-psql -U postgres -d ventas_garzon -f schema.sql
-psql -U postgres -d ventas_garzon -f seeds.sql
-```
+Abre http://localhost:3000
 
 ## 📁 Estructura del Proyecto
 
 ```
 ventas-garzon/
-├── client/                 # Aplicación React
+├── client/                     # Aplicación React + Vite
 │   ├── src/
-│   │   ├── components/    # Componentes reutilizables
-│   │   ├── pages/         # Páginas principales
-│   │   ├── hooks/         # Custom hooks
-│   │   ├── services/      # Servicios API
-│   │   ├── store/         # Estado global (Zustand)
-│   │   └── styles/        # Estilos globales
-│   └── package.json
-├── server/                # API Express
-│   ├── src/
-│   │   ├── controllers/   # Controladores
-│   │   ├── models/        # Modelos de datos
-│   │   ├── routes/        # Rutas API
-│   │   ├── middleware/    # Middleware personalizado
-│   │   └── config/        # Configuración
-│   └── package.json
-├── database/              # Scripts SQL
-│   ├── schema.sql         # Esquema de base de datos
-│   └── seeds.sql          # Datos iniciales
-└── package.json           # Scripts del proyecto root
+│   │   ├── components/        # Componentes reutilizables
+│   │   ├── pages/             # Páginas
+│   │   ├── services/          # Acceso a Supabase (catálogo y pedidos)
+│   │   ├── store/             # Estado global (Zustand)
+│   │   ├── types/             # Tipos de dominio y de la base de datos
+│   │   └── utils/             # Helpers y cliente de Supabase
+│   └── .env.example           # Variables de entorno documentadas
+├── database/
+│   ├── supabase/              # Esquema, seed y guía de Supabase
+│   └── schema.sql             # Esquema antiguo de PostgreSQL local
+├── server/                    # API Express antigua (ya no se usa)
+└── package.json               # Scripts del proyecto root
 ```
 
 ## 🚀 Comandos Disponibles
 
 ```bash
-# Desarrollar ambos frontend y backend
-npm run dev
-
-# Solo backend
-npm run server
-
-# Solo frontend
-npm run client
-
-# Build para producción
-npm run build
+npm run dev          # Servidor de desarrollo (Vite)
+npm run build        # Build de producción
+npm run preview      # Previsualizar el build
+npm --prefix client run dev
 ```
-
-## 📚 Documentación de API
-
-La documentación de la API está disponible en `/api/docs` cuando ejecutas el servidor.
-
-### Endpoints Principales
-
-- `GET /api/products` - Obtener todos los productos
-- `GET /api/products/:id` - Obtener producto específico
-- `POST /api/orders` - Crear orden
-- `POST /api/auth/register` - Registrarse
-- `POST /api/auth/login` - Iniciar sesión
-- `GET /api/admin/dashboard` - Panel de administrador
 
 ## 🔒 Seguridad
 
-- Validación de datos en cliente y servidor
-- Protección contra inyecciones SQL usando consultas parametrizadas
-- JWT para autenticación
-- CORS habilitado solo para dominios autorizados
-- Variables de entorno para datos sensibles
+- **Row Level Security** activado en todas las tablas.
+- El catálogo es de lectura pública; solo un `admin` puede modificarlo.
+- Cada cliente solo ve sus propios pedidos.
+- Los pedidos se crean con `create_order`, que valida stock y calcula los
+  importes en el servidor: el navegador nunca envía precios.
+- La clave usada en el cliente es la `publishable`; la `service_role` nunca
+  debe exponerse en el frontend.
 
 ## 📱 Responsive Design
 
-La aplicación es completamente responsiva:
 - **Mobile**: 320px - 768px
 - **Tablet**: 768px - 1024px
 - **Desktop**: 1024px en adelante
 
-## 🤝 Contribuir
-
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
 ## 📄 Licencia
 
-Este proyecto está bajo la licencia MIT.
+MIT.
 
 ## 👨‍💼 Contacto
 

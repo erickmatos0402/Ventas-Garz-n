@@ -2,9 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ShoppingBasket, Sparkles, Star, Tag, SearchX, Shirt, Layers, Gem } from 'lucide-react';
 import { SlideUp } from '../utils/animations';
-import { useMockAdminStore, useThemeStore } from '../store';
+import { useCatalogStore, useThemeStore } from '../store';
 import { ProductCarousel, LiquidTabs } from '../components';
 import { BOUTIQUE_PRODUCTS, BOUTIQUE_CATEGORIES, STORE_META_DATA } from '../data/boutiqueData';
+import { MOCK_PRODUCTS } from '../data/mockData';
 
 type SortOption = 'relevance' | 'price-asc' | 'price-desc' | 'rating';
 
@@ -18,11 +19,17 @@ const BOUTIQUE_TAB_ICONS: Record<string, React.ReactNode> = {
 };
 
 export const ProductsPage: React.FC = () => {
-  const marketProducts = useMockAdminStore((s) => s.products);
+  const catalogProducts = useCatalogStore((s) => s.products);
   const theme = useThemeStore((s) => s.theme);
   const meta = STORE_META_DATA[theme];
   const isBoutique = theme === 'boutique';
-  const products = isBoutique ? BOUTIQUE_PRODUCTS : marketProducts;
+
+  // Catálogo de Supabase con respaldo local si la tabla aún está vacía.
+  const products = useMemo(() => {
+    const inStore = catalogProducts.filter((p) => (p.store ?? 'market') === theme);
+    if (inStore.length > 0) return inStore;
+    return isBoutique ? BOUTIQUE_PRODUCTS : MOCK_PRODUCTS;
+  }, [catalogProducts, theme, isBoutique]);
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState<string>(searchParams.get('category') || '');
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');

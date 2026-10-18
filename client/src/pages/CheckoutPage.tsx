@@ -14,10 +14,11 @@ import {
   Lock,
   Landmark,
 } from 'lucide-react';
-import { useCartStore } from '../store';
-import { useThemeStore } from '../store';
+import { useAuthStore, useCartStore, useThemeStore } from '../store';
 import { SlideUp } from '../utils/animations';
 import { formatPrice } from '../utils';
+import { getDiscountedPrice } from '../data/mockData';
+import { orderService } from '../services/orders';
 
 type DeliveryMode = 'pickup' | 'delivery';
 type PaymentMode = 'cash' | 'transfer';
@@ -27,6 +28,7 @@ const TRANSFER_ADVANCE = 0.2;
 
 export const CheckoutPage: React.FC = () => {
   const theme = useThemeStore((s) => s.theme);
+  const user = useAuthStore((s) => s.user);
   const cart = useCartStore(theme);
   const { items, clearCart } = cart()
   const navigate = useNavigate();
@@ -39,13 +41,14 @@ export const CheckoutPage: React.FC = () => {
   const [error, setError] = useState('');
 
   const [success, setSuccess] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
 
-  // El carrito se comparten entre ambas tiendas, pero el clear
-  // debe afectar solo al temario actual (y no a la del carrito).
-  const clearCartTheme = useCartStore(theme);
+  // Precio unitario con descuento: es el mismo que recalcula `create_order`
+  // en Supabase, así lo que se muestra aquí coincide con lo que se cobra.
+  const unitPrice = (item: any) => getDiscountedPrice(item);
 
-  const subtotal = items.reduce((sum: number, item: any) => sum + Number(item.price) * item.quantity, 0);
-  const tax = subtotal * 0.2;
+  const subtotal = items.reduce((sum: number, item: any) => sum + unitPrice(item) * item.quantity, 0);
+  const tax = Math.round(subtotal * 0.2);
   const deliveryFee = deliveryMode === 'delivery' ? 5000 : 0;
   const total = subtotal + tax + deliveryFee;
   // Importe que se paga por adelantado al elegir transferencia (20% del total).
@@ -56,6 +59,11 @@ export const CheckoutPage: React.FC = () => {
     e.preventDefault();
     setError('');
 
+    if (!user) {
+      setError('Inicia sesión para confirmar tu pedido');
+      return;
+    }
+
     if (deliveryMode === 'delivery' && address.trim().length < 10) {
       setError('Escribe una dirección completa para la entrega a domicilio');
       return;
@@ -64,13 +72,21 @@ export const CheckoutPage: React.FC = () => {
     setLoading(true);
 
     try {
-      // DEMO (temporal): pedido simulado sin backend.
-      await new Promise((resolve) => setTimeout(resolve, 1200));
+      // El pedido se guarda en Supabase: `create_order` valida stock,
+      // calcula los importes y descuenta las unidades en una transacción.
+      const order = await orderService.create({
+        items: items.map((item: any) => ({ productId: item.id, quantity: item.quantity })),
+        shippingAddress: deliveryMode === 'delivery' ? address : undefined,
+        phone,
+        deliveryMode,
+        paymentMode,
+      });
+
+      setOrderId(order.id);
       clearCart();
-      clearCartTheme().clearCart();
       setSuccess(true);
     } catch (err: any) {
-      setError('Error al procesar el pedido');
+      setError(err?.message || 'Error al procesar el pedido');
     } finally {
       setLoading(false);
     }
@@ -108,6 +124,11 @@ export const CheckoutPage: React.FC = () => {
               <CheckCircle size={32} className="text-primary-deep" />
             </motion.div>
             <h2 className="font-display text-2xl font-extrabold tracking-tight text-dark mb-2">¡Pedido Confirmado!</h2>
+            {orderId && (
+              <p className="text-xs font-semibold tracking-wide text-gray-400 mb-2">
+                Pedido #{orderId.slice(0, 8).toUpperCase()}
+              </p>
+            )}
             <p className="text-gray-500 mb-6">
               Gracias por tu compra. Te llamaremos al {phone || 'tu teléfono'} para coordinar{' '}
               {deliveryMode === 'pickup' ? 'la recogida en tienda' : 'la entrega a domicilio'}.
@@ -294,6 +315,19 @@ export const CheckoutPage: React.FC = () => {
                 </div>
               )}
 
+              {!user && (
+                <div className="bg-primary/5 border border-primary/30 text-primary-deep px-4 py-3 rounded-2xl flex items-start gap-2 text-sm">
+                  <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
+                  <span>
+                    Necesitas una cuenta para confirmar el pedido.{' '}
+                    <Link to="/login" className="font-bold underline">
+                      Inicia sesión o regístrate
+                    </Link>
+                    .
+                  </span>
+                </div>
+              )}
+
               <motion.button
                 whileTap={{ scale: 0.99 }}
                 type="submit"
@@ -330,7 +364,7 @@ export const CheckoutPage: React.FC = () => {
                       {item.name} <span className="text-gray-400">× {item.quantity}</span>
                     </span>
                     <span className="text-sm font-semibold text-dark whitespace-nowrap">
-                      {formatPrice(Number(item.price) * item.quantity)}
+                      {formatPrice(unitPrice(item) * item.quantity)}
                     </span>
                   </div>
                 ))}
@@ -370,7 +404,7 @@ export const CheckoutPage: React.FC = () => {
                 )}
               </div>
 
-              <p className="mt-4 text-xs text-gray-400 text-center">Modo demo: el pedido no se guarda</p>
+              <p className="mt-4 text-xs text-gray-400 text-center">Tu pedido quedará registrado en tu cuenta</p>
             </div>
           </div>
         </div>
