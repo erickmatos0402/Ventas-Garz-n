@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -26,6 +26,53 @@ type PaymentMode = 'cash' | 'transfer';
 /** Al pagar por transferencia el cliente adelanta este porcentaje del total. */
 const TRANSFER_ADVANCE = 0.2;
 
+/** Número de WhatsApp de la tienda (país +53, sin signos ni espacios). */
+const WHATSAPP_NUMBER = '5356072398';
+
+/**
+ * Mensaje que se envía al WhatsApp de la tienda al confirmar un pedido.
+ * Usa los importes que calculó `create_order` en Supabase (el `order`
+ * devuelto por la RPC), nunca los que calculó el navegador.
+ */
+function buildWhatsAppMessage(input: {
+  order: any;
+  orderRef: string;
+  items: any[];
+  deliveryMode: DeliveryMode;
+  paymentMode: PaymentMode;
+  address: string;
+  phone: string;
+  customer: string;
+}): string {
+  const { order, orderRef, items, deliveryMode, paymentMode, address, phone, customer } = input;
+  const money = (value: any) => formatPrice(Number(value) || 0);
+  const lines = items.map(
+    (item) => `• ${item.name} × ${item.quantity} — ${money(getDiscountedPrice(item) * item.quantity)}`
+  );
+
+  const details = [
+    '*Nuevo pedido* — Ventas Garzón',
+    `Pedido: ${orderRef}`,
+    customer ? `Cliente: ${customer}` : null,
+    '',
+    '*Productos*',
+    ...lines,
+    '',
+    `Subtotal: ${money(order.subtotal)}`,
+    `Impuesto (20%): ${money(order.tax)}`,
+    deliveryMode === 'delivery' ? `Envío: ${money(order.delivery_fee)}` : 'Envío: Recogida en tienda',
+    `*Total: ${money(order.total)}*`,
+    '',
+    deliveryMode === 'delivery' ? `Entrega: A domicilio — ${address}` : 'Entrega: Recogida en tienda',
+    phone ? `Teléfono: ${phone}` : null,
+    paymentMode === 'transfer'
+      ? 'Pago: Transferencia bancaria (adelanta el 20%)'
+      : 'Pago: Efectivo contra entrega',
+  ].filter((line): line is string => line !== null);
+
+  return details.join('\n');
+}
+
 export const CheckoutPage: React.FC = () => {
   const theme = useThemeStore((s) => s.theme);
   const user = useAuthStore((s) => s.user);
@@ -42,6 +89,19 @@ export const CheckoutPage: React.FC = () => {
 
   const [success, setSuccess] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null);
+
+  // Confirmado el pedido: el navegador va directo al chat de WhatsApp con
+  // el pedido ya escrito. La pausa mínima es para que se pinte el aviso de
+  // "pedido confirmado" antes de salir; si el usuario se mueve antes, se
+  // cancela y la pantalla queda como respaldo.
+  useEffect(() => {
+    if (!whatsappUrl) return;
+    const timer = window.setTimeout(() => {
+      window.location.href = whatsappUrl;
+    }, 600);
+    return () => window.clearTimeout(timer);
+  }, [whatsappUrl]);
 
   // Precio unitario con descuento: es el mismo que recalcula `create_order`
   // en Supabase, así lo que se muestra aquí coincide con lo que se cobra.
@@ -83,6 +143,24 @@ export const CheckoutPage: React.FC = () => {
       });
 
       setOrderId(order.id);
+
+      // Se arma el mensaje con el carrito todavía lleno y con los importes
+      // reales que calculó la base de datos.
+      const orderRef = `#${order.id.slice(0, 8).toUpperCase()}`;
+      const message = buildWhatsAppMessage({
+        order,
+        orderRef,
+        items,
+        deliveryMode,
+        paymentMode,
+        address,
+        phone,
+        customer: user?.name || '',
+      });
+      setWhatsappUrl(
+        `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
+      );
+
       clearCart();
       setSuccess(true);
     } catch (err: any) {
@@ -130,15 +208,24 @@ export const CheckoutPage: React.FC = () => {
               </p>
             )}
             <p className="text-gray-500 mb-6">
-              Gracias por tu compra. Te llamaremos al {phone || 'tu teléfono'} para coordinar{' '}
+              Te estamos llevando al chat de WhatsApp para enviarnos tu pedido.
+              Hablaremos al {phone || 'tu teléfono'} para coordinar{' '}
               {deliveryMode === 'pickup' ? 'la recogida en tienda' : 'la entrega a domicilio'}.
               {paymentMode === 'transfer' && (
                 <>
-                  {' '}Te enviaremos los datos de la cuenta para adelantar por transferencia{' '}
+                  {' '}Por transferencia adelantas{' '}
                   <span className="font-semibold text-primary-deep">{formatPrice(transferAdvance)}</span> (20% del total).
                 </>
               )}
             </p>
+            {whatsappUrl && (
+              <a
+                href={whatsappUrl}
+                className="btn-liquid w-full py-3 mb-3 flex items-center justify-center"
+              >
+                Si no se abre solo, toca aquí
+              </a>
+            )}
             <button onClick={() => navigate('/products')} className="btn-liquid w-full py-3">
               Seguir Comprando
             </button>

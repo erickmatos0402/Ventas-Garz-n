@@ -15,7 +15,7 @@ import {
   Wallet,
 } from 'lucide-react';
 import { SlideUp, containerVariants, itemVariants } from '../utils/animations';
-import { useCatalogStore, useThemeStore } from '../store';
+import { useAuthStore, useCatalogStore, useThemeStore } from '../store';
 import { Product } from '../types';
 import { ProductCard, LiquidTabs, LogoMedallion } from '../components';
 import { getDiscountedPrice, MOCK_PRODUCTS } from '../data/mockData';
@@ -79,6 +79,8 @@ const SectionHeading: React.FC<{ title: string; subtitle?: string }> = ({ title,
 
 export const LandingPage: React.FC = () => {
   const catalogProducts = useCatalogStore((s) => s.products);
+  const user = useAuthStore((s) => s.user);
+  const isAdmin = user?.role === 'admin';
   const theme = useThemeStore((s) => s.theme);
   const setTheme = useThemeStore((s) => s.setTheme);
   const meta = STORE_META_DATA[theme];
@@ -413,10 +415,16 @@ export const LandingPage: React.FC = () => {
           >
             {promoCards.length === 0 ? (
               <div className="md:col-span-2 ios-glass rounded-3xl p-10 text-center">
-                <p className="text-gray-500">No hay ofertas activas por ahora. Añade productos con descuento en el Admin.</p>
-                <Link to="/admin" className="btn-signature inline-flex px-6 py-3 mt-4">
-                  Ir al Admin
-                </Link>
+                <p className="text-gray-500">
+                  {isAdmin
+                    ? 'No hay ofertas activas por ahora. Añade productos con descuento en el Admin.'
+                    : 'No hay ofertas activas por ahora.'}
+                </p>
+                {isAdmin && (
+                  <Link to="/admin" className="btn-signature inline-flex px-6 py-3 mt-4">
+                    Ir al Admin
+                  </Link>
+                )}
               </div>
             ) : (
               promoCards.map((product) => (

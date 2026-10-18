@@ -33,6 +33,9 @@ const MENU_ITEMS = [
   { to: '/admin', label: 'Admin', icon: <ShieldCheck size={16} /> },
 ];
 
+/** La entrada al panel solo existe con sesión de administrador. */
+const isAdminItem = (item: (typeof MENU_ITEMS)[number]) => item.to === '/admin';
+
 /** El panel entra como una gota y las opciones lo hacen en cascada. */
 const menuVariants: Variants = {
   hidden: {},
@@ -67,6 +70,8 @@ export const Header: React.FC = () => {
   const totalItems = items.reduce((sum: number, item: any) => sum + item.quantity, 0);
   const location = useLocation();
   const meta = STORE_META_DATA[theme];
+  // Solo los administradores ven la opción Admin en el menú.
+  const menuItems = MENU_ITEMS.filter((item) => !isAdminItem(item) || user?.role === 'admin');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -149,7 +154,7 @@ export const Header: React.FC = () => {
                       animate="visible"
                       className="relative flex flex-col gap-1"
                     >
-                      {MENU_ITEMS.map((item) => {
+                      {menuItems.map((item) => {
                         const active = location.pathname.startsWith(item.to);
                         return (
                           <motion.li key={item.to} variants={menuItemVariants}>
