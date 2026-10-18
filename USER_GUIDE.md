@@ -48,7 +48,7 @@ La página de inicio te presenta:
 Muestra:
 - Subtotal
 - Envío (¡Gratis!)
-- Impuesto (19%)
+- Impuesto (20%)
 - **Total a pagar**
 
 ## 👤 Cuenta de Usuario

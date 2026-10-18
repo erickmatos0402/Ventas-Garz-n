@@ -55,18 +55,18 @@ export async function getOrders(userId: number, page: number = 1): Promise<any> 
     const limit = 10;
     const offset = (page - 1) * limit;
 
-    const ordersResult = await query<QueryResult>(
+    const ordersResult = await query(
       'SELECT * FROM orders WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
       [userId, limit, offset]
     );
 
-    const countResult = await query<QueryResult>('SELECT COUNT(*) FROM orders WHERE user_id = $1', [userId]);
+    const countResult = await query('SELECT COUNT(*) FROM orders WHERE user_id = $1', [userId]);
     const total = parseInt(countResult.rows[0].count);
 
     // Get items for each order
     const orders = await Promise.all(
       ordersResult.rows.map(async (order) => {
-    const itemsResult = await query<QueryResult>(
+    const itemsResult = await query(
       `SELECT oi.*, p.name, p.image FROM order_items oi 
        JOIN products p ON oi.product_id = p.id 
        WHERE oi.order_id = $1`,

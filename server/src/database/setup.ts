@@ -194,7 +194,7 @@ export async function setupDatabase() {
       },
     ];
 
-    const countResult = await query<{ count: number }>(`SELECT COUNT(*)::int AS count FROM products;`);
+    const countResult = await query(`SELECT COUNT(*)::int AS count FROM products;`);
     if (countResult.rows[0].count === 0) {
       for (const p of demoProducts) {
         await query(
