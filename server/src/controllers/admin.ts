@@ -113,7 +113,7 @@ export async function updateSectionProduct(req: Request, res: Response) {
 
     const { name, description, price, image, category, stock } = req.body;
 
-    const allowedFields: Array<keyof typeof req.body> = ['name', 'description', 'price', 'image', 'category', 'stock'];
+    const allowedFields = ['name', 'description', 'price', 'image', 'category', 'stock'] as const;
     const updates: string[] = [];
     const values: any[] = [];
     let paramCount = 1;
