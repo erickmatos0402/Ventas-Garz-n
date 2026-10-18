@@ -14,6 +14,7 @@ import {
 } from './pages';
 import { useAuthStore, useCatalogStore, useThemeStore } from './store';
 import { STORE_META_DATA } from './data/boutiqueData';
+import { isSupabaseConfigured } from './utils/supabase';
 
 /** Título de documento por sección (navegación más clara) */
 const SECTION_TITLES: Record<string, string> = {
@@ -75,15 +76,47 @@ function AppShell() {
   );
 }
 
+/**
+ * Sin variables de entorno no hay catálogo ni sesión: en vez de una página
+ * en blanco se explica qué falta (Vercel, por ejemplo, necesita que se
+ * configuren en el panel del proyecto y volver a desplegar).
+ */
+function SupabaseConfigScreen() {
+  return (
+    <div className="min-h-dvh flex items-center justify-center px-4 py-16">
+      <div className="glass-strong rounded-3xl p-6 sm:p-10 max-w-lg w-full text-center">
+        <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-dark mb-3">
+          Falta configurar Supabase
+        </h1>
+        <p className="text-gray-500 mb-4 text-sm">
+          Crea <code className="font-semibold">client/.env.local</code> con las credenciales del proyecto
+          (Supabase → Project Settings → API) y reinicia el servidor:
+        </p>
+        <pre className="text-left text-xs bg-white/60 border border-white/70 rounded-2xl p-4 mb-4 overflow-x-auto">
+          {'VITE_SUPABASE_URL=https://tu-proyecto.supabase.co\nVITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...'}
+        </pre>
+        <p className="text-xs text-gray-400">
+          Si la app está desplegada, añade esas mismas variables en el panel del hosting y vuelve a desplegar.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const initializeAuth = useAuthStore((s) => s.initialize);
   const fetchProducts = useCatalogStore((s) => s.fetchProducts);
 
   // Restaura la sesión de Supabase y carga el catálogo una sola vez.
   useEffect(() => {
+    if (!isSupabaseConfigured) return;
     void initializeAuth();
     void fetchProducts();
   }, [initializeAuth, fetchProducts]);
+
+  if (!isSupabaseConfigured) {
+    return <SupabaseConfigScreen />;
+  }
 
   return (
     // reducedMotion="user": en móviles que pidan menos movimiento,
