@@ -1,6 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Star, ShoppingCart, Check } from 'lucide-react';
+import { Star, ShoppingCart, Check, MessageSquare } from 'lucide-react';
 import { Product } from '../types';
 import { formatPrice, trackBubblePointer, resetBubblePointer } from '../utils';
 import { useCartStore } from '../store';
@@ -75,19 +76,40 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, 
         <h3 className="font-bold text-[13px] sm:text-lg text-dark mb-1 sm:mb-1.5 line-clamp-2 leading-tight">{product.name}</h3>
         <p className="text-gray-500 text-[11px] sm:text-sm mb-2 sm:mb-3 line-clamp-2 leading-snug">{product.description}</p>
 
-        {/* Rating */}
-        {product.rating && (
-          <div className="flex items-center space-x-0.5 sm:space-x-1 mb-2 sm:mb-3">
-            {[...Array(5)].map((_, i) => (
+        {/* Reseñas reales: sin valoraciones inventadas */}
+        <Link
+          to={`/products/${product.id}`}
+          className="flex items-center gap-0.5 sm:gap-1 mb-2 sm:mb-3 group/reviews"
+          aria-label={`Ver reseñas de ${product.name}`}
+        >
+          {/* En la rejilla de 3 columnas del móvil solo cabe una estrella. */}
+          <span className="hidden sm:inline-flex items-center gap-0.5">
+            {[1, 2, 3, 4, 5].map((i) => (
               <Star
                 key={i}
                 size={14}
-                className={i < Math.floor(product.rating || 0) ? 'fill-amber-400 text-amber-400' : 'text-gray-300'}
+                className={
+                  product.reviews && i <= Math.round(product.rating || 0)
+                    ? 'fill-amber-400 text-amber-400'
+                    : 'text-gray-300'
+                }
               />
             ))}
-            <span className="text-xs text-gray-500 ml-1">({product.reviews || 0})</span>
-          </div>
-        )}
+          </span>
+          <Star
+            size={13}
+            className={`sm:hidden flex-shrink-0 ${
+              product.reviews ? 'fill-amber-400 text-amber-400' : 'text-gray-300'
+            }`}
+          />
+          <span className="text-[10px] sm:text-xs text-gray-500 ml-0.5 sm:ml-1 min-w-0 truncate">
+            {product.reviews ? `(${product.reviews})` : 'Sin reseñas'}
+          </span>
+          <span className="ml-auto hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-primary-deep opacity-80 group-hover/reviews:opacity-100 flex-shrink-0">
+            <MessageSquare size={12} />
+            Calificar
+          </span>
+        </Link>
 
         {/* Precio */}
         <div className="mb-2.5 sm:mb-4">
@@ -102,6 +124,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, 
           <p className={`text-[11px] sm:text-xs ${product.stock > 0 ? 'text-gray-500' : 'text-danger font-semibold'}`}>
             {product.stock > 0 ? `${product.stock} disponibles` : 'Agotado'}
           </p>
+          {product.restockDays != null ? (
+            <p className="text-[11px] sm:text-xs font-semibold text-amber-700">
+              {product.stock > 0 ? 'Reposición' : 'Espera de abastecimiento'}: ~{product.restockDays}{' '}
+              {product.restockDays === 1 ? 'día' : 'días'}
+            </p>
+          ) : product.stock === 0 ? (
+            <p className="text-[11px] sm:text-xs font-semibold text-amber-700">
+              Esperando abastecimiento
+            </p>
+          ) : null}
         </div>
 
         {/* Cantidad y acción: en columnas estrechas van uno debajo del otro,

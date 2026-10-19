@@ -18,9 +18,13 @@ export interface Product {
   /** Solo en productos de la Boutique: filtro del catálogo de moda */
   subcategory?: BoutiqueCategory;
   stock: number;
+  /** Días estimados de espera para reponer existencias (null = sin fecha) */
+  restockDays?: number;
+  /** Promedio real de las reseñas; undefined mientras no haya ninguna */
   rating?: number;
+  /** Cantidad real de reseñas publicadas */
   reviews?: number;
-  /** Porcentaje de descuento (0 = sin oferta). Solo demo con datos falsos */
+  /** Porcentaje de descuento (0 = sin oferta) */
   discount?: number;
   /** Emoji decorativo para la vista previa sin imagen */
   emoji?: string;
@@ -43,11 +47,29 @@ export interface Order {
   id: string;
   userId: string;
   items: CartItem[];
+  subtotal: number;
+  /** Recargo del 30% al pagar por transferencia */
+  transferFee: number;
   total: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  paymentMode: 'cash' | 'transfer';
+  /** Inicio de la ventana de recogida (1 hora) */
+  pickupReadyAt: string;
   createdAt: string;
   updatedAt: string;
-  shippingAddress?: string;
+  phone?: string;
+}
+
+/** Reseña real de un producto (calificación + experiencia de compra). */
+export interface ProductReview {
+  id: string;
+  productId: string;
+  userId: string;
+  authorName: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AuthResponse {

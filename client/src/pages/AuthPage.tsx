@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Mail,
@@ -15,7 +15,6 @@ import {
   AlertCircle,
   Store,
   Package,
-  Truck,
   Landmark,
   Heart,
   Sparkles,
@@ -38,8 +37,8 @@ const INPUT_CLASS =
 const BENEFITS: Record<'market' | 'boutique', { icon: React.ReactNode; text: string }[]> = {
   market: [
     { icon: <Package size={17} />, text: 'Sigue el estado de tus pedidos' },
-    { icon: <Truck size={17} />, text: 'Recogida en tienda o entrega a domicilio' },
-    { icon: <Landmark size={17} />, text: 'Pago en efectivo o por transferencia' },
+    { icon: <Store size={17} />, text: 'Recogida en tienda con ventana de 1 hora' },
+    { icon: <Landmark size={17} />, text: 'Efectivo presencial o transferencia (+30%)' },
   ],
   boutique: [
     { icon: <Heart size={17} />, text: 'Guarda tus prendas favoritas' },
@@ -50,6 +49,10 @@ const BENEFITS: Record<'market' | 'boutique', { icon: React.ReactNode; text: str
 
 export const AuthPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  // Al entrar desde checkout o desde una ficha de producto, se vuelve ahí.
+  const requestedNext = new URLSearchParams(location.search).get('next');
+  const nextPath = requestedNext?.startsWith('/') ? requestedNext : '/products';
   const theme = useThemeStore((s) => s.theme);
   const meta = STORE_META_DATA[theme];
   const user = useAuthStore((s) => s.user);
@@ -82,7 +85,7 @@ export const AuthPage: React.FC = () => {
       } else {
         await register(name, email, password);
       }
-      navigate('/products');
+      navigate(nextPath);
     } catch (err: any) {
       setError(err?.message || 'No pudimos completar la operación. Inténtalo otra vez.');
     } finally {
@@ -106,9 +109,9 @@ export const AuthPage: React.FC = () => {
               Entraste como <span className="font-semibold text-primary-deep">{user.name}</span>
               <span className="block text-xs text-gray-400 mt-0.5">{user.email}</span>
             </p>
-            <Link to="/products" className="btn-liquid w-full py-3 mb-3 flex items-center justify-center gap-2">
+            <Link to={nextPath} className="btn-liquid w-full py-3 mb-3 flex items-center justify-center gap-2">
               <Store size={16} />
-              Ir a la tienda
+              Continuar
             </Link>
             <button
               onClick={logout}
@@ -293,7 +296,7 @@ export const AuthPage: React.FC = () => {
               </p>
 
               <p className="mt-5 text-xs text-gray-400 text-center">
-                Modo demo: la cuenta se guarda solo en este navegador
+                Tu cuenta es necesaria para confirmar pedidos, calificar productos y dejar comentarios.
               </p>
             </div>
           </div>

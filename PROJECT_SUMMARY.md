@@ -93,15 +93,14 @@ database/
 - ✅ Filtros por categoría (Aseo, Alimentos)
 - ✅ Búsqueda de productos
 - ✅ Tarjetas con animaciones hover
-- ✅ Stock y disponibilidad
-- ✅ Calificaciones
+- ✅ Stock, disponibilidad y espera de abastecimiento
+- ✅ Reseñas reales de clientes (sin datos inventados)
 
 ### Carrito de Compras
 - ✅ Agregar/eliminar productos
 - ✅ Modificar cantidades
 - ✅ Cálculo automático de totales
-- ✅ Envío gratis
-- ✅ Cálculo de impuestos (20%)
+- ✅ Sin impuestos ni envío (solo recogida en tienda)
 - ✅ Persistencia en localStorage
 
 ### Autenticación

@@ -31,6 +31,42 @@ export function formatPrice(price: number): string {
   }).format(price);
 }
 
+/** Minutos que dura la ventana de recogida después de confirmar el pedido. */
+export const PICKUP_WINDOW_MINUTES = 60;
+
+/**
+ * Ventana de recogida en la hora local de la tienda (Santiago de Cuba).
+ * Si la base de datos no devuelve `pickup_ready_at`, se asume una hora
+ * desde este momento para no dejar el mensaje sin hora.
+ */
+export function getPickupWindow(readyAt?: string | null) {
+  const parsed = readyAt ? new Date(readyAt) : null;
+  const start = parsed && !Number.isNaN(parsed.getTime()) ? parsed : new Date(Date.now() + 60 * 60 * 1000);
+  const end = new Date(start.getTime() + PICKUP_WINDOW_MINUTES * 60 * 1000);
+
+  const dayFormatter = new Intl.DateTimeFormat('es-CO', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    timeZone: 'America/Havana',
+  });
+  const timeFormatter = new Intl.DateTimeFormat('es-CO', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'America/Havana',
+  });
+
+  return {
+    start,
+    end,
+    dayLabel: dayFormatter.format(start),
+    startTime: timeFormatter.format(start),
+    endTime: timeFormatter.format(end),
+    label: `${dayFormatter.format(start)}, de ${timeFormatter.format(start)} a ${timeFormatter.format(end)}`,
+  };
+}
+
 export function formatDate(date: string | Date): string {
   return new Intl.DateTimeFormat('es-CO', {
     year: 'numeric',

@@ -11,12 +11,17 @@ const faqs = [
   {
     question: '¿Puedo recoger mi pedido en tienda?',
     answer:
-      'Sí. En el checkout elige "Recogida en tienda" (sin costo). Te avisamos en cuanto esté listo, normalmente el mismo día.',
+      'Sí. Todos los pedidos se recogen en tienda, sin costo de envío. Al confirmar, tu pedido queda listo en 1 hora y tienes una ventana de 1 hora para recogerlo.',
   },
   {
-    question: '¿Hacen entregas a domicilio?',
+    question: '¿Cómo puedo pagar?',
     answer:
-      'Sí, entregamos a domicilio según la zona con un costo de $5.000 que se calcula automáticamente en tu pedido.',
+      'Puedes pagar en efectivo presencial al recoger, o por transferencia bancaria. La transferencia incluye un recargo del 30% sobre el subtotal. No se cobran impuestos.',
+  },
+  {
+    question: '¿Hay entrega a domicilio?',
+    answer:
+      'Por ahora el flujo es solo recogida en tienda en Santiago de Cuba. Así garantizamos que tu pedido esté listo en una hora.',
   },
   {
     question: '¿Puedo comprar al por mayor?',
@@ -24,9 +29,19 @@ const faqs = [
       'Claro, en Ventas Garzón atendemos clientes mayoristas y minoristas con precios especiales. Escríbenos para armar tu cotización.',
   },
   {
-    question: '¿Cuándo llega mi pedido?',
+    question: '¿Cuándo puedo recoger mi pedido?',
     answer:
-      'Los pedidos se procesan el mismo día. La recogida en tienda suele estar lista en horas; el envío a domicilio depende de tu zona.',
+      'Al confirmar el pedido se marca una ventana de 1 hora: la hora exacta aparece en pantalla y se añade al mensaje de WhatsApp de la tienda.',
+  },
+  {
+    question: '¿Los productos agotados tienen fecha de reposición?',
+    answer:
+      'En la tienda verás si un producto está en espera de abastecimiento y, cuando la tienda lo indica, los días estimados de reposición.',
+  },
+  {
+    question: '¿Puedo calificar un producto?',
+    answer:
+      'Sí. Inicia sesión, abre la ficha del producto y deja tu calificación y comentario. Puedes editar tu reseña más adelante.',
   },
   {
     question: '¿Cómo contacto al soporte?',

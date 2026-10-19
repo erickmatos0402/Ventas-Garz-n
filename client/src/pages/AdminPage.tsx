@@ -32,6 +32,7 @@ const EMPTY_FORM = {
   image: '',
   category: 'aseo' as 'aseo' | 'alimentos',
   stock: '',
+  restockDays: '',
   discount: '',
   emoji: '🧴',
 };
@@ -120,6 +121,11 @@ const AdminProductCard: React.FC<{
         <span className="font-bold text-primary">{formatPrice(getDiscountedPriceSafe(product))}</span>
         <span className={product.stock > 0 ? 'text-gray-500' : 'text-danger font-semibold'}>
           {product.stock > 0 ? `${product.stock} en stock` : 'Agotado'}
+          {product.restockDays != null && (
+            <span className="block text-[11px] text-amber-700">
+              Reposición ~{product.restockDays} {product.restockDays === 1 ? 'día' : 'días'}
+            </span>
+          )}
         </span>
       </div>
 
@@ -238,6 +244,7 @@ export const AdminPage: React.FC = () => {
       image: product.image || '',
       category: product.category,
       stock: String(product.stock),
+      restockDays: product.restockDays != null ? String(product.restockDays) : '',
       discount: product.discount ? String(product.discount) : '',
       emoji: product.emoji || '🧴',
     });
@@ -270,8 +277,8 @@ export const AdminPage: React.FC = () => {
       image: form.image.trim(),
       category: form.category,
       stock: Number(form.stock) || 0,
-      rating: 4.5,
-      reviews: 0,
+      // Sin valoraciones inventadas: el promedio sale de reseñas reales.
+      restockDays: form.restockDays !== '' ? Number(form.restockDays) : undefined,
       discount: form.discount ? Number(form.discount) : undefined,
       emoji: form.emoji,
     };
@@ -548,6 +555,20 @@ export const AdminPage: React.FC = () => {
                     className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-dark mb-1.5">
+                  Días de espera por abastecimiento (opcional)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={form.restockDays}
+                  onChange={(e) => setForm({ ...form, restockDays: e.target.value })}
+                  placeholder="Ej. 5 (se muestra en Tienda si hay espera)"
+                  className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary"
+                />
               </div>
 
               <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-4">

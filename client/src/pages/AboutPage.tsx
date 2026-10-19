@@ -12,7 +12,7 @@ const CONTENT = {
       'Somos una tienda enfocada en calidad, precio justo y atención personalizada. Nuestro objetivo es facilitar la compra de productos de limpieza y alimentos tanto para consumidores como para negocios.',
     pillars: [
       { title: 'Mayorista y Minorista', description: 'Compras al por mayor y detalle con precios competitivos.' },
-      { title: 'Compra confiable', description: 'Pedidos listos rápido para recoger en tienda.' },
+      { title: 'Compra confiable', description: 'Pedidos listos para recoger en tienda en una hora.' },
       { title: 'Atención local', description: 'Soporte cercano con una experiencia de compra segura.' },
     ],
     values: [
@@ -21,12 +21,6 @@ const CONTENT = {
       { icon: <Users size={22} className="text-primary" />, title: 'Confianza vecinal', description: 'Años atendiendo a las familias y negocios de Santiago de Cuba con la misma dedicación.' },
       { icon: <Sparkles size={22} className="text-primary" />, title: 'Selección cuidada', description: 'Cada producto del catálogo está probado y aprobado por nosotros antes de ofrecerlo.' },
     ],
-    stats: [
-      { value: '+500', label: 'Familias atendidas' },
-      { value: '+50', label: 'Productos en catálogo' },
-      { value: '24h', label: 'Tiempo máximo de entrega' },
-    ],
-    statsTitle: 'Ventas Garzón en números',
     ctaSecondary: 'Preguntas Frecuentes',
   },
   boutique: {
@@ -36,7 +30,7 @@ const CONTENT = {
     pillars: [
       { title: 'Pieza única', description: 'Cada prenda es una sola. Si te gusta, no lo dejes pasar.' },
       { title: 'Curaduría real', description: 'Revisamos, limpiamos y fotografiamos cada artículo a mano.' },
-      { title: 'Precio de garaje', description: 'Hasta 70% menos que lo que costaría nuevo.' },
+      { title: 'Precio de garaje', description: 'Precios de segunda mano, sin intermediarios.' },
     ],
     values: [
       { icon: <Tag size={22} className="text-primary" />, title: 'Gangas auténticas', description: 'Marcas y prendas a una fracción de su precio original, sin intermediarios.' },
@@ -44,12 +38,6 @@ const CONTENT = {
       { icon: <Ruler size={22} className="text-primary" />, title: 'Medidas honestas', description: 'Publicamos medidas reales y estado exacto de cada prenda, sin sorpresas.' },
       { icon: <Gem size={22} className="text-primary" />, title: 'Estilo curado', description: 'Seleccionamos con ojo de boutique: clásicos, statement y tesoros vintage.' },
     ],
-    stats: [
-      { value: '+300', label: 'Prendas con nueva historia' },
-      { value: '70%', label: 'Ahorro promedio' },
-      { value: '1a1', label: 'Revisión de cada pieza' },
-    ],
-    statsTitle: 'Garzón Chic en números',
     ctaSecondary: 'Cómo comprar',
   },
 } as const;
@@ -108,19 +96,6 @@ export const AboutPage: React.FC = () => {
               </div>
             </motion.div>
           ))}
-        </div>
-
-        {/* Cifras */}
-        <div className="mt-12 grove-theme liquid-border rounded-3xl p-6 sm:p-8 md:p-10 text-center">
-          <h2 className="font-display text-2xl sm:text-3xl font-extrabold mb-6 sm:mb-8">{content.statsTitle}</h2>
-          <div className="grid grid-cols-3 gap-3 sm:gap-8">
-            {content.stats.map((stat) => (
-              <div key={stat.label}>
-                <p className="font-display text-2xl min-[400px]:text-3xl sm:text-4xl font-extrabold grove-accent mb-1">{stat.value}</p>
-                <p className="grove-text-soft text-xs sm:text-sm">{stat.label}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </div>

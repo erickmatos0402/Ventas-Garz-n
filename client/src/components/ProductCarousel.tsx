@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Heart, ShoppingCart, Star, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, ShoppingCart, Star, Check, MessageSquare } from 'lucide-react';
 import { Product } from '../types';
 import { formatPrice } from '../utils';
 import { getDiscountedPrice } from '../data/mockData';
@@ -146,23 +147,32 @@ const CarouselCard: React.FC<CarouselCardProps> = ({
         </h3>
         <p className="text-gray-500 text-sm line-clamp-2 mb-3">{product.description}</p>
 
-        {/* Rating */}
-        <div className="flex items-center gap-1 mb-4">
-          {[...Array(5)].map((_, i) => (
+        {/* Reseñas reales (sin valoraciones inventadas) */}
+        <Link
+          to={`/products/${product.id}`}
+          onClick={(e) => e.stopPropagation()}
+          className="flex items-center gap-1 mb-4 group/reviews"
+          aria-label={`Ver reseñas de ${product.name}`}
+        >
+          {[1, 2, 3, 4, 5].map((i) => (
             <Star
               key={i}
               size={14}
               className={
-                i < Math.floor(product.rating || 0)
+                product.reviews && i <= Math.round(product.rating || 0)
                   ? 'fill-amber-400 text-amber-400'
                   : 'text-gray-300'
               }
             />
           ))}
           <span className="text-xs text-gray-500 ml-1">
-            {product.rating ? product.rating.toFixed(1) : '—'} ({product.reviews || 0})
+            {product.rating ? `${product.rating.toFixed(1)} (${product.reviews || 0})` : 'Sin reseñas'}
           </span>
-        </div>
+          <span className="ml-auto hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-primary-deep flex-shrink-0">
+            <MessageSquare size={13} />
+            Calificar
+          </span>
+        </Link>
 
         {/* Precio */}
         <div className="flex items-end justify-between gap-2 mb-4">
@@ -178,6 +188,17 @@ const CarouselCard: React.FC<CarouselCardProps> = ({
             {soldOut ? 'Agotado' : `${product.stock} disp.`}
           </span>
         </div>
+
+        {product.restockDays != null ? (
+          <p className="text-[11px] font-semibold text-amber-700 mb-3 -mt-2">
+            {soldOut ? 'Espera de abastecimiento' : 'Reposición'}: ~{product.restockDays}{' '}
+            {product.restockDays === 1 ? 'día' : 'días'}
+          </p>
+        ) : soldOut ? (
+          <p className="text-[11px] font-semibold text-amber-700 mb-3 -mt-2">
+            Esperando abastecimiento
+          </p>
+        ) : null}
 
         {/* Acción: se expande solo en la tarjeta activa */}
         <div className="mt-auto flex flex-col gap-2">

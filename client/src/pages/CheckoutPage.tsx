@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   MapPin,
@@ -9,22 +9,22 @@ import {
   Loader2,
   ShoppingBasket,
   Store,
-  Truck,
   Phone,
   Lock,
   Landmark,
+  Clock,
 } from 'lucide-react';
 import { useAuthStore, useCartStore, useThemeStore } from '../store';
 import { SlideUp } from '../utils/animations';
-import { formatPrice } from '../utils';
+import { formatPrice, getPickupWindow } from '../utils';
 import { getDiscountedPrice } from '../data/mockData';
 import { orderService } from '../services/orders';
+import type { OrderRow } from '../types/database';
 
-type DeliveryMode = 'pickup' | 'delivery';
 type PaymentMode = 'cash' | 'transfer';
 
-/** Al pagar por transferencia el cliente adelanta este porcentaje del total. */
-const TRANSFER_ADVANCE = 0.2;
+/** Recargo que se suma al total cuando el pago es por transferencia. */
+const TRANSFER_SURCHARGE_RATE = 0.3;
 
 /** Número de WhatsApp de la tienda (país +53, sin signos ni espacios). */
 const WHATSAPP_NUMBER = '5356072398';
@@ -35,39 +35,41 @@ const WHATSAPP_NUMBER = '5356072398';
  * devuelto por la RPC), nunca los que calculó el navegador.
  */
 function buildWhatsAppMessage(input: {
-  order: any;
+  order: OrderRow;
   orderRef: string;
   items: any[];
-  deliveryMode: DeliveryMode;
   paymentMode: PaymentMode;
-  address: string;
   phone: string;
   customer: string;
 }): string {
-  const { order, orderRef, items, deliveryMode, paymentMode, address, phone, customer } = input;
+  const { order, orderRef, items, paymentMode, phone, customer } = input;
   const money = (value: any) => formatPrice(Number(value) || 0);
   const lines = items.map(
     (item) => `• ${item.name} × ${item.quantity} — ${money(getDiscountedPrice(item) * item.quantity)}`
   );
+  const pickup = getPickupWindow(order.pickup_ready_at);
+  const transferFee = Number(order.transfer_fee) || 0;
 
   const details = [
     '*Nuevo pedido* — Ventas Garzón',
     `Pedido: ${orderRef}`,
     customer ? `Cliente: ${customer}` : null,
+    phone ? `Teléfono: ${phone}` : null,
     '',
     '*Productos*',
     ...lines,
     '',
     `Subtotal: ${money(order.subtotal)}`,
-    `Impuesto (20%): ${money(order.tax)}`,
-    deliveryMode === 'delivery' ? `Envío: ${money(order.delivery_fee)}` : 'Envío: Recogida en tienda',
+    transferFee > 0 ? `Recargo transferencia (30%): ${money(transferFee)}` : null,
     `*Total: ${money(order.total)}*`,
+    'Impuestos: no se cobran',
     '',
-    deliveryMode === 'delivery' ? `Entrega: A domicilio — ${address}` : 'Entrega: Recogida en tienda',
-    phone ? `Teléfono: ${phone}` : null,
+    'Entrega: Recogida en tienda (Santiago de Cuba)',
+    `Listo para recoger: ${pickup.dayLabel}, ${pickup.startTime}`,
+    `Recoge antes de: ${pickup.endTime} (ventana de 1 hora)`,
     paymentMode === 'transfer'
-      ? 'Pago: Transferencia bancaria (adelanta el 20%)'
-      : 'Pago: Efectivo contra entrega',
+      ? 'Pago: Transferencia bancaria (incluye 30% de recargo)'
+      : 'Pago: Efectivo presencial al recoger',
   ].filter((line): line is string => line !== null);
 
   return details.join('\n');
@@ -76,30 +78,28 @@ function buildWhatsAppMessage(input: {
 export const CheckoutPage: React.FC = () => {
   const theme = useThemeStore((s) => s.theme);
   const user = useAuthStore((s) => s.user);
+  const authLoading = useAuthStore((s) => s.loading);
   const cart = useCartStore(theme);
-  const { items, clearCart } = cart()
+  const { items, clearCart } = cart();
   const navigate = useNavigate();
 
-  const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('pickup');
   const [paymentMode, setPaymentMode] = useState<PaymentMode>('cash');
-  const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const [success, setSuccess] = useState(false);
-  const [orderId, setOrderId] = useState<string | null>(null);
+  const [order, setOrder] = useState<OrderRow | null>(null);
   const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null);
 
   // Confirmado el pedido: el navegador va directo al chat de WhatsApp con
-  // el pedido ya escrito. La pausa mínima es para que se pinte el aviso de
-  // "pedido confirmado" antes de salir; si el usuario se mueve antes, se
-  // cancela y la pantalla queda como respaldo.
+  // el pedido ya escrito. La pausa deja leer la ventana de recogida; si el
+  // usuario se mueve antes, se cancela y la pantalla queda como respaldo.
   useEffect(() => {
     if (!whatsappUrl) return;
     const timer = window.setTimeout(() => {
       window.location.href = whatsappUrl;
-    }, 600);
+    }, 1200);
     return () => window.clearTimeout(timer);
   }, [whatsappUrl]);
 
@@ -108,12 +108,9 @@ export const CheckoutPage: React.FC = () => {
   const unitPrice = (item: any) => getDiscountedPrice(item);
 
   const subtotal = items.reduce((sum: number, item: any) => sum + unitPrice(item) * item.quantity, 0);
-  const tax = Math.round(subtotal * 0.2);
-  const deliveryFee = deliveryMode === 'delivery' ? 5000 : 0;
-  const total = subtotal + tax + deliveryFee;
-  // Importe que se paga por adelantado al elegir transferencia (20% del total).
-  const transferAdvance = total * TRANSFER_ADVANCE;
-  const transferBalance = total - transferAdvance;
+  // Sin impuestos ni envío: solo existe el recargo del 30% por transferencia.
+  const transferFee = paymentMode === 'transfer' ? Math.round(subtotal * TRANSFER_SURCHARGE_RATE) : 0;
+  const total = subtotal + transferFee;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,42 +121,32 @@ export const CheckoutPage: React.FC = () => {
       return;
     }
 
-    if (deliveryMode === 'delivery' && address.trim().length < 10) {
-      setError('Escribe una dirección completa para la entrega a domicilio');
-      return;
-    }
-
     setLoading(true);
 
     try {
       // El pedido se guarda en Supabase: `create_order` valida stock,
       // calcula los importes y descuenta las unidades en una transacción.
-      const order = await orderService.create({
+      // El flujo actual es siempre recogida en tienda.
+      const created = await orderService.create({
         items: items.map((item: any) => ({ productId: item.id, quantity: item.quantity })),
-        shippingAddress: deliveryMode === 'delivery' ? address : undefined,
         phone,
-        deliveryMode,
         paymentMode,
       });
 
-      setOrderId(order.id);
+      setOrder(created);
 
       // Se arma el mensaje con el carrito todavía lleno y con los importes
-      // reales que calculó la base de datos.
-      const orderRef = `#${order.id.slice(0, 8).toUpperCase()}`;
+      // reales que calculó la base de datos (incluida la hora de recogida).
+      const orderRef = `#${created.id.slice(0, 8).toUpperCase()}`;
       const message = buildWhatsAppMessage({
-        order,
+        order: created,
         orderRef,
         items,
-        deliveryMode,
         paymentMode,
-        address,
         phone,
-        customer: user?.name || '',
+        customer: user.name,
       });
-      setWhatsappUrl(
-        `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
-      );
+      setWhatsappUrl(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`);
 
       clearCart();
       setSuccess(true);
@@ -169,6 +156,14 @@ export const CheckoutPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-dvh flex items-center justify-center px-4">
+        <p className="text-gray-500">Comprobando tu sesión…</p>
+      </div>
+    );
+  }
 
   if (items.length === 0 && !success) {
     return (
@@ -189,7 +184,15 @@ export const CheckoutPage: React.FC = () => {
     );
   }
 
-  if (success) {
+  // Confirmar el pedido es una acción crítica: sin sesión se pide login.
+  if (!user) {
+    return <Navigate to="/login?next=/checkout" replace />;
+  }
+
+  if (success && order) {
+    const pickup = getPickupWindow(order.pickup_ready_at);
+    const transferFeePaid = Number(order.transfer_fee) || 0;
+
     return (
       <div className="min-h-dvh flex items-center justify-center px-4 py-16">
         <SlideUp>
@@ -202,31 +205,56 @@ export const CheckoutPage: React.FC = () => {
               <CheckCircle size={32} className="text-primary-deep" />
             </motion.div>
             <h2 className="font-display text-2xl font-extrabold tracking-tight text-dark mb-2">¡Pedido Confirmado!</h2>
-            {orderId && (
-              <p className="text-xs font-semibold tracking-wide text-gray-400 mb-2">
-                Pedido #{orderId.slice(0, 8).toUpperCase()}
-              </p>
-            )}
-            <p className="text-gray-500 mb-6">
-              Te estamos llevando al chat de WhatsApp para enviarnos tu pedido.
-              Hablaremos al {phone || 'tu teléfono'} para coordinar{' '}
-              {deliveryMode === 'pickup' ? 'la recogida en tienda' : 'la entrega a domicilio'}.
-              {paymentMode === 'transfer' && (
-                <>
-                  {' '}Por transferencia adelantas{' '}
-                  <span className="font-semibold text-primary-deep">{formatPrice(transferAdvance)}</span> (20% del total).
-                </>
-              )}
+            <p className="text-xs font-semibold tracking-wide text-gray-400 mb-4">
+              Pedido #{order.id.slice(0, 8).toUpperCase()}
             </p>
+
+            <div className="liquid-badge rounded-2xl p-4 text-left mb-5">
+              <p className="flex items-center gap-2 font-bold text-dark text-sm mb-1">
+                <Clock size={16} className="text-primary" />
+                Ventana de recogida (1 hora)
+              </p>
+              <p className="text-sm text-gray-600">
+                Listo {pickup.dayLabel}, de{' '}
+                <span className="font-bold text-primary-deep">{pickup.startTime}</span> a{' '}
+                <span className="font-bold text-primary-deep">{pickup.endTime}</span>.
+              </p>
+              <p className="text-xs text-gray-400 mt-1">Hora de la tienda en Santiago de Cuba.</p>
+            </div>
+
+            <p className="text-gray-500 text-sm mb-5">
+              Te estamos llevando al chat de WhatsApp con tu pedido y la hora de recogida.
+              Hablamos al {phone || 'tu teléfono'} para coordinar.
+            </p>
+
+            <div className="rounded-2xl bg-white/50 border border-white/70 p-3 text-sm mb-5 space-y-1">
+              <div className="flex justify-between text-dark">
+                <span>Subtotal</span>
+                <span>{formatPrice(Number(order.subtotal))}</span>
+              </div>
+              {transferFeePaid > 0 && (
+                <div className="flex justify-between text-dark">
+                  <span>Recargo transferencia (30%)</span>
+                  <span>{formatPrice(transferFeePaid)}</span>
+                </div>
+              )}
+              <div className="flex justify-between font-bold text-dark pt-2 border-t border-white/70">
+                <span>Total</span>
+                <span className="text-primary-deep">{formatPrice(Number(order.total))}</span>
+              </div>
+              <p className="text-xs text-gray-500 text-center pt-1">
+                {order.payment_mode === 'transfer'
+                  ? 'Pago por transferencia bancaria'
+                  : 'Pago en efectivo al recoger'}
+              </p>
+            </div>
+
             {whatsappUrl && (
-              <a
-                href={whatsappUrl}
-                className="btn-liquid w-full py-3 mb-3 flex items-center justify-center"
-              >
-                Si no se abre solo, toca aquí
+              <a href={whatsappUrl} className="btn-liquid w-full py-3 mb-3 flex items-center justify-center">
+                Abrir WhatsApp con mi pedido
               </a>
             )}
-            <button onClick={() => navigate('/products')} className="btn-liquid w-full py-3">
+            <button onClick={() => navigate('/products')} className="btn-liquid-ghost w-full py-3">
               Seguir Comprando
             </button>
           </div>
@@ -248,52 +276,28 @@ export const CheckoutPage: React.FC = () => {
           {/* Formulario */}
           <div className="lg:col-span-2">
             <form onSubmit={handleSubmit} className="glass-strong rounded-3xl p-5 sm:p-6 space-y-6">
-              {/* Modo de entrega como burbujas seleccionables */}
+              {/* Recogida en tienda (única modalidad) */}
               <div>
                 <h2 className="text-xl font-bold text-dark mb-4 flex items-center gap-2">
-                  <Truck size={20} className="text-primary" />
-                  ¿Cómo lo recibes?
+                  <Store size={20} className="text-primary" />
+                  Recogida en tienda
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {([
-                    {
-                      id: 'pickup' as DeliveryMode,
-                      icon: <Store size={20} />,
-                      title: 'Recogida en tienda',
-                      subtitle: 'Gratis · Santiago de Cuba',
-                    },
-                    {
-                      id: 'delivery' as DeliveryMode,
-                      icon: <Truck size={20} />,
-                      title: 'Entrega a domicilio',
-                      subtitle: `${formatPrice(5000)} · según zona`,
-                    },
-                  ]).map((mode) => {
-                    const selected = deliveryMode === mode.id;
-                    return (
-                      <button
-                        key={mode.id}
-                        type="button"
-                        onClick={() => setDeliveryMode(mode.id)}
-                        className={`relative rounded-2xl p-4 text-left transition cursor-pointer ${
-                          selected
-                            ? 'liquid-tab-blob !rounded-2xl ring-2 ring-primary'
-                            : 'liquid-badge hover:scale-[1.02]'
-                        }`}
-                      >
-                        <span className="flex items-center gap-3">
-                          <span className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${selected ? 'bg-primary text-white' : 'bg-white/70 text-primary-deep'}`}>
-                            {mode.icon}
-                          </span>
-                          <span>
-                            <span className="block font-bold text-dark text-sm">{mode.title}</span>
-                            <span className="block text-xs text-gray-500 mt-0.5">{mode.subtitle}</span>
-                          </span>
-                        </span>
-                      </button>
-                    );
-                  })}
+                <div className="rounded-2xl p-4 liquid-tab-blob !rounded-2xl ring-2 ring-primary">
+                  <span className="flex items-center gap-3">
+                    <span className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-primary text-white">
+                      <MapPin size={20} />
+                    </span>
+                    <span>
+                      <span className="block font-bold text-dark text-sm">Santiago de Cuba</span>
+                      <span className="block text-xs text-gray-500 mt-0.5">Gratis · sin envío</span>
+                    </span>
+                  </span>
                 </div>
+                <p className="mt-3 liquid-badge rounded-2xl p-4 flex items-start gap-3 text-sm text-gray-600">
+                  <Clock size={18} className="text-primary flex-shrink-0 mt-0.5" />
+                  Confirmado el pedido, tienes <strong className="font-bold">1 hora</strong> para recogerlo.
+                  La hora exacta se añade al mensaje de WhatsApp.
+                </p>
               </div>
 
               {/* Contacto */}
@@ -302,36 +306,15 @@ export const CheckoutPage: React.FC = () => {
                   <Phone size={20} className="text-primary" />
                   Datos de contacto
                 </h2>
-                <div className="space-y-3">
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
-                    minLength={8}
-                    placeholder="Teléfono para coordinar la entrega"
-                    className="w-full px-4 py-2.5 rounded-full bg-white/60 border border-white/70 outline-none focus:ring-2 focus:ring-primary/60 text-sm"
-                  />
-                  {deliveryMode === 'delivery' && (
-                    <motion.textarea
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      rows={3}
-                      required
-                      minLength={10}
-                      placeholder="Barrio, calle y punto de referencia para la entrega..."
-                      className="w-full px-4 py-3 rounded-2xl bg-white/60 border border-white/70 outline-none focus:ring-2 focus:ring-primary/60 text-sm resize-none"
-                    />
-                  )}
-                  {deliveryMode === 'pickup' && (
-                    <div className="liquid-badge rounded-2xl p-4 flex items-start gap-3 text-sm text-gray-600">
-                      <MapPin size={18} className="text-primary flex-shrink-0 mt-0.5" />
-                      Recoge en Santiago de Cuba. Te avisamos cuando tu pedido esté listo (normalmente el mismo día).
-                    </div>
-                  )}
-                </div>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                  minLength={8}
+                  placeholder="Teléfono para coordinar la recogida"
+                  className="w-full px-4 py-2.5 rounded-full bg-white/60 border border-white/70 outline-none focus:ring-2 focus:ring-primary/60 text-sm"
+                />
               </div>
 
               {/* Pago */}
@@ -345,14 +328,14 @@ export const CheckoutPage: React.FC = () => {
                     {
                       id: 'cash' as PaymentMode,
                       icon: <Banknote size={20} />,
-                      title: 'Efectivo contra entrega',
-                      subtitle: 'Pagas el 100% al recibir',
+                      title: 'Efectivo presencial',
+                      subtitle: 'Pagas el 100% al recoger',
                     },
                     {
                       id: 'transfer' as PaymentMode,
                       icon: <Landmark size={20} />,
                       title: 'Transferencia bancaria',
-                      subtitle: `Adelantas el 20% (${formatPrice(transferAdvance)})`,
+                      subtitle: `Incluye 30% de recargo (${formatPrice(transferFee || Math.round(subtotal * TRANSFER_SURCHARGE_RATE))})`,
                     },
                   ]).map((mode) => {
                     const selected = paymentMode === mode.id;
@@ -388,8 +371,8 @@ export const CheckoutPage: React.FC = () => {
                   >
                     <div className="mt-3 liquid-badge rounded-2xl p-4 flex items-start gap-3 text-sm text-gray-600">
                       <Landmark size={18} className="text-primary flex-shrink-0 mt-0.5" />
-                      Adelantas el 20% del total por transferencia bancaria y el resto lo pagas
-                      {' '}al recibir tu pedido. Te enviamos los datos de la cuenta para completar el pago.
+                      El total incluye un recargo del <strong className="font-bold">30%</strong> por
+                      transferencia. Te enviamos los datos de la cuenta para completar el pago.
                     </div>
                   </motion.div>
                 )}
@@ -399,19 +382,6 @@ export const CheckoutPage: React.FC = () => {
                 <div className="bg-danger/10 border border-danger text-danger px-4 py-3 rounded-2xl flex items-start space-x-2 text-sm">
                   <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
                   <span>{error}</span>
-                </div>
-              )}
-
-              {!user && (
-                <div className="bg-primary/5 border border-primary/30 text-primary-deep px-4 py-3 rounded-2xl flex items-start gap-2 text-sm">
-                  <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
-                  <span>
-                    Necesitas una cuenta para confirmar el pedido.{' '}
-                    <Link to="/login" className="font-bold underline">
-                      Inicia sesión o regístrate
-                    </Link>
-                    .
-                  </span>
                 </div>
               )}
 
@@ -429,7 +399,6 @@ export const CheckoutPage: React.FC = () => {
 
           {/* Resumen */}
           <div className="lg:col-span-1">
-            {/* sticky solo en escritorio: en móvil una columna sticky solo estorba */}
             <div className="glass-strong rounded-3xl p-5 sm:p-6 lg:sticky lg:top-24">
               <h2 className="text-xl font-bold text-dark mb-4">Tu Pedido</h2>
 
@@ -462,33 +431,22 @@ export const CheckoutPage: React.FC = () => {
                   <span>Subtotal:</span>
                   <span>{formatPrice(subtotal)}</span>
                 </div>
-                <div className="flex justify-between text-dark">
-                  <span>Impuesto (20%):</span>
-                  <span>{formatPrice(tax)}</span>
-                </div>
-                {deliveryMode === 'delivery' && (
+                {paymentMode === 'transfer' && (
                   <div className="flex justify-between text-dark">
-                    <span>Envío:</span>
-                    <span>{formatPrice(deliveryFee)}</span>
+                    <span>Recargo transferencia (30%):</span>
+                    <span>{formatPrice(transferFee)}</span>
                   </div>
                 )}
+                <p className="text-xs text-gray-400">No se cobran impuestos.</p>
                 <div className="flex justify-between text-lg font-bold text-dark pt-2 border-t border-white/70">
                   <span>Total:</span>
                   <span className="text-primary-deep">{formatPrice(total)}</span>
                 </div>
 
-                {paymentMode === 'transfer' && (
-                  <div className="mt-3 rounded-2xl bg-white/50 border border-white/70 p-3 space-y-1.5">
-                    <div className="flex justify-between text-sm text-dark">
-                      <span>Pago por transferencia (20%):</span>
-                      <span className="font-bold text-primary-deep">{formatPrice(transferAdvance)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm text-gray-500">
-                      <span>Resto al recibir:</span>
-                      <span>{formatPrice(transferBalance)}</span>
-                    </div>
-                  </div>
-                )}
+                <div className="mt-3 rounded-2xl bg-white/50 border border-white/70 p-3 text-xs text-gray-600 flex items-start gap-2">
+                  <Clock size={15} className="text-primary flex-shrink-0 mt-0.5" />
+                  <span>Recogida en tienda con ventana de 1 hora desde la confirmación.</span>
+                </div>
               </div>
 
               <p className="mt-4 text-xs text-gray-400 text-center">Tu pedido quedará registrado en tu cuenta</p>

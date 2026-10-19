@@ -20,7 +20,10 @@ const AUTH_ERRORS: Record<string, string> = {
   'Email not confirmed': 'Confirma tu correo electrónico antes de iniciar sesión',
   'User already registered': 'Ese correo ya está registrado. Inicia sesión.',
   'Password should be at least 6 characters': 'La contraseña debe tener al menos 6 caracteres',
-  'Email rate limit exceeded': 'Demasiados intentos. Espera un momento e inténtalo otra vez.',
+  'Email rate limit exceeded':
+    'Se alcanzó el límite de intentos de Supabase. Sube el límite en Authentication → Rate Limits o espera un momento.',
+  'over_email_send_rate_limit':
+    'Supabase limitó el envío de correos. Sube el límite en Authentication → Rate Limits o desactiva la confirmación por correo.',
   'Unable to validate email address: invalid format': 'Escribe un correo válido',
 };
 

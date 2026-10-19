@@ -4,8 +4,7 @@ import { ShoppingBasket, Sparkles, Star, Tag, SearchX, Shirt, Layers, Gem } from
 import { SlideUp } from '../utils/animations';
 import { useCatalogStore, useThemeStore } from '../store';
 import { ProductCarousel, LiquidTabs } from '../components';
-import { BOUTIQUE_PRODUCTS, BOUTIQUE_CATEGORIES, STORE_META_DATA } from '../data/boutiqueData';
-import { MOCK_PRODUCTS } from '../data/mockData';
+import { BOUTIQUE_CATEGORIES, STORE_META_DATA } from '../data/boutiqueData';
 
 type SortOption = 'relevance' | 'price-asc' | 'price-desc' | 'rating';
 
@@ -24,12 +23,11 @@ export const ProductsPage: React.FC = () => {
   const meta = STORE_META_DATA[theme];
   const isBoutique = theme === 'boutique';
 
-  // Catálogo de Supabase con respaldo local si la tabla aún está vacía.
-  const products = useMemo(() => {
-    const inStore = catalogProducts.filter((p) => (p.store ?? 'market') === theme);
-    if (inStore.length > 0) return inStore;
-    return isBoutique ? BOUTIQUE_PRODUCTS : MOCK_PRODUCTS;
-  }, [catalogProducts, theme, isBoutique]);
+  // Catálogo real de Supabase (sin datos de demostración).
+  const products = useMemo(
+    () => catalogProducts.filter((p) => (p.store ?? 'market') === theme),
+    [catalogProducts, theme]
+  );
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState<string>(searchParams.get('category') || '');
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');

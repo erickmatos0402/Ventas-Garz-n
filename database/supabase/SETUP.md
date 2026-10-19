@@ -9,12 +9,23 @@ En el panel del proyecto: **SQL Editor → New query**, pega el contenido de
 [`schema.sql`](./schema.sql) y pulsa **Run**. Crea:
 
 - `profiles` — perfil 1:1 con `auth.users` (rol `customer` / `admin`).
-- `products` — catálogo del Mercado y la Boutique.
-- `orders` y `order_items` — pedidos e histórico.
-- Políticas RLS: catálogo público de lectura, escritura solo para admin,
-  pedidos visibles solo para su dueño (o admin).
+- `products` — catálogo del Mercado y la Boutique, con `restock_days`
+  (días de espera por abastecimiento).
+- `orders` y `order_items` — pedidos e histórico, con recargo por
+  transferencia y ventana de recogida (`pickup_ready_at`, 1 hora).
+- `product_reviews` — calificaciones y comentarios reales de clientes. Los
+  campos `rating` / `reviews` de cada producto se recalculan desde aquí; el
+  esquema limpia las valoraciones inventadas de versiones anteriores.
+- Políticas RLS: catálogo y reseñas de lectura pública; cada usuario crea,
+  edita y borra su propia reseña; pedidos visibles solo para su dueño (o
+  admin).
 - `create_order(...)` — alta de pedido atómica que valida stock, calcula
-  importes y descuenta unidades.
+  importes (sin impuestos, con 30% de recargo por transferencia), fija la
+  ventana de recogida y descuenta unidades.
+
+> Si ya tenías la base creada, vuelve a ejecutar `schema.sql` completo:
+> añade las columnas y la tabla nuevas sin borrar datos y recalcula las
+> valoraciones desde las reseñas reales.
 
 ## 2. Cargar el catálogo
 
@@ -46,9 +57,14 @@ where email = 'tu@correo.com';
 ```
 
 3. Vuelve a entrar en `/admin`. El panel ya permite crear, editar y borrar
-   productos.
+   productos, y fijar los días de espera por abastecimiento.
 
-## 5. Confirmación de correo
+## 5. Registro de usuarios y confirmación de correo
+
+La app **no impone un límite de cuentas registradas**: cualquiera puede
+crear la suya. Si Supabase empieza a rechazar registros por límite de
+intentos, entra en **Authentication → Rate Limits** y sube el límite de
+**Sign-ups** al máximo permitido por tu plan.
 
 Por defecto Supabase pide confirmar el correo al registrarse. Para probar
 sin correo: **Authentication → Providers → Email → Confirm email** (desactivar).

@@ -36,6 +36,7 @@ export type ProductRow = {
   category: ProductCategory;
   subcategory: BoutiqueSubcategory | null;
   stock: number;
+  restock_days: number | null;
   rating: number | null;
   reviews: number;
   discount: number | null;
@@ -49,13 +50,29 @@ export type OrderRow = {
   user_id: string;
   status: OrderStatus;
   subtotal: number;
+  /** Se conserva en 0: la tienda ya no cobra impuestos. */
   tax: number;
+  /** Recargo del 30% cuando el pago es por transferencia. */
+  transfer_fee: number;
   delivery_fee: number;
   total: number;
   shipping_address: string | null;
   phone: string | null;
   delivery_mode: DeliveryMode;
   payment_mode: PaymentMode;
+  /** Inicio de la ventana de recogida (1 hora desde la confirmación). */
+  pickup_ready_at: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProductReviewRow = {
+  id: string;
+  product_id: string;
+  user_id: string;
+  rating: number;
+  comment: string;
+  author_name: string;
   created_at: string;
   updated_at: string;
 };
@@ -117,6 +134,7 @@ export interface Database {
           category: ProductCategory;
           subcategory?: BoutiqueSubcategory | null;
           stock?: number;
+          restock_days?: number | null;
           rating?: number | null;
           reviews?: number;
           discount?: number | null;
@@ -135,6 +153,7 @@ export interface Database {
           category?: ProductCategory;
           subcategory?: BoutiqueSubcategory | null;
           stock?: number;
+          restock_days?: number | null;
           rating?: number | null;
           reviews?: number;
           discount?: number | null;
@@ -152,12 +171,14 @@ export interface Database {
           status?: OrderStatus;
           subtotal: number;
           tax: number;
+          transfer_fee?: number;
           delivery_fee?: number;
           total: number;
           shipping_address?: string | null;
           phone?: string | null;
           delivery_mode: DeliveryMode;
           payment_mode: PaymentMode;
+          pickup_ready_at?: string;
           created_at?: string;
           updated_at?: string;
         };
@@ -167,12 +188,14 @@ export interface Database {
           status?: OrderStatus;
           subtotal?: number;
           tax?: number;
+          transfer_fee?: number;
           delivery_fee?: number;
           total?: number;
           shipping_address?: string | null;
           phone?: string | null;
           delivery_mode?: DeliveryMode;
           payment_mode?: PaymentMode;
+          pickup_ready_at?: string;
           created_at?: string;
           updated_at?: string;
         };
@@ -199,6 +222,30 @@ export interface Database {
           unit_price?: number;
           quantity?: number;
           created_at?: string;
+        };
+        Relationships: [];
+      };
+      product_reviews: {
+        Row: ProductReviewRow;
+        Insert: {
+          id?: string;
+          product_id: string;
+          user_id: string;
+          rating: number;
+          comment?: string;
+          author_name?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          user_id?: string;
+          rating?: number;
+          comment?: string;
+          author_name?: string;
+          created_at?: string;
+          updated_at?: string;
         };
         Relationships: [];
       };

@@ -47,9 +47,11 @@ La página de inicio te presenta:
 ### Resumen
 Muestra:
 - Subtotal
-- Envío (¡Gratis!)
-- Impuesto (20%)
+- Sin impuestos ni envío
 - **Total a pagar**
+
+La única modalidad es **recogida en tienda**. Al confirmar, el pedido queda
+listo en 1 hora y tienes una ventana de 1 hora para recogerlo.
 
 ## 👤 Cuenta de Usuario
 
@@ -58,10 +60,11 @@ Muestra:
 2. Completa:
    - Nombre completo
    - Email
-   - Contraseña (mín. 8 caracteres)
-   - Confirmar contraseña
+   - Contraseña (mín. 6 caracteres)
 3. Haz clic en **"Crear Cuenta"**
-4. Se abre tu sesión automáticamente
+4. Si Supabase pide confirmar el correo, revisa tu bandeja y luego inicia sesión.
+
+No hay límite de cuentas: pueden registrarse todos los clientes que necesites.
 
 ### Iniciar Sesión
 1. Haz clic en **"Ingresar"**
@@ -78,17 +81,17 @@ Muestra:
 ## 💳 Proceso de Pago
 
 1. **Revisa tu carrito**: Verifica productos y cantidades
-2. **Haz clic en "Proceder al Pago"**
-3. **Ingresa dirección de envío**
-4. **Selecciona forma de pago**
+2. **Haz clic en "Proceder al Pago"** (se pide iniciar sesión)
+3. **Ingresa tu teléfono** para coordinar la recogida
+4. **Elige forma de pago**: efectivo presencial o transferencia (+30%)
 5. **Confirma la orden**
-6. Recibirás confirmación por email
+6. Se abre WhatsApp con el pedido y la **hora de recogida**
 
 ### Estados de Orden
-- 🔵 **Pendiente**: Pagando
-- 🟠 **Procesando**: Preparando envío
-- 🟢 **Enviado**: En camino
-- ✅ **Entregado**: Listo
+- 🔵 **Pendiente**: Esperando confirmación
+- 🟠 **Procesando**: Preparando tu pedido
+- 🟢 **Listo**: Puedes recogerlo en tienda
+- ✅ **Entregado**: Recogido
 - ❌ **Cancelado**: Orden cancelada
 
 ## 📦 Mis Pedidos
@@ -103,8 +106,8 @@ Muestra:
 - Fecha de compra
 - Productos (nombre, cantidad, precio)
 - Costo total
-- Estado actual del envío
-- Dirección de entrega
+- Estado actual del pedido
+- Hora y ventana de recogida en tienda
 
 ## ℹ️ Información Adicional
 
@@ -113,22 +116,22 @@ Muestra:
 - Por qué confiar en Ventas Garzón
 - Nuestro equipo
 
-### Envíos
-- Tiempo de entrega: 24-48 horas
-- Costo: ¡Gratis para todas las órdenes!
-- Entregas en: Bogotá y alrededores
+### Recogida
+- Modalidad: solo recogida en tienda, en Santiago de Cuba
+- Costo: sin envío
+- Listo: 1 hora después de confirmar el pedido
+- Ventana para recoger: 1 hora
 
 ### Devoluciones
-- Período: Hasta 30 días después de recibir
-- Proceso: Contacta al soporte
-- Reembolso: Procesado en 5-7 días hábiles
+- Proceso: contacta al soporte por WhatsApp o correo
+- Cada caso se revisa directamente con la tienda
 
 ### Preguntas Frecuentes (FAQ)
 Respuestas a las preguntas más comunes:
 - ¿Cómo crear cuenta?
-- ¿Cuál es el tiempo de entrega?
-- ¿Puedo cambiar mi orden?
+- ¿Cuándo puedo recoger mi pedido?
 - ¿Cuáles son las formas de pago?
+- ¿Puedo calificar un producto?
 
 ## 🔒 Seguridad
 

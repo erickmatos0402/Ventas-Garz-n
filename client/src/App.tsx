@@ -11,6 +11,7 @@ import {
   FAQPage,
   AdminPage,
   AuthPage,
+  ProductReviewsPage,
 } from './pages';
 import { useAuthStore, useCatalogStore, useThemeStore } from './store';
 import { STORE_META_DATA } from './data/boutiqueData';
@@ -60,6 +61,7 @@ function AppShell() {
           <Route path="/boutique" element={<LandingPage />} />
           <Route path="/" element={<LandingPage />} />
           <Route path="/products" element={<ProductsPage />} />
+          <Route path="/products/:id" element={<ProductReviewsPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/about" element={<AboutPage />} />

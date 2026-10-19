@@ -63,6 +63,9 @@ create table if not exists public.products (
   category text not null check (category in ('aseo', 'alimentos')),
   subcategory text check (subcategory in ('superior', 'inferior', 'conjuntos', 'accesorios')),
   stock integer not null default 0 check (stock >= 0),
+  -- Días estimados de espera para reponer existencias (null = sin fecha).
+  restock_days integer check (restock_days is null or restock_days >= 0),
+  -- Los agregados se recalculan desde `product_reviews`, nunca a mano.
   rating numeric(3, 2),
   reviews integer not null default 0 check (reviews >= 0),
   discount integer check (discount between 0 and 100),
@@ -70,6 +73,9 @@ create table if not exists public.products (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Bases ya creadas: añade la columna sin borrar datos.
+alter table public.products add column if not exists restock_days integer;
 
 create index if not exists idx_products_store on public.products (store);
 create index if not exists idx_products_category on public.products (category);
@@ -84,16 +90,25 @@ create table if not exists public.orders (
   status text not null default 'pending'
     check (status in ('pending', 'processing', 'shipped', 'delivered', 'cancelled')),
   subtotal integer not null default 0 check (subtotal >= 0),
+  -- Sin impuestos: se conserva la columna en 0 por compatibilidad.
   tax integer not null default 0 check (tax >= 0),
+  -- Recargo del 30% cuando el pago es por transferencia.
+  transfer_fee integer not null default 0 check (transfer_fee >= 0),
   delivery_fee integer not null default 0 check (delivery_fee >= 0),
   total integer not null default 0 check (total >= 0),
   shipping_address text,
   phone text,
   delivery_mode text not null default 'pickup' check (delivery_mode in ('pickup', 'delivery')),
   payment_mode text not null default 'cash' check (payment_mode in ('cash', 'transfer')),
+  -- Ventana de recogida: listo a esta hora y durante la hora siguiente.
+  pickup_ready_at timestamptz not null default (now() + interval '1 hour'),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Bases ya creadas: añade las columnas sin borrar datos.
+alter table public.orders add column if not exists transfer_fee integer not null default 0;
+alter table public.orders add column if not exists pickup_ready_at timestamptz not null default (now() + interval '1 hour');
 
 create index if not exists idx_orders_user_id on public.orders (user_id);
 create index if not exists idx_orders_created_at on public.orders (created_at desc);
@@ -111,6 +126,84 @@ create table if not exists public.order_items (
 );
 
 create index if not exists idx_order_items_order_id on public.order_items (order_id);
+
+-- ----------------------------------------------------------------------------
+-- Reseñas de productos (calificación + comentario de experiencia de compra)
+-- ----------------------------------------------------------------------------
+create table if not exists public.product_reviews (
+  id uuid primary key default gen_random_uuid(),
+  product_id uuid not null references public.products (id) on delete cascade,
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  rating integer not null check (rating between 1 and 5),
+  comment text not null default '' check (char_length(comment) <= 1000),
+  -- Nombre visible, copiado del perfil por el trigger (no se confía en el cliente).
+  author_name text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  -- Una reseña por persona y producto: se puede editar después.
+  unique (product_id, user_id)
+);
+
+create index if not exists idx_product_reviews_product on public.product_reviews (product_id, created_at desc);
+
+-- Nombre del autor desde su perfil, sin exponer la tabla profiles.
+create or replace function public.set_review_author()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  new.author_name := coalesce(
+    (select name from public.profiles where id = new.user_id),
+    'Cliente'
+  );
+  return new;
+end;
+$$;
+
+drop trigger if exists set_product_reviews_author on public.product_reviews;
+create trigger set_product_reviews_author
+  before insert or update on public.product_reviews
+  for each row execute function public.set_review_author();
+
+-- Mantiene products.rating / products.reviews sincronizados con las reseñas.
+create or replace function public.refresh_product_rating()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_product_id uuid;
+begin
+  if tg_op = 'DELETE' then
+    v_product_id := old.product_id;
+  else
+    v_product_id := new.product_id;
+  end if;
+
+  update public.products p
+  set rating = (
+        select round(avg(r.rating)::numeric, 2)
+        from public.product_reviews r
+        where r.product_id = v_product_id
+      ),
+      reviews = (
+        select count(*)::int
+        from public.product_reviews r
+        where r.product_id = v_product_id
+      )
+  where p.id = v_product_id;
+
+  return null;
+end;
+$$;
+
+drop trigger if exists refresh_product_rating_after_change on public.product_reviews;
+create trigger refresh_product_rating_after_change
+  after insert or update or delete on public.product_reviews
+  for each row execute function public.refresh_product_rating();
 
 -- ----------------------------------------------------------------------------
 -- updated_at automático
@@ -140,6 +233,11 @@ create trigger set_orders_updated_at
   before update on public.orders
   for each row execute function public.set_updated_at();
 
+drop trigger if exists set_product_reviews_updated_at on public.product_reviews;
+create trigger set_product_reviews_updated_at
+  before update on public.product_reviews
+  for each row execute function public.set_updated_at();
+
 -- ----------------------------------------------------------------------------
 -- Helpers y RLS
 -- ----------------------------------------------------------------------------
@@ -160,6 +258,7 @@ alter table public.profiles enable row level security;
 alter table public.products enable row level security;
 alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
+alter table public.product_reviews enable row level security;
 
 -- Perfiles: cada usuario ve y edita el suyo; los admin ven todos.
 drop policy if exists "profiles_select_own_or_admin" on public.profiles;
@@ -204,11 +303,30 @@ create policy "order_items_select_own_or_admin" on public.order_items
     )
   );
 
+-- Reseñas: lectura pública; cada usuario crea/edita/borra la suya.
+drop policy if exists "product_reviews_select_public" on public.product_reviews;
+create policy "product_reviews_select_public" on public.product_reviews
+  for select using (true);
+
+drop policy if exists "product_reviews_insert_own" on public.product_reviews;
+create policy "product_reviews_insert_own" on public.product_reviews
+  for insert with check (auth.uid() = user_id);
+
+drop policy if exists "product_reviews_update_own" on public.product_reviews;
+create policy "product_reviews_update_own" on public.product_reviews
+  for update using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+drop policy if exists "product_reviews_delete_own_or_admin" on public.product_reviews;
+create policy "product_reviews_delete_own_or_admin" on public.product_reviews
+  for delete using (auth.uid() = user_id or public.is_admin());
+
 -- ----------------------------------------------------------------------------
 -- create_order: alta atómica de pedido
 --
--- Recibe solo id + cantidad; los precios, el impuesto (20%), el envío
--- (5000 si es a domicilio) y el total se calculan aquí, nunca en el cliente.
+-- Recibe solo id + cantidad; los precios, el recargo por transferencia
+-- (30%), el total y la ventana de recogida se calculan aquí, nunca en el
+-- cliente. Sin impuestos ni envío: el flujo es solo recogida en tienda.
 -- Bloquea las filas de producto para evitar sobreventa.
 -- ----------------------------------------------------------------------------
 create or replace function public.create_order(
@@ -230,8 +348,7 @@ declare
   v_product public.products;
   v_unit_price integer;
   v_subtotal integer := 0;
-  v_tax integer;
-  v_delivery_fee integer := 0;
+  v_transfer_fee integer := 0;
   v_total integer;
 begin
   if v_user_id is null then
@@ -242,28 +359,28 @@ begin
     raise exception 'El pedido está vacío' using errcode = '22023';
   end if;
 
-  if p_delivery_mode not in ('pickup', 'delivery') then
-    raise exception 'Modo de entrega inválido' using errcode = '22023';
+  if p_delivery_mode is distinct from 'pickup' then
+    raise exception 'Por ahora solo está disponible la recogida en tienda' using errcode = '22023';
   end if;
 
   if p_payment_mode not in ('cash', 'transfer') then
     raise exception 'Método de pago inválido' using errcode = '22023';
   end if;
 
-  if p_delivery_mode = 'delivery'
-     and coalesce(length(trim(p_shipping_address)), 0) < 10 then
-    raise exception 'Escribe una dirección completa para la entrega' using errcode = '22023';
+  if coalesce(length(trim(p_phone)), 0) < 8 then
+    raise exception 'Escribe un teléfono para coordinar la recogida' using errcode = '22023';
   end if;
 
-  -- Pedido vacío primero: el total se actualiza al final.
+  -- Pedido vacío primero: el total se actualiza al final. La ventana de
+  -- recogida queda fijada en una hora desde la confirmación.
   insert into public.orders (
-    user_id, subtotal, tax, delivery_fee, total,
-    shipping_address, phone, delivery_mode, payment_mode
+    user_id, subtotal, tax, transfer_fee, delivery_fee, total,
+    shipping_address, phone, delivery_mode, payment_mode, pickup_ready_at
   )
   values (
-    v_user_id, 0, 0, 0, 0,
-    nullif(trim(p_shipping_address), ''), nullif(trim(p_phone), ''),
-    p_delivery_mode, p_payment_mode
+    v_user_id, 0, 0, 0, 0, 0,
+    null, nullif(trim(p_phone), ''),
+    'pickup', p_payment_mode, now() + interval '1 hour'
   )
   returning * into v_order;
 
@@ -307,16 +424,16 @@ begin
     v_subtotal := v_subtotal + v_unit_price * v_item.quantity;
   end loop;
 
-  v_tax := round(v_subtotal * 0.20);
-
-  if p_delivery_mode = 'delivery' then
-    v_delivery_fee := 5000;
+  -- Sin impuestos. La transferencia añade un 30% sobre el subtotal.
+  if p_payment_mode = 'transfer' then
+    v_transfer_fee := round(v_subtotal * 0.30);
   end if;
 
-  v_total := v_subtotal + v_tax + v_delivery_fee;
+  v_total := v_subtotal + v_transfer_fee;
 
   update public.orders
-  set subtotal = v_subtotal, tax = v_tax, delivery_fee = v_delivery_fee, total = v_total
+  set subtotal = v_subtotal, tax = 0, transfer_fee = v_transfer_fee,
+      delivery_fee = 0, total = v_total
   where id = v_order.id
   returning * into v_order;
 
@@ -335,4 +452,20 @@ grant select on public.products to anon, authenticated;
 grant insert, update, delete on public.products to authenticated;
 grant select, update on public.orders to authenticated;
 grant select on public.order_items to authenticated;
+grant select on public.product_reviews to anon, authenticated;
+grant insert, update, delete on public.product_reviews to authenticated;
 grant select, update (name, avatar_url) on public.profiles to authenticated;
+
+-- Limpia las valoraciones inventadas de versiones anteriores y deja solo
+-- las que salen de reseñas reales. Es idempotente.
+update public.products p
+set rating = (
+      select round(avg(r.rating)::numeric, 2)
+      from public.product_reviews r
+      where r.product_id = p.id
+    ),
+    reviews = (
+      select count(*)::int
+      from public.product_reviews r
+      where r.product_id = p.id
+    );

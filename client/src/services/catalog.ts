@@ -28,6 +28,7 @@ function mapProduct(row: ProductRow): Product {
     category: row.category,
     subcategory: row.subcategory ?? undefined,
     stock: row.stock,
+    restockDays: row.restock_days ?? undefined,
     rating: row.rating != null ? Number(row.rating) : undefined,
     reviews: row.reviews,
     discount: row.discount ?? undefined,
@@ -46,8 +47,9 @@ function toInsert(input: ProductInput): ProductInsert {
     category: input.category,
     subcategory: input.subcategory ?? null,
     stock: input.stock ?? 0,
-    rating: input.rating ?? null,
-    reviews: input.reviews ?? 0,
+    restock_days: input.restockDays ?? null,
+    // `rating` y `reviews` no se escriben desde el panel: los mantiene
+    // el trigger de reseñas reales. Así una edición no borra el promedio.
     discount: input.discount ?? null,
     emoji: input.emoji ?? null,
   };

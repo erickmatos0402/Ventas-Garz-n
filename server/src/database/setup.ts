@@ -99,8 +99,6 @@ export async function setupDatabase() {
         image: '/img/prod1.jpg',
         category: 'aseo',
         stock: 50,
-        rating: 4.5,
-        reviews: 120,
       },
       {
         name: 'Jabón en Barra',
@@ -109,8 +107,6 @@ export async function setupDatabase() {
         image: '/img/prod2.jpg',
         category: 'aseo',
         stock: 100,
-        rating: 4.0,
-        reviews: 85,
       },
       {
         name: 'Desinfectante Multiusos',
@@ -119,8 +115,6 @@ export async function setupDatabase() {
         image: '/img/prod3.jpg',
         category: 'aseo',
         stock: 75,
-        rating: 4.8,
-        reviews: 200,
       },
       {
         name: 'Arroz Blanco',
@@ -129,8 +123,6 @@ export async function setupDatabase() {
         image: '/img/prod4.jpg',
         category: 'alimentos',
         stock: 80,
-        rating: 4.3,
-        reviews: 150,
       },
       {
         name: 'Pasta Integral',
@@ -139,8 +131,6 @@ export async function setupDatabase() {
         image: '/img/prod5.jpg',
         category: 'alimentos',
         stock: 60,
-        rating: 4.6,
-        reviews: 95,
       },
       {
         name: 'Aceite de Oliva',
@@ -149,8 +139,6 @@ export async function setupDatabase() {
         image: '/img/prod6.jpg',
         category: 'alimentos',
         stock: 40,
-        rating: 4.9,
-        reviews: 180,
       },
       {
         name: 'Suavizante de Telas',
@@ -159,8 +147,6 @@ export async function setupDatabase() {
         image: '/img/prod7.jpg',
         category: 'aseo',
         stock: 65,
-        rating: 4.4,
-        reviews: 110,
       },
       {
         name: 'Café Molido',
@@ -169,8 +155,6 @@ export async function setupDatabase() {
         image: '/img/prod8.jpg',
         category: 'alimentos',
         stock: 55,
-        rating: 4.7,
-        reviews: 160,
       },
       {
         name: 'Shampoo Hidratante',
@@ -179,8 +163,6 @@ export async function setupDatabase() {
         image: '/img/prod9.jpg',
         category: 'aseo',
         stock: 45,
-        rating: 4.5,
-        reviews: 90,
       },
       {
         name: 'Leche en Polvo',
@@ -189,8 +171,6 @@ export async function setupDatabase() {
         image: '/img/prod10.jpg',
         category: 'alimentos',
         stock: 35,
-        rating: 4.6,
-        reviews: 130,
       },
     ];
 
@@ -198,9 +178,9 @@ export async function setupDatabase() {
     if (countResult.rows[0].count === 0) {
       for (const p of demoProducts) {
         await query(
-          `INSERT INTO products (name, description, price, image, category, stock, rating, reviews)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8);`,
-          [p.name, p.description, p.price, p.image, p.category, p.stock, p.rating, p.reviews]
+          `INSERT INTO products (name, description, price, image, category, stock)
+           VALUES ($1, $2, $3, $4, $5, $6);`,
+          [p.name, p.description, p.price, p.image, p.category, p.stock]
         );
       }
       console.log(`✅ ${demoProducts.length} productos de ejemplo insertados`);

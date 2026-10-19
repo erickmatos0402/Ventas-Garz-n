@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Trash2, Plus, Minus, ShoppingBasket, Truck, Lock } from 'lucide-react';
-import { useCartStore } from '../store';
+import { Trash2, Plus, Minus, ShoppingBasket, Store, Clock, Lock } from 'lucide-react';
+import { useCartStore, useAuthStore } from '../store';
 import { useThemeStore } from '../store';
 import { SlideUp, containerVariants, itemVariants } from '../utils/animations';
 import { formatPrice } from '../utils';
@@ -12,11 +12,15 @@ export const CartPage: React.FC = () => {
   const theme = useThemeStore((s) => s.theme);
   const cart = useCartStore(theme);
   const { items, removeItem, updateQuantity, clearCart } = cart()
+  const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
   // Carrito y checkout usan el mismo precio con descuento que cobra Supabase.
   const total = items.reduce((sum, item) => sum + getDiscountedPrice(item) * item.quantity, 0);
-  const FREE_SHIPPING_THRESHOLD = 20000;
-  const missingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - total);
+
+  // Confirmar el pedido exige sesión: se pide antes de salir del carrito.
+  const goToCheckout = () => {
+    navigate(user ? '/checkout' : '/login?next=/checkout');
+  };
 
   if (items.length === 0) {
     return (
@@ -44,19 +48,15 @@ export const CartPage: React.FC = () => {
           <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-dark mb-8">Mi Carrito</h1>
         </SlideUp>
 
-        {/* Barra de envío gratis */}
+        {/* Recogida en tienda: ya no hay envío ni impuestos */}
         <SlideUp delay={0.05}>
-          {/* En teléfonos el texto salta de línea: un pill (rounded-full)
-              recorta las esquinas, así que ahí va con radio normal. */}
           <div className="glass-panel rounded-2xl sm:rounded-full px-5 py-3 mb-8 flex items-center gap-3">
-            <Truck size={18} className="text-primary flex-shrink-0" />
-            {missingForFreeShipping > 0 ? (
-              <p className="text-sm text-dark min-w-0 flex-1">
-                Te faltan <span className="font-bold text-primary-deep">{formatPrice(missingForFreeShipping)}</span> para el envío gratis
-              </p>
-            ) : (
-              <p className="text-sm font-bold text-primary-deep min-w-0 flex-1">¡Tienes envío gratis en este pedido! 🎉</p>
-            )}
+            <Store size={18} className="text-primary flex-shrink-0" />
+            <p className="text-sm text-dark min-w-0 flex-1">
+              Recogida en tienda <span className="text-gray-400">·</span>{' '}
+              <span className="font-bold text-primary-deep">ventana de 1 hora</span>{' '}
+              <span className="text-gray-400">·</span> sin impuestos ni envío
+            </p>
           </div>
         </SlideUp>
 
@@ -127,6 +127,14 @@ export const CartPage: React.FC = () => {
                   <p className="mt-1 text-[11px] sm:text-xs font-bold text-dark text-right">
                     {formatPrice(getDiscountedPrice(item) * item.quantity)}
                   </p>
+
+                  <button
+                    onClick={() => removeItem(item.id)}
+                    className="mt-1 inline-flex items-center justify-center gap-1 text-[11px] font-semibold text-danger hover:underline"
+                  >
+                    <Trash2 size={12} />
+                    Eliminar
+                  </button>
                 </motion.div>
               ))}
             </motion.div>
@@ -144,25 +152,27 @@ export const CartPage: React.FC = () => {
                     <span>Subtotal:</span>
                     <span className="font-semibold">{formatPrice(total)}</span>
                   </div>
-                  <div className="flex justify-between text-dark">
-                    <span>Impuesto (20%):</span>
-                    <span className="font-semibold">{formatPrice(Math.round(total * 0.2))}</span>
-                  </div>
+                  <p className="text-xs text-gray-400">Sin impuestos ni envío.</p>
                 </div>
 
                 <div className="flex justify-between text-2xl font-bold text-dark mb-6">
                   <span>Total:</span>
-                  <span className="text-primary-deep">{formatPrice(total + Math.round(total * 0.2))}</span>
+                  <span className="text-primary-deep">{formatPrice(total)}</span>
                 </div>
 
                 <motion.button
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => navigate('/checkout')}
+                  onClick={goToCheckout}
                   className="btn-liquid w-full py-3 mb-3 flex items-center justify-center gap-2"
                 >
                   <Lock size={16} />
-                  Proceder al Pago
+                  {user ? 'Proceder al Pago' : 'Inicia sesión para pagar'}
                 </motion.button>
+
+                <p className="mb-3 text-xs text-gray-500 text-center flex items-center justify-center gap-1.5">
+                  <Clock size={13} className="text-primary" />
+                  Recoges en tienda dentro de 1 hora
+                </p>
 
                 <button
                   onClick={() => navigate('/products')}

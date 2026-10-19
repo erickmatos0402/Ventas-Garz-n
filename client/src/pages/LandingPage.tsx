@@ -11,17 +11,16 @@ import {
   ShoppingBasket,
   Sparkles,
   Store,
-  Truck,
   Wallet,
 } from 'lucide-react';
 import { SlideUp, containerVariants, itemVariants } from '../utils/animations';
 import { useAuthStore, useCatalogStore, useThemeStore } from '../store';
-import { Product } from '../types';
+import { Product, ProductReview } from '../types';
 import { ProductCard, LiquidTabs, LogoMedallion } from '../components';
-import { getDiscountedPrice, MOCK_PRODUCTS } from '../data/mockData';
-import { BOUTIQUE_PRODUCTS } from '../data/boutiqueData';
+import { getDiscountedPrice } from '../data/mockData';
 import { STORE_META_DATA } from '../data/boutiqueData';
-import { formatPrice, trackBubblePointer, resetBubblePointer } from '../utils';
+import { formatDate, formatPrice, trackBubblePointer, resetBubblePointer } from '../utils';
+import { reviewService } from '../services/reviews';
 
 /**
  * Bubble highlight (estilo iOS): el brillo especular sigue al puntero.
@@ -87,15 +86,42 @@ export const LandingPage: React.FC = () => {
   const isMarket = theme === 'market';
   const navigate = useNavigate();
 
-  // Catálogo de Supabase; si aún no hay filas (o falla la carga) se
-  // mantiene el catálogo local como respaldo para no dejar la vitrina vacía.
-  const products = useMemo(() => {
-    const inStore = catalogProducts.filter((p) => (p.store ?? 'market') === theme);
-    if (inStore.length > 0) return inStore;
-    return isMarket ? MOCK_PRODUCTS : BOUTIQUE_PRODUCTS;
-  }, [catalogProducts, theme, isMarket]);
+  // Catálogo real de Supabase (sin productos de demostración).
+  const products = useMemo(
+    () => catalogProducts.filter((p) => (p.store ?? 'market') === theme),
+    [catalogProducts, theme]
+  );
   const [searchQuery, setSearchQuery] = React.useState('');
   const [quickCategory, setQuickCategory] = React.useState('todos');
+  const [recentReviews, setRecentReviews] = React.useState<ProductReview[]>([]);
+
+  // Reseñas reales: sustituyen a los testimonios inventados.
+  React.useEffect(() => {
+    let alive = true;
+    void reviewService
+      .listRecent(12)
+      .then((reviews) => {
+        if (alive) setRecentReviews(reviews);
+      })
+      .catch(() => {
+        if (alive) setRecentReviews([]);
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const storeReviews = recentReviews
+    .map((review) => {
+      const reviewedProduct = catalogProducts.find((product) => product.id === review.productId);
+      return {
+        ...review,
+        productName: reviewedProduct?.name ?? 'Producto',
+        productStore: reviewedProduct?.store ?? 'market',
+      };
+    })
+    .filter((review) => review.productStore === theme)
+    .slice(0, 3);
 
   React.useEffect(() => {
     window.scrollTo(0, 0);
@@ -142,8 +168,8 @@ export const LandingPage: React.FC = () => {
     {
       icon: <ShieldCheck size={22} />,
       accent: 'var(--c-sig-2)',
-      title: 'Pago contra entrega',
-      description: 'Paga en efectivo al recibir. Sin riesgos ni comisiones.',
+      title: 'Pago a tu manera',
+      description: 'Efectivo presencial o transferencia bancaria con 30% de recargo.',
     },
     {
       icon: <BadgeCheck size={22} />,
@@ -162,33 +188,15 @@ export const LandingPage: React.FC = () => {
     },
     {
       step: '2',
-      icon: <Truck size={22} />,
-      title: 'Coordina la entrega',
-      description: 'Recogida en tienda o envío a domicilio según tu zona.',
+      icon: <Store size={22} />,
+      title: 'Confirma y recoge',
+      description: 'Recogida en tienda con una ventana de 1 hora.',
     },
     {
       step: '3',
       icon: <Wallet size={22} />,
-      title: 'Paga al recibir',
-      description: 'Efectivo contra entrega. Simple y sin complicaciones.',
-    },
-  ];
-
-  const testimonials = [
-    {
-      name: 'María Fernández',
-      role: 'Cliente frecuente',
-      text: 'El pedido llegó el mismo día y todo fresquito. El café es de lo mejor que he probado.',
-    },
-    {
-      name: 'Carlos Pérez',
-      role: 'Dueño de cafetería',
-      text: 'Compro al por mayor cada semana. Precios justos y nunca me han fallado con la entrega.',
-    },
-    {
-      name: 'Ana Rodríguez',
-      role: 'Mamá de tres',
-      text: 'Las sopitas y los jugos naturales salvan mis mañanas. Atenderse por WhatsApp es comodísimo.',
+      title: 'Elige cómo pagar',
+      description: 'Efectivo presencial o transferencia bancaria (+30%).',
     },
   ];
 
@@ -571,46 +579,66 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ============ TESTIMONIOS ============ */}
+      {/* ============ RESEÑAS REALES ============ */}
       <section className="py-8 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
-            title="Lo que dicen nuestros clientes"
-            subtitle="Familias y negocios que ya compran con nosotros"
+            title="Opiniones de compra"
+            subtitle="Reseñas reales publicadas por clientes que ya compraron"
           />
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-8">
-            {testimonials.map((t, i) => (
-              <motion.div
-                key={t.name}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.12 }}
-                {...bubbleProps}
-                className="bubble-hl ios-glass rounded-2xl sm:rounded-3xl p-3.5 sm:p-7"
-              >
-                <div className="flex gap-1 mb-3 sm:mb-4">
-                  {[...Array(5)].map((_, s) => (
-                    <Star key={s} size={15} className="fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
-                <p className="text-[13px] sm:text-base text-gray-600 mb-4 sm:mb-5 leading-relaxed">"{t.text}"</p>
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div
-                    className="w-9 h-9 sm:w-11 sm:h-11 rounded-full text-white font-bold flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'linear-gradient(135deg, var(--c-sig-1), var(--c-sig-3))' }}
-                  >
-                    {t.name.charAt(0)}
+          {storeReviews.length === 0 ? (
+            <div className="liquid-badge rounded-3xl p-8 sm:p-10 text-center">
+              <Star size={30} className="mx-auto mb-3 text-primary/40" />
+              <p className="text-gray-500 mb-4">
+                Todavía no hay reseñas en esta tienda. Compra un producto y sé la primera persona en opinar.
+              </p>
+              <Link to="/products" className="btn-liquid inline-flex px-6 py-3">
+                Ver productos
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-8">
+              {storeReviews.map((review, i) => (
+                <motion.div
+                  key={review.id}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.12 }}
+                  {...bubbleProps}
+                  className="bubble-hl ios-glass rounded-2xl sm:rounded-3xl p-4 sm:p-7"
+                >
+                  <div className="flex gap-1 mb-3 sm:mb-4">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star
+                        key={s}
+                        size={15}
+                        className={s <= review.rating ? 'fill-amber-400 text-amber-400' : 'text-gray-300'}
+                      />
+                    ))}
                   </div>
-                  <div>
-                    <p className="font-bold text-dark text-sm">{t.name}</p>
-                    <p className="text-gray-400 text-xs">{t.role}</p>
+                  <p className="text-[13px] sm:text-base text-gray-600 mb-4 sm:mb-5 leading-relaxed">
+                    "{review.comment}"
+                  </p>
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div
+                      className="w-9 h-9 sm:w-11 sm:h-11 rounded-full text-white font-bold flex items-center justify-center flex-shrink-0"
+                      style={{ background: 'linear-gradient(135deg, var(--c-sig-1), var(--c-sig-3))' }}
+                    >
+                      {review.authorName.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-dark text-sm truncate">{review.authorName}</p>
+                      <p className="text-gray-400 text-xs truncate">
+                        {review.productName} · {formatDate(review.createdAt)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
