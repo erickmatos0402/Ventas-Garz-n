@@ -29,6 +29,37 @@ En el panel del proyecto: **SQL Editor → New query**, pega el contenido de
 > añade las columnas y la tabla nuevas sin borrar datos y recalcula las
 > valoraciones desde las reseñas reales.
 
+### Alternativa: ejecutar `schema.sql` desde la terminal
+
+Guarda la conexión directa en `server/.env` (ignorado por git):
+
+```env
+SUPABASE_DB_URL=postgresql://postgres:CONTRASEÑA@db.REF.supabase.co:5432/postgres
+```
+
+y usa el script incluido:
+
+```bash
+cd server
+node scripts/apply-schema.cjs check   # prueba la conexión
+node scripts/apply-schema.cjs apply   # aplica schema.sql
+node scripts/apply-schema.cjs verify  # tablas, columnas, funciones y filas
+```
+
+Si `node` no está en el PATH (Git Bash), lámalo a través de npm:
+`npm exec --yes -c "node scripts/apply-schema.cjs apply"`.
+
+Dos detalles que ya costaron una tarde:
+
+- El host directo `db.REF.supabase.co` **solo tiene registro AAAA (IPv6)**:
+  en una red sin IPv6 falla con `getaddrinfo ENOTFOUND` y el script cae solo
+  al pooler IPv4 `aws-0-<región>.pooler.supabase.com:6543` (usuario
+  `postgres.REF`).
+- El pooler presenta la cadena de certificados propia de Supabase
+  (`Supabase Intermediate 2021 CA`), ausente del almacén del sistema: el
+  TLS sigue cifrado y el script comprueba que el emisor sea de Supabase Inc
+  antes de mandar la contraseña.
+
 ## 2. Cargar el catálogo
 
 Ejecuta [`seed.sql`](./seed.sql) en el mismo SQL Editor. Solo inserta si
