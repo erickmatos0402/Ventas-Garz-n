@@ -17,7 +17,7 @@ import { SlideUp, containerVariants, itemVariants } from '../utils/animations';
 import { useAuthStore, useCatalogStore, useThemeStore } from '../store';
 import { Product, ProductReview } from '../types';
 import { ProductCard, LiquidTabs, LogoMedallion } from '../components';
-import { getDiscountedPrice } from '../data/mockData';
+import { getDiscountedPrice } from '../data/pricing';
 import { STORE_META_DATA } from '../data/boutiqueData';
 import { formatDate, formatPrice, trackBubblePointer, resetBubblePointer } from '../utils';
 import { reviewService } from '../services/reviews';

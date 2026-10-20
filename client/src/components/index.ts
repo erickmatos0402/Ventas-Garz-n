@@ -8,3 +8,6 @@ export { ContactBubble } from './ContactBubble';
 export { LogoMedallion } from './LogoMedallion';
 export { StoreSwitcher } from './StoreSwitcher';
 export { StoreTransitionOverlay } from './StoreTransitionOverlay';
+export { ClockTimePicker } from './ClockTimePicker';
+export { SuccessCelebration } from './SuccessCelebration';
+export { RevenueChart } from './RevenueChart';

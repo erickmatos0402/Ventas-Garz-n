@@ -48,6 +48,8 @@ export type ProductRow = {
 export type OrderRow = {
   id: string;
   user_id: string;
+  /** Tienda del pedido: Mercado y Boutique se administran por separado. */
+  store: ProductStore;
   status: OrderStatus;
   subtotal: number;
   /** Se conserva en 0: la tienda ya no cobra impuestos. */
@@ -96,6 +98,8 @@ export type CreateOrderArgs = {
   p_payment_mode: PaymentMode;
   /** Inicio del rango de 1 hora elegido para la recogida (ISO 8601). */
   p_pickup_ready_at: string | null;
+  /** Tienda a la que pertenece el pedido (no se mezclan catálogos). */
+  p_store: ProductStore;
 };
 
 export interface Database {
@@ -170,6 +174,7 @@ export interface Database {
         Insert: {
           id?: string;
           user_id: string;
+          store?: ProductStore;
           status?: OrderStatus;
           subtotal: number;
           tax: number;
@@ -187,6 +192,7 @@ export interface Database {
         Update: {
           id?: string;
           user_id?: string;
+          store?: ProductStore;
           status?: OrderStatus;
           subtotal?: number;
           tax?: number;

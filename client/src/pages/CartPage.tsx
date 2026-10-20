@@ -6,7 +6,7 @@ import { useCartStore, useAuthStore } from '../store';
 import { useThemeStore } from '../store';
 import { SlideUp, containerVariants, itemVariants } from '../utils/animations';
 import { formatPrice } from '../utils';
-import { getDiscountedPrice } from '../data/mockData';
+import { getDiscountedPrice } from '../data/pricing';
 
 export const CartPage: React.FC = () => {
   const theme = useThemeStore((s) => s.theme);

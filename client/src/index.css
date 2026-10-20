@@ -1311,6 +1311,16 @@ body {
    UTILIDADES MOBILE-FIRST (áreas seguras + horizontal)
    ============================================================ */
 
+/* Tambor del selector de hora: sin barra de scroll a la vista */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Reserva el espacio del notch / barra gestual (requiere viewport-fit=cover) */
 .safe-t { padding-top: env(safe-area-inset-top); }
 .safe-b { padding-bottom: env(safe-area-inset-bottom); }

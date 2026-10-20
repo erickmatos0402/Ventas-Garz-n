@@ -5,7 +5,6 @@ import {
   MapPin,
   Banknote,
   AlertCircle,
-  CheckCircle,
   Loader2,
   ShoppingBasket,
   Store,
@@ -15,6 +14,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { useAuthStore, useCartStore, useThemeStore } from '../store';
+import { ClockTimePicker, SuccessCelebration } from '../components';
 import { SlideUp } from '../utils/animations';
 import {
   formatPrice,
@@ -22,7 +22,7 @@ import {
   getPickupWindow,
   groupPickupSlotsByDay,
 } from '../utils';
-import { getDiscountedPrice } from '../data/mockData';
+import { getDiscountedPrice } from '../data/pricing';
 import { orderService } from '../services/orders';
 import type { OrderRow } from '../types/database';
 
@@ -35,9 +35,10 @@ const TRANSFER_SURCHARGE_RATE = 0.3;
 const WHATSAPP_NUMBER = '5356072398';
 
 /**
- * Mensaje que se envía al WhatsApp de la tienda al confirmar un pedido.
- * Usa los importes que calculó `create_order` en Supabase (el `order`
- * devuelto por la RPC), nunca los que calculó el navegador.
+ * Mensaje corto que se envía al WhatsApp de la tienda al confirmar pedido.
+ * El detalle completo vive en el panel de administración, así que aquí basta
+ * con referencia, cliente, productos resumidos, total y hora de recogida.
+ * Los importes son los que calculó `create_order`, nunca los del navegador.
  */
 function buildWhatsAppMessage(input: {
   order: OrderRow;
@@ -49,33 +50,19 @@ function buildWhatsAppMessage(input: {
 }): string {
   const { order, orderRef, items, paymentMode, phone, customer } = input;
   const money = (value: any) => formatPrice(Number(value) || 0);
-  const lines = items.map(
-    (item) => `• ${item.name} × ${item.quantity} — ${money(getDiscountedPrice(item) * item.quantity)}`
-  );
   const pickup = getPickupWindow(order.pickup_ready_at);
-  const transferFee = Number(order.transfer_fee) || 0;
+
+  // Como máximo tres líneas de productos: el resto se resume en "y N más".
+  const visible = items.slice(0, 3).map((item) => `• ${item.name} ×${item.quantity}`);
+  if (items.length > 3) visible.push(`• y ${items.length - 3} producto(s) más`);
 
   const details = [
-    '*Nuevo pedido* — Ventas Garzón',
-    `Pedido: ${orderRef}`,
-    customer ? `Cliente: ${customer}` : null,
-    phone ? `Teléfono: ${phone}` : null,
-    '',
-    '*Productos*',
-    ...lines,
-    '',
-    `Subtotal: ${money(order.subtotal)}`,
-    transferFee > 0 ? `Recargo transferencia (30%): ${money(transferFee)}` : null,
-    `*Total: ${money(order.total)}*`,
-    'Impuestos: no se cobran',
-    '',
-    'Entrega: Recogida en tienda (Santiago de Cuba)',
-    `Listo para recoger: ${pickup.dayLabel}, ${pickup.startTime}`,
-    `Recoge antes de: ${pickup.endTime} (ventana de 1 hora)`,
-    paymentMode === 'transfer'
-      ? 'Pago: Transferencia bancaria (incluye 30% de recargo)'
-      : 'Pago: Efectivo presencial al recoger',
-  ].filter((line): line is string => line !== null);
+    `*Pedido ${orderRef}* — Ventas Garzón`,
+    `${customer || 'Cliente'}${phone ? ` · ${phone}` : ''}`,
+    ...visible,
+    `*Total: ${money(order.total)}* · ${paymentMode === 'transfer' ? 'transferencia' : 'efectivo'}`,
+    `Recojo: ${pickup.dayLabel}, ${pickup.startTime}–${pickup.endTime}`,
+  ];
 
   return details.join('\n');
 }
@@ -148,6 +135,8 @@ export const CheckoutPage: React.FC = () => {
         phone,
         paymentMode,
         pickupReadyAt: pickupSlot,
+        // El pedido queda en la tienda activa: Mercado y Boutique no se mezclan.
+        store: theme,
       });
 
       setOrder(created);
@@ -213,14 +202,13 @@ export const CheckoutPage: React.FC = () => {
     return (
       <div className="min-h-dvh flex items-center justify-center px-4 py-16">
         <SlideUp>
-          <div className="glass-strong rounded-3xl p-6 sm:p-8 max-w-md text-center w-full">
-            <motion.div
-              animate={{ scale: [0.8, 1.1, 1] }}
-              transition={{ duration: 0.5 }}
-              className="w-16 h-16 bg-primary/15 rounded-full flex items-center justify-center mx-auto mb-4"
-            >
-              <CheckCircle size={32} className="text-primary-deep" />
-            </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 26, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ type: 'spring', stiffness: 210, damping: 22 }}
+            className="glass-strong rounded-3xl p-6 sm:p-8 max-w-md text-center w-full overflow-hidden"
+          >
+            <SuccessCelebration />
             <h2 className="font-display text-2xl font-extrabold tracking-tight text-dark mb-2">¡Pedido Confirmado!</h2>
             <p className="text-xs font-semibold tracking-wide text-gray-400 mb-4">
               Pedido #{order.id.slice(0, 8).toUpperCase()}
@@ -274,7 +262,7 @@ export const CheckoutPage: React.FC = () => {
             <button onClick={() => navigate('/products')} className="btn-liquid-ghost w-full py-3">
               Seguir Comprando
             </button>
-          </div>
+          </motion.div>
         </SlideUp>
       </div>
     );
@@ -317,49 +305,17 @@ export const CheckoutPage: React.FC = () => {
                 </p>
               </div>
 
-              {/* Hora de recogida: rango de 1 hora elegido por el cliente */}
+              {/* Hora de recogida: rueda tipo alarma del Reloj */}
               <div>
                 <h2 className="text-xl font-bold text-dark mb-1 flex items-center gap-2">
                   <Clock size={20} className="text-primary" />
                   Hora de recogida
                 </h2>
                 <p className="text-xs text-gray-400 mb-3">
-                  Horario de la tienda: lun a sáb, 8:00 am – 6:00 pm. Cada opción dura 1 hora.
+                  Elige el día y desliza la hora, como cuando pones una alarma. Cada rango dura 1 hora.
                 </p>
 
-                {slots.length === 0 ? (
-                  <p className="text-sm text-danger">No hay rangos disponibles hoy. Escríbenos por WhatsApp.</p>
-                ) : (
-                  <div className="space-y-3">
-                    {days.map((day) => (
-                      <div key={day.key}>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1.5">
-                          {day.label}
-                        </p>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          {day.slots.map((slot) => {
-                            const window = getPickupWindow(slot.toISOString());
-                            const selected = pickupSlot === slot.toISOString();
-                            return (
-                              <button
-                                key={slot.toISOString()}
-                                type="button"
-                                onClick={() => setPickupSlot(slot.toISOString())}
-                                className={`rounded-2xl px-3 py-2.5 text-sm font-semibold transition cursor-pointer ${
-                                  selected
-                                    ? 'liquid-tab-blob !rounded-2xl ring-2 ring-primary text-dark'
-                                    : 'liquid-badge text-dark hover:scale-[1.02]'
-                                }`}
-                              >
-                                {window.startTime} – {window.endTime}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <ClockTimePicker days={days} value={pickupSlot} onChange={setPickupSlot} />
               </div>
 
               {/* Contacto */}

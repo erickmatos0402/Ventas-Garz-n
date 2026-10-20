@@ -1,5 +1,12 @@
 import { supabase } from '../utils/supabase';
-import type { OrderRow, PaymentMode } from '../types/database';
+import type {
+  OrderItemRow,
+  OrderRow,
+  OrderStatus,
+  PaymentMode,
+  ProductStore,
+  ProfileRow,
+} from '../types/database';
 
 export interface CreateOrderInput {
   items: { productId: string; quantity: number }[];
@@ -7,6 +14,15 @@ export interface CreateOrderInput {
   paymentMode: PaymentMode;
   /** Inicio (ISO 8601) del rango de 1 hora elegido para la recogida. */
   pickupReadyAt: string;
+  /** Tienda del pedido: Mercado y Boutique se administran por separado. */
+  store: ProductStore;
+}
+
+/** Pedido con sus líneas y los datos del cliente, para el panel de admin. */
+export interface AdminOrder extends OrderRow {
+  items: OrderItemRow[];
+  customerName: string;
+  customerEmail: string;
 }
 
 export const orderService = {
@@ -41,6 +57,7 @@ export const orderService = {
       p_delivery_mode: 'pickup',
       p_payment_mode: input.paymentMode,
       p_pickup_ready_at: input.pickupReadyAt,
+      p_store: input.store,
     });
 
     if (error) {
@@ -53,5 +70,67 @@ export const orderService = {
     }
 
     return data;
+  },
+
+  /**
+   * Pedidos de una tienda con sus líneas y el cliente (solo administradores:
+   * RLS devuelve todos los pedidos únicamente a las cuentas con rol admin).
+   * Se consulta en tres pasos sencillos para no depender de joins tipados.
+   */
+  listForAdmin: async (store: ProductStore): Promise<AdminOrder[]> => {
+    const { data: orders, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('store', store)
+      .order('created_at', { ascending: false });
+
+    if (error) throw new Error(error.message);
+    if (!orders?.length) return [];
+
+    const orderIds = orders.map((order) => order.id);
+    const userIds = [...new Set(orders.map((order) => order.user_id))];
+
+    const [{ data: items, error: itemsError }, { data: profiles, error: profilesError }] =
+      await Promise.all([
+        supabase.from('order_items').select('*').in('order_id', orderIds),
+        supabase.from('profiles').select('*').in('id', userIds),
+      ]);
+
+    if (itemsError) throw new Error(itemsError.message);
+    if (profilesError) throw new Error(profilesError.message);
+
+    const itemsByOrder = new Map<string, OrderItemRow[]>();
+    for (const item of items ?? []) {
+      const list = itemsByOrder.get(item.order_id) ?? [];
+      list.push(item);
+      itemsByOrder.set(item.order_id, list);
+    }
+    const profileById = new Map<string, ProfileRow>(
+      (profiles ?? []).map((profile) => [profile.id, profile])
+    );
+
+    return orders.map((order) => {
+      const profile = profileById.get(order.user_id);
+      return {
+        ...order,
+        items: itemsByOrder.get(order.id) ?? [],
+        customerName: profile?.name ?? 'Cliente',
+        customerEmail: profile?.email ?? '',
+      };
+    });
+  },
+
+  /** Marca un pedido como entregado o cancelado (acción de administrador). */
+  updateStatus: async (orderId: string, status: OrderStatus): Promise<void> => {
+    const { data, error } = await supabase
+      .from('orders')
+      .update({ status })
+      .eq('id', orderId)
+      .select('id');
+
+    if (error) throw new Error(error.message);
+    if (!data?.length) {
+      throw new Error('No se pudo actualizar el pedido. ¿Tu cuenta es de administrador?');
+    }
   },
 };

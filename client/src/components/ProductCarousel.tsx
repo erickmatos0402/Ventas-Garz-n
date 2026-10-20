@@ -4,7 +4,7 @@ import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Heart, ShoppingCart, Star, Check, MessageSquare } from 'lucide-react';
 import { Product } from '../types';
 import { formatPrice } from '../utils';
-import { getDiscountedPrice } from '../data/mockData';
+import { getDiscountedPrice } from '../data/pricing';
 import { useCartStore, useThemeStore } from '../store';
 import { useImageWithFallback } from '../hooks/useImageWithFallback';
 

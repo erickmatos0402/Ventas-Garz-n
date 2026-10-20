@@ -14,7 +14,7 @@ import {
 import { SlideUp } from '../utils/animations';
 import { formatPrice, formatDate } from '../utils';
 import { useAuthStore, useCartStore, useCatalogStore, useThemeStore } from '../store';
-import { getDiscountedPrice } from '../data/mockData';
+import { getDiscountedPrice } from '../data/pricing';
 import { reviewService } from '../services/reviews';
 import { ProductReview } from '../types';
 import { useImageWithFallback } from '../hooks/useImageWithFallback';

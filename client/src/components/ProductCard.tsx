@@ -7,7 +7,7 @@ import { formatPrice, trackBubblePointer, resetBubblePointer } from '../utils';
 import { useCartStore } from '../store';
 import { useThemeStore } from '../store';
 import { useImageWithFallback } from '../hooks/useImageWithFallback';
-import { getDiscountedPrice } from '../data/mockData';
+import { getDiscountedPrice } from '../data/pricing';
 
 interface ProductCardProps {
   product: Product;

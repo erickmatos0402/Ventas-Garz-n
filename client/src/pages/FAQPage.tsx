@@ -6,7 +6,7 @@ const faqs = [
   {
     question: '¿Cómo realizo un pedido?',
     answer:
-      'Busca el producto en el catálogo, agrégalo al carrito y completa tus datos en el checkout. Recibirás una llamada para confirmar todo.',
+      'Busca el producto en el catálogo, agrégalo al carrito y completa tus datos en el checkout. Al confirmar se abre WhatsApp con el resumen del pedido para coordinar la recogida.',
   },
   {
     question: '¿Puedo recoger mi pedido en tienda?',

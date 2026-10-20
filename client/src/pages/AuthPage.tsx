@@ -19,9 +19,11 @@ import {
   Heart,
   Sparkles,
   Bell,
+  CheckCircle2,
+  Apple,
 } from 'lucide-react';
 import { LiquidTabs } from '../components';
-import { useAuthStore, useThemeStore } from '../store';
+import { useAuthStore, useThemeStore, type OAuthProvider } from '../store';
 import { STORE_META_DATA } from '../data/boutiqueData';
 import { SlideUp } from '../utils/animations';
 
@@ -47,6 +49,26 @@ const BENEFITS: Record<'market' | 'boutique', { icon: React.ReactNode; text: str
   ],
 };
 
+/** Icono de Google (lucide no incluye la marca). */
+const GoogleIcon: React.FC<{ size?: number }> = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden focusable="false">
+    <path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z" />
+    <path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z" />
+    <path fill="#FBBC05" d="M11.69 28.18c-.44-1.32-.69-2.73-.69-4.18s.25-2.86.69-4.18v-5.7H4.34A21.99 21.99 0 0 0 2 24c0 3.55.85 6.91 2.34 9.88l7.35-5.7z" />
+    <path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z" />
+  </svg>
+);
+
+/**
+ * Apple (iCloud): solo se ofrece en dispositivos de Apple, que son los que
+ * tienen la cuenta de iCloud a mano. En el resto de equipos no se muestra.
+ */
+function isAppleDevice(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent;
+  return /iPad|iPhone|iPod|Macintosh/.test(ua) || /Mac/.test(navigator.platform ?? '');
+}
+
 export const AuthPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -59,6 +81,7 @@ export const AuthPage: React.FC = () => {
   const login = useAuthStore((s) => s.login);
   const register = useAuthStore((s) => s.register);
   const logout = useAuthStore((s) => s.logout);
+  const loginWithProvider = useAuthStore((s) => s.loginWithProvider);
 
   const [mode, setMode] = useState<AuthMode>('login');
   const [name, setName] = useState('');
@@ -66,9 +89,13 @@ export const AuthPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState<OAuthProvider | null>(null);
   const [error, setError] = useState('');
+  // Mensaje de éxito en verde (cuenta creada). Nunca se muestra en rojo.
+  const [success, setSuccess] = useState<{ title: string; message: string; needsConfirmation: boolean } | null>(null);
 
   const isLogin = mode === 'login';
+  const showApple = React.useMemo(() => isAppleDevice(), []);
 
   const switchMode = (next: AuthMode) => {
     setMode(next);
@@ -82,16 +109,66 @@ export const AuthPage: React.FC = () => {
     try {
       if (isLogin) {
         await login(email, password);
+        navigate(nextPath);
       } else {
-        await register(name, email, password);
+        const needsConfirmation = await register(name, email, password);
+        setSuccess({
+          title: needsConfirmation ? 'Cuenta creada' : `¡Bienvenido, ${name.trim().split(' ')[0]}!`,
+          message: needsConfirmation
+            ? 'Te enviamos un correo para confirmar la cuenta. Revisa tu bandeja y luego inicia sesión.'
+            : 'Tu cuenta está lista. Ya puedes comprar, seguir tus pedidos y calificar productos.',
+          needsConfirmation,
+        });
       }
-      navigate(nextPath);
     } catch (err: any) {
       setError(err?.message || 'No pudimos completar la operación. Inténtalo otra vez.');
     } finally {
       setLoading(false);
     }
   };
+
+  const handleOAuth = async (provider: OAuthProvider) => {
+    setError('');
+    setOauthLoading(provider);
+    try {
+      // Redirige al proveedor; al volver, Supabase restaura la sesión.
+      await loginWithProvider(provider, nextPath);
+    } catch (err: any) {
+      setError(err?.message || 'No se pudo abrir el acceso con ' + provider);
+      setOauthLoading(null);
+    }
+  };
+
+  // Cuenta recién creada: confirmación en verde (nunca como error en rojo).
+  if (success) {
+    return (
+      <div className="min-h-dvh flex items-center justify-center px-4 py-16">
+        <SlideUp>
+          <div className="glass-strong rounded-3xl p-6 sm:p-10 max-w-lg w-full text-center">
+            <motion.div
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+              className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 bg-emerald-500/15 ring-4 ring-emerald-500/20"
+            >
+              <CheckCircle2 size={40} className="text-emerald-600" />
+            </motion.div>
+            <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-emerald-700 mb-2">
+              {success.title}
+            </h1>
+            <p className="text-emerald-700/80 text-sm sm:text-base mb-6">{success.message}</p>
+            <Link
+              to={success.needsConfirmation ? '/login' : nextPath}
+              className="btn-liquid w-full py-3 flex items-center justify-center gap-2"
+            >
+              <Store size={16} />
+              {success.needsConfirmation ? 'Ya confirmé mi correo' : 'Continuar'}
+            </Link>
+          </div>
+        </SlideUp>
+      </div>
+    );
+  }
 
   // Sesión ya iniciada: no tiene sentido volver a mostrar el formulario.
   if (user) {
@@ -290,6 +367,37 @@ export const AuthPage: React.FC = () => {
                   {loading ? 'Procesando...' : isLogin ? 'Iniciar sesión' : 'Crear cuenta'}
                 </motion.button>
               </form>
+
+              {/* Acceso rápido con la cuenta que ya tienes en el teléfono. */}
+              <div className="my-5 flex items-center gap-3 text-[11px] uppercase tracking-[0.18em] text-gray-400">
+                <span className="h-px flex-1 bg-white/70" />
+                o continúa con
+                <span className="h-px flex-1 bg-white/70" />
+              </div>
+
+              <div className="space-y-2.5">
+                <button
+                  type="button"
+                  onClick={() => handleOAuth('google')}
+                  disabled={loading || oauthLoading !== null}
+                  className="w-full min-h-[48px] flex items-center justify-center gap-2.5 rounded-full bg-white/85 border border-white/80 font-semibold text-sm text-dark hover:bg-white transition disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {oauthLoading === 'google' ? <Loader2 size={18} className="animate-spin" /> : <GoogleIcon size={18} />}
+                  Continuar con Google
+                </button>
+
+                {showApple && (
+                  <button
+                    type="button"
+                    onClick={() => handleOAuth('apple')}
+                    disabled={loading || oauthLoading !== null}
+                    className="w-full min-h-[48px] flex items-center justify-center gap-2.5 rounded-full bg-dark text-white font-semibold text-sm hover:opacity-95 transition disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {oauthLoading === 'apple' ? <Loader2 size={18} className="animate-spin" /> : <Apple size={18} />}
+                    Continuar con Apple (iCloud)
+                  </button>
+                )}
+              </div>
 
               <p className="text-center text-sm text-gray-500 mt-5">
                 {isLogin ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}{' '}

@@ -87,6 +87,8 @@ create index if not exists idx_products_subcategory on public.products (subcateg
 create table if not exists public.orders (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles (id) on delete cascade,
+  -- Tienda del pedido: Mercado y Boutique se administran por separado.
+  store text not null default 'market' check (store in ('market', 'boutique')),
   status text not null default 'pending'
     check (status in ('pending', 'processing', 'shipped', 'delivered', 'cancelled')),
   subtotal integer not null default 0 check (subtotal >= 0),
@@ -110,9 +112,32 @@ create table if not exists public.orders (
 -- Bases ya creadas: añade las columnas sin borrar datos.
 alter table public.orders add column if not exists transfer_fee integer not null default 0;
 alter table public.orders add column if not exists pickup_ready_at timestamptz not null default (now() + interval '1 hour');
+alter table public.orders add column if not exists store text not null default 'market';
+
+do $$
+begin
+  alter table public.orders drop constraint if exists orders_store_check;
+  alter table public.orders add constraint orders_store_check check (store in ('market', 'boutique'));
+exception when duplicate_object then null;
+end $$;
+
+-- Pedidos anteriores a la columna: la tienda se deduce de sus productos.
+update public.orders o
+set store = coalesce(
+  (
+    select p.store
+    from public.order_items i
+    join public.products p on p.id = i.product_id
+    where i.order_id = o.id
+    limit 1
+  ),
+  o.store
+)
+where exists (select 1 from public.order_items i where i.order_id = o.id);
 
 create index if not exists idx_orders_user_id on public.orders (user_id);
 create index if not exists idx_orders_created_at on public.orders (created_at desc);
+create index if not exists idx_orders_store_created on public.orders (store, created_at desc);
 
 create table if not exists public.order_items (
   id uuid primary key default gen_random_uuid(),
@@ -332,9 +357,10 @@ create policy "product_reviews_delete_own_or_admin" on public.product_reviews
 -- contra el horario de la tienda. Bloquea las filas de producto para
 -- evitar sobreventa.
 -- ----------------------------------------------------------------------------
--- Firma antigua (sin p_pickup_ready_at): se retira para que solo exista
--- la nueva y PostgREST no encuentre dos variantes ambiguas.
+-- Firmas antiguas (sin p_pickup_ready_at / sin p_store): se retiran para
+-- que solo exista la nueva y PostgREST no encuentre variantes ambiguas.
 drop function if exists public.create_order(jsonb, text, text, text, text);
+drop function if exists public.create_order(jsonb, text, text, text, text, timestamptz);
 
 create or replace function public.create_order(
   p_items jsonb,
@@ -342,7 +368,8 @@ create or replace function public.create_order(
   p_phone text,
   p_delivery_mode text default 'pickup',
   p_payment_mode text default 'cash',
-  p_pickup_ready_at timestamptz default null
+  p_pickup_ready_at timestamptz default null,
+  p_store text default 'market'
 )
 returns public.orders
 language plpgsql
@@ -374,6 +401,12 @@ begin
 
   if p_payment_mode not in ('cash', 'transfer') then
     raise exception 'Método de pago inválido' using errcode = '22023';
+  end if;
+
+  -- Mercado y Boutique son catálogos independientes: un pedido pertenece a
+  -- una sola tienda y no puede mezclar productos de ambas.
+  if p_store not in ('market', 'boutique') then
+    raise exception 'Tienda inválida' using errcode = '22023';
   end if;
 
   if coalesce(length(trim(p_phone)), 0) < 8 then
@@ -411,11 +444,11 @@ begin
   -- Pedido vacío primero: el total se actualiza al final. La ventana de
   -- recogida es la hora elegida por el cliente.
   insert into public.orders (
-    user_id, subtotal, tax, transfer_fee, delivery_fee, total,
+    user_id, store, subtotal, tax, transfer_fee, delivery_fee, total,
     shipping_address, phone, delivery_mode, payment_mode, pickup_ready_at
   )
   values (
-    v_user_id, 0, 0, 0, 0, 0,
+    v_user_id, p_store, 0, 0, 0, 0, 0,
     null, nullif(trim(p_phone), ''),
     'pickup', p_payment_mode, p_pickup_ready_at
   )
@@ -442,6 +475,11 @@ begin
 
     if not found then
       raise exception 'El producto % no existe', v_item.product_id using errcode = '22023';
+    end if;
+
+    if v_product.store is distinct from p_store then
+      raise exception 'Los productos de Mercado y Boutique van en pedidos separados'
+        using errcode = '22023';
     end if;
 
     if v_product.stock < v_item.quantity then
@@ -478,8 +516,8 @@ begin
 end;
 $$;
 
-revoke all on function public.create_order(jsonb, text, text, text, text, timestamptz) from public, anon;
-grant execute on function public.create_order(jsonb, text, text, text, text, timestamptz) to authenticated;
+revoke all on function public.create_order(jsonb, text, text, text, text, timestamptz, text) from public, anon;
+grant execute on function public.create_order(jsonb, text, text, text, text, timestamptz, text) to authenticated;
 
 -- ----------------------------------------------------------------------------
 -- Permisos (Supabase ya los concede por defecto; explícitos para claridad)

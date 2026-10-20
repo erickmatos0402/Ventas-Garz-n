@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -16,14 +16,35 @@ import {
   ZoomIn,
   Upload,
   AlertCircle,
+  CheckCircle2,
+  ListOrdered,
+  BarChart3,
+  Loader2,
+  Phone,
+  Clock,
+  Truck,
+  CreditCard,
 } from 'lucide-react';
-import { useAuthStore, useCatalogStore } from '../store';
-import { Product } from '../types';
-import { formatPrice } from '../utils';
+import { LiquidTabs, RevenueChart } from '../components';
+import { useAuthStore, useCatalogStore, useThemeStore } from '../store';
+import { BoutiqueCategory, Product } from '../types';
+import { formatDate, formatPrice, getPickupWindow } from '../utils';
+import {
+  buildDailySeries,
+  buildMonthlySeries,
+  buildWeeklySeries,
+  summarizeOrders,
+} from '../utils/analytics';
+import { orderService, type AdminOrder } from '../services/orders';
+import type { OrderStatus } from '../types/database';
+import { BOUTIQUE_CATEGORIES, STORE_META_DATA } from '../data/boutiqueData';
 import { useImageWithFallback } from '../hooks/useImageWithFallback';
 import { MARKET_GALLERY_IMAGES, BOUTIQUE_GALLERY_IMAGES } from '../data/imageGallery';
 
+type StoreId = 'market' | 'boutique';
+type AdminTab = 'productos' | 'pedidos' | 'ventas';
 type ModalMode = 'create' | 'edit' | null;
+type ChartMode = 'diario' | 'semanal' | 'mensual';
 
 const EMPTY_FORM = {
   name: '',
@@ -31,10 +52,22 @@ const EMPTY_FORM = {
   price: '',
   image: '',
   category: 'aseo' as 'aseo' | 'alimentos',
+  subcategory: 'superior' as BoutiqueCategory,
   stock: '',
   restockDays: '',
   discount: '',
   emoji: '🧴',
+};
+
+const MARKET_EMOJIS = ['🧴', '🧻', '🧼', '🍋', '🧽', '☕', '🍚', '🥛', '🫘', '🫒', '🍪'];
+const BOUTIQUE_EMOJIS = ['👗', '👚', '👖', '👠', '👜', '🧥', '👒', '🧣', '💍', '🕶️', '👔'];
+
+const STATUS_META: Record<OrderStatus, { label: string; className: string }> = {
+  pending: { label: 'Pendiente', className: 'bg-amber-500/15 text-amber-700' },
+  processing: { label: 'En preparación', className: 'bg-sky-500/15 text-sky-700' },
+  shipped: { label: 'Listo', className: 'bg-indigo-500/15 text-indigo-700' },
+  delivered: { label: 'Entregado', className: 'bg-emerald-500/15 text-emerald-700' },
+  cancelled: { label: 'Cancelado', className: 'bg-red-500/15 text-red-700' },
 };
 
 /**
@@ -70,6 +103,13 @@ function getDiscountedPriceSafe(p: Product): number {
   return p.discount ? Math.round(p.price * (1 - p.discount / 100)) : p.price;
 }
 
+function productGroupLabel(product: Product): string {
+  if ((product.store ?? 'market') === 'market') {
+    return product.category === 'aseo' ? 'Aseo' : 'Alimentos';
+  }
+  return BOUTIQUE_CATEGORIES.find((cat) => cat.id === product.subcategory)?.label ?? 'Prenda';
+}
+
 /** Tarjeta de producto del Admin con miniatura real y visor */
 const AdminProductCard: React.FC<{
   product: Product;
@@ -78,12 +118,12 @@ const AdminProductCard: React.FC<{
   onPreview: () => void;
 }> = ({ product, onEdit, onDelete, onPreview }) => {
   const { src, failed, onError } = useImageWithFallback(product.image, product.fallbackImage);
+  const isMarket = (product.store ?? 'market') === 'market';
 
   return (
     <div className="glass-panel rounded-3xl p-5 flex flex-col gap-3">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          {/* Miniatura con foto real del producto */}
           <button
             onClick={onPreview}
             title="Ver imagen en grande"
@@ -103,8 +143,8 @@ const AdminProductCard: React.FC<{
           <div className="min-w-0">
             <p className="font-semibold text-dark leading-tight truncate">{product.name}</p>
             <p className="text-xs text-gray-500 flex items-center gap-1.5 mt-0.5">
-              {product.category === 'aseo' ? <Sparkles size={12} /> : <ShoppingBasket size={12} />}
-              {product.category === 'aseo' ? 'Aseo' : 'Alimentos'}
+              {isMarket ? <Sparkles size={12} /> : <ShoppingBasket size={12} />}
+              {productGroupLabel(product)}
             </p>
           </div>
         </div>
@@ -187,10 +227,101 @@ const ImagePreviewModal: React.FC<{ product: Product; onClose: () => void }> = (
   );
 };
 
+/** Tarjeta de pedido con las acciones que lleva el control diario. */
+const OrderCard: React.FC<{
+  order: AdminOrder;
+  busy: boolean;
+  onAction: (order: AdminOrder, status: OrderStatus) => void;
+}> = ({ order, busy, onAction }) => {
+  const status = STATUS_META[order.status];
+  const pickup = getPickupWindow(order.pickup_ready_at);
+  const isOpen = order.status !== 'delivered' && order.status !== 'cancelled';
+
+  return (
+    <div className="glass-panel rounded-3xl p-4 sm:p-5 flex flex-col gap-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="font-display font-bold text-dark">#{order.id.slice(0, 8).toUpperCase()}</p>
+          <p className="text-xs text-gray-400">{formatDate(order.created_at)}</p>
+        </div>
+        <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap ${status.className}`}>
+          {status.label}
+        </span>
+      </div>
+
+      <div className="text-sm text-gray-600 space-y-0.5">
+        <p className="font-semibold text-dark truncate">{order.customerName}</p>
+        {order.customerEmail && <p className="truncate text-xs text-gray-400">{order.customerEmail}</p>}
+        {order.phone && (
+          <p className="flex items-center gap-1.5 text-xs">
+            <Phone size={12} /> {order.phone}
+          </p>
+        )}
+      </div>
+
+      <ul className="text-sm space-y-1 border-y border-white/70 py-2">
+        {order.items.map((item) => (
+          <li key={item.id} className="flex items-start justify-between gap-3">
+            <span className="text-gray-600 min-w-0">
+              {item.name} <span className="text-gray-400">×{item.quantity}</span>
+            </span>
+            <span className="text-dark font-semibold whitespace-nowrap">
+              {formatPrice(item.unit_price * item.quantity)}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-gray-500 flex items-center gap-1.5">
+          {order.payment_mode === 'transfer' ? <CreditCard size={14} /> : <Wallet size={14} />}
+          {order.payment_mode === 'transfer' ? 'Transferencia' : 'Efectivo'}
+        </span>
+        <span className="font-bold text-primary-deep">{formatPrice(Number(order.total))}</span>
+      </div>
+
+      <p className="text-xs text-gray-500 flex items-start gap-1.5">
+        <Clock size={13} className="mt-0.5 flex-shrink-0 text-primary" />
+        Recogida: {pickup.dayLabel}, {pickup.startTime}–{pickup.endTime}
+      </p>
+
+      {isOpen ? (
+        <div className="flex gap-2 pt-1">
+          <button
+            onClick={() => onAction(order, 'delivered')}
+            disabled={busy}
+            className="btn-liquid flex-1 py-2.5 text-sm inline-flex items-center justify-center gap-1.5 disabled:opacity-60"
+          >
+            {busy ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
+            Entregado
+          </button>
+          <button
+            onClick={() => onAction(order, 'cancelled')}
+            disabled={busy}
+            className="btn-liquid-ghost flex-1 py-2.5 text-sm text-danger inline-flex items-center justify-center gap-1.5 disabled:opacity-60"
+          >
+            <X size={14} />
+            Cancelar
+          </button>
+        </div>
+      ) : (
+        <p className="text-xs text-gray-400 text-center pt-1">
+          {order.status === 'delivered' ? 'Venta confirmada e incluida en los ingresos' : 'Pedido cancelado'}
+        </p>
+      )}
+    </div>
+  );
+};
+
 export const AdminPage: React.FC = () => {
   const user = useAuthStore((s) => s.user);
   const authLoading = useAuthStore((s) => s.loading);
+  const siteTheme = useThemeStore((s) => s.theme);
   const { products, addProduct, updateProduct, deleteProduct, loading, error } = useCatalogStore();
+
+  const [tab, setTab] = useState<AdminTab>('productos');
+  const [adminStore, setAdminStore] = useState<StoreId>(siteTheme);
+  const [chartMode, setChartMode] = useState<ChartMode>('diario');
 
   const [modalMode, setModalMode] = useState<ModalMode>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -200,38 +331,81 @@ export const AdminPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  // El panel administra el catálogo del Mercado; la Boutique se carga
-  // igual en la tienda, pero se gestiona aparte.
-  const marketProducts = useMemo(
-    () => products.filter((p) => (p.store ?? 'market') !== 'boutique'),
-    [products]
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersError, setOrdersError] = useState<string | null>(null);
+  const [orderFilter, setOrderFilter] = useState<'all' | 'open' | 'delivered' | 'cancelled'>('all');
+  const [actionTarget, setActionTarget] = useState<{ order: AdminOrder; status: OrderStatus } | null>(null);
+  const [actionBusyId, setActionBusyId] = useState<string | null>(null);
+
+  const isAdmin = user?.role === 'admin';
+  const meta = STORE_META_DATA[adminStore];
+
+  // Catálogo de la tienda elegida en el panel (Mercado y Boutique aparte).
+  const storeProducts = useMemo(
+    () => products.filter((p) => (p.store ?? 'market') === adminStore),
+    [products, adminStore]
   );
 
-  // Estadísticas derivadas del catálogo real
+  const loadOrders = useCallback(async () => {
+    setOrdersLoading(true);
+    setOrdersError(null);
+    try {
+      const list = await orderService.listForAdmin(adminStore);
+      setOrders(list);
+    } catch (err) {
+      setOrders([]);
+      setOrdersError(err instanceof Error ? err.message : 'No se pudieron cargar los pedidos');
+    } finally {
+      setOrdersLoading(false);
+    }
+  }, [adminStore]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    void loadOrders();
+  }, [isAdmin, loadOrders]);
+
   const stats = useMemo(
     () => [
-      { label: 'Productos', value: String(marketProducts.length), icon: <Package size={22} className="text-primary" /> },
+      { label: 'Productos', value: String(storeProducts.length), icon: <Package size={22} className="text-primary" /> },
       {
         label: 'Stock total',
-        value: String(marketProducts.reduce((sum, p) => sum + (p.stock || 0), 0)),
+        value: String(storeProducts.reduce((sum, p) => sum + (p.stock || 0), 0)),
         icon: <ShoppingCart size={22} className="text-primary" />,
       },
       {
         label: 'Ofertas activas',
-        value: String(marketProducts.filter((p) => p.discount).length),
+        value: String(storeProducts.filter((p) => p.discount).length),
         icon: <BadgePercent size={22} className="text-accent" />,
       },
       {
         label: 'Valor inventario',
-        value: formatPrice(marketProducts.reduce((sum, p) => sum + getDiscountedPriceSafe(p) * (p.stock || 0), 0)),
+        value: formatPrice(storeProducts.reduce((sum, p) => sum + getDiscountedPriceSafe(p) * (p.stock || 0), 0)),
         icon: <Wallet size={22} className="text-primary-deep" />,
       },
     ],
-    [marketProducts]
+    [storeProducts]
   );
 
+  const summary = useMemo(() => summarizeOrders(orders), [orders]);
+  const series = useMemo(() => {
+    if (chartMode === 'semanal') return buildWeeklySeries(orders, 8);
+    if (chartMode === 'mensual') return buildMonthlySeries(orders, 6);
+    return buildDailySeries(orders, 14);
+  }, [orders, chartMode]);
+
+  const visibleOrders = useMemo(() => {
+    if (orderFilter === 'open') {
+      return orders.filter((order) => order.status === 'pending' || order.status === 'processing');
+    }
+    if (orderFilter === 'delivered') return orders.filter((order) => order.status === 'delivered');
+    if (orderFilter === 'cancelled') return orders.filter((order) => order.status === 'cancelled');
+    return orders;
+  }, [orders, orderFilter]);
+
   const openCreate = () => {
-    setForm(EMPTY_FORM);
+    setForm({ ...EMPTY_FORM, emoji: adminStore === 'market' ? '🧴' : '👗' });
     setEditingId(null);
     setModalMode('create');
   };
@@ -243,16 +417,16 @@ export const AdminPage: React.FC = () => {
       price: String(product.price),
       image: product.image || '',
       category: product.category,
+      subcategory: product.subcategory ?? 'superior',
       stock: String(product.stock),
       restockDays: product.restockDays != null ? String(product.restockDays) : '',
       discount: product.discount ? String(product.discount) : '',
-      emoji: product.emoji || '🧴',
+      emoji: product.emoji || '📦',
     });
     setEditingId(product.id);
     setModalMode('edit');
   };
 
-  /** Subir una foto desde el PC: se comprime y queda como data URL */
   const handleImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = '';
@@ -275,26 +449,44 @@ export const AdminPage: React.FC = () => {
       description: form.description.trim(),
       price: Number(form.price) || 0,
       image: form.image.trim(),
-      category: form.category,
+      // La columna `category` sigue existiendo para ambos catálogos; en la
+      // Boutique el filtro real es `subcategory`.
+      category: adminStore === 'market' ? form.category : ('aseo' as const),
+      subcategory: adminStore === 'boutique' ? form.subcategory : undefined,
       stock: Number(form.stock) || 0,
-      // Sin valoraciones inventadas: el promedio sale de reseñas reales.
       restockDays: form.restockDays !== '' ? Number(form.restockDays) : undefined,
       discount: form.discount ? Number(form.discount) : undefined,
       emoji: form.emoji,
+      store: adminStore,
     };
 
     try {
       if (modalMode === 'create') {
         await addProduct(data);
       } else if (editingId) {
-        const current = products.find((p) => p.id === editingId);
-        await updateProduct({ ...data, id: editingId, store: current?.store ?? 'market' });
+        await updateProduct({ ...data, id: editingId });
       }
       setModalMode(null);
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : 'No se pudo guardar el producto');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const confirmStatusChange = async () => {
+    if (!actionTarget) return;
+    const { order, status } = actionTarget;
+    setActionBusyId(order.id);
+    setOrdersError(null);
+    try {
+      await orderService.updateStatus(order.id, status);
+      setOrders((list) => list.map((item) => (item.id === order.id ? { ...item, status } : item)));
+      setActionTarget(null);
+    } catch (err) {
+      setOrdersError(err instanceof Error ? err.message : 'No se pudo actualizar el pedido');
+    } finally {
+      setActionBusyId(null);
     }
   };
 
@@ -313,7 +505,7 @@ export const AdminPage: React.FC = () => {
           <Package size={40} className="mx-auto mb-4 text-primary/50" />
           <h1 className="font-display text-2xl font-extrabold text-dark mb-2">Panel de administración</h1>
           <p className="text-gray-500 mb-6">
-            Inicia sesión con una cuenta de administrador para gestionar el catálogo.
+            Inicia sesión con una cuenta de administrador para gestionar el catálogo y los pedidos.
           </p>
           <Link to="/login" className="btn-liquid inline-flex items-center justify-center w-full py-3">
             Iniciar sesión
@@ -347,21 +539,56 @@ export const AdminPage: React.FC = () => {
   return (
     <div className="min-h-dvh pt-10 sm:pt-20 pb-24 sm:pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Cabecera */}
-        <div className="mb-8 sm:mb-10 glass-panel rounded-3xl p-5 sm:p-8">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
+        {/* Cabecera con el conmutador de tienda */}
+        <div className="mb-6 glass-panel rounded-3xl p-5 sm:p-8">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div className="min-w-0">
               <p className="heading-eyebrow">Panel de Control</p>
-              <h1 className="heading-page text-3xl sm:text-4xl md:text-5xl">Administrador de Ventas Garzón</h1>
+              <h1 className="heading-page text-3xl sm:text-4xl md:text-5xl break-words">
+                Administrador de {meta.name}
+              </h1>
               <p className="mt-3 text-gray-600 max-w-2xl">
-                Gestiona el catálogo de la tienda: crea, edita y elimina productos de aseo, alimentos y ofertas.
+                {adminStore === 'market'
+                  ? 'Catálogo, pedidos y ventas del mercado: aseo y alimentos.'
+                  : 'Catálogo, pedidos y ventas de la boutique: prendas y accesorios.'}{' '}
+                Cada tienda se gestiona por separado.
               </p>
             </div>
-            <button onClick={openCreate} className="btn-liquid inline-flex items-center gap-2 px-6 py-3">
-              <Plus size={18} />
-              Nuevo Producto
-            </button>
+            {tab === 'productos' && (
+              <button onClick={openCreate} className="btn-liquid inline-flex items-center gap-2 px-6 py-3 flex-shrink-0">
+                <Plus size={18} />
+                Nuevo {adminStore === 'market' ? 'Producto' : 'Artículo'}
+              </button>
+            )}
           </div>
+
+          <div className="mt-5 flex flex-wrap gap-3">
+            <LiquidTabs
+              items={[
+                { id: 'market', label: 'Mercado', icon: <ShoppingCart size={15} /> },
+                { id: 'boutique', label: 'Boutique', icon: <Sparkles size={15} /> },
+              ]}
+              activeId={adminStore}
+              onChange={(id) => setAdminStore(id as StoreId)}
+            />
+            <span className="text-xs text-gray-400 self-center">
+              {storeProducts.length} {adminStore === 'market' ? 'productos' : 'artículos'} en {meta.name}
+            </span>
+          </div>
+        </div>
+
+        {/* Secciones del panel */}
+        <div className="mb-6 flex justify-center">
+          <LiquidTabs
+            wrap
+            items={[
+              { id: 'productos', label: 'Productos', icon: <Package size={15} /> },
+              { id: 'pedidos', label: 'Pedidos', icon: <ListOrdered size={15} /> },
+              { id: 'ventas', label: 'Gráficos', icon: <BarChart3 size={15} /> },
+            ]}
+            activeId={tab}
+            onChange={(id) => setTab(id as AdminTab)}
+          />
         </div>
 
         {error && (
@@ -370,52 +597,192 @@ export const AdminPage: React.FC = () => {
             <span>{error}</span>
           </div>
         )}
-        {loading && products.length === 0 && (
-          <p className="mb-6 text-sm text-gray-500">Cargando catálogo…</p>
-        )}
 
-        {/* Estadísticas */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
-          {stats.map((stat) => (
-            <motion.div key={stat.label} whileHover={{ y: -4 }} className="glass-panel rounded-3xl p-4 sm:p-6">
-              <div className="flex items-start justify-between gap-2">
-                {/* text-xs en móvil: el tracking del eyebrow desbordaba en 2 columnas */}
-                <p className="heading-eyebrow text-[11px] sm:text-sm min-w-0 break-words">{stat.label}</p>
-                <span className="flex-shrink-0">{stat.icon}</span>
-              </div>
-              {/* Valores largos (precios con separadores de miles) deben
-                  partirse en vez de desbordar la tarjeta en 320px. */}
-              <p className="mt-3 sm:mt-4 text-xl min-[380px]:text-2xl sm:text-3xl font-bold text-dark break-words">{stat.value}</p>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Gestión de productos */}
-        <div className="mt-8 sm:mt-10 glass-panel rounded-3xl p-4 sm:p-6">
-          <div className="mb-6">
-            <h2 className="font-display text-xl font-bold text-primary-dark tracking-tight">Gestión de Productos</h2>
-            <p className="text-sm text-gray-500">Los cambios se reflejan al instante en Productos y ofertas</p>
-          </div>
-
-          {marketProducts.length === 0 ? (
-            <div className="liquid-badge rounded-3xl p-10 text-center">
-              <Package size={40} className="mx-auto mb-3 text-primary/40" />
-              <p className="text-gray-500">No hay productos. Crea el primero con "Nuevo Producto".</p>
-            </div>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {marketProducts.map((product) => (
-                <AdminProductCard
-                  key={product.id}
-                  product={product}
-                  onEdit={() => openEdit(product)}
-                  onDelete={() => setConfirmDeleteId(product.id)}
-                  onPreview={() => setPreviewProduct(product)}
-                />
+        {tab === 'productos' && (
+          <>
+            {/* Estadísticas de la tienda activa */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
+              {stats.map((stat) => (
+                <motion.div key={stat.label} whileHover={{ y: -4 }} className="glass-panel rounded-3xl p-4 sm:p-6">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="heading-eyebrow text-[11px] sm:text-sm min-w-0 break-words">{stat.label}</p>
+                    <span className="flex-shrink-0">{stat.icon}</span>
+                  </div>
+                  <p className="mt-3 sm:mt-4 text-xl min-[380px]:text-2xl sm:text-3xl font-bold text-dark break-words">{stat.value}</p>
+                </motion.div>
               ))}
             </div>
-          )}
-        </div>
+
+            <div className="mt-8 sm:mt-10 glass-panel rounded-3xl p-4 sm:p-6">
+              <div className="mb-6">
+                <h2 className="font-display text-xl font-bold text-primary-dark tracking-tight">
+                  Gestión de {adminStore === 'market' ? 'Productos' : 'Artículos'}
+                </h2>
+                <p className="text-sm text-gray-500">Los cambios se reflejan al instante en {meta.name}</p>
+              </div>
+
+              {loading && storeProducts.length === 0 ? (
+                <p className="text-sm text-gray-500">Cargando catálogo…</p>
+              ) : storeProducts.length === 0 ? (
+                <div className="liquid-badge rounded-3xl p-10 text-center">
+                  <Package size={40} className="mx-auto mb-3 text-primary/40" />
+                  <p className="text-gray-500">
+                    No hay {adminStore === 'market' ? 'productos' : 'artículos'}. Crea el primero con el botón de arriba.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                  {storeProducts.map((product) => (
+                    <AdminProductCard
+                      key={product.id}
+                      product={product}
+                      onEdit={() => openEdit(product)}
+                      onDelete={() => setConfirmDeleteId(product.id)}
+                      onPreview={() => setPreviewProduct(product)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {tab === 'pedidos' && (
+          <div className="glass-panel rounded-3xl p-4 sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-5">
+              <div>
+                <h2 className="font-display text-xl font-bold text-primary-dark tracking-tight">Pedidos de {meta.name}</h2>
+                <p className="text-sm text-gray-500">
+                  Marca cada pedido como entregado o cancelado para llevar el control.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => void loadOrders()}
+                disabled={ordersLoading}
+                className="btn-liquid-ghost inline-flex items-center gap-2 px-4 py-2 text-sm self-start"
+              >
+                {ordersLoading ? <Loader2 size={14} className="animate-spin" /> : <ListOrdered size={14} />}
+                Actualizar
+              </button>
+            </div>
+
+            <div className="mb-5 flex gap-2 overflow-x-auto no-scrollbar pb-1">
+              {([
+                { id: 'all', label: `Todos (${orders.length})` },
+                {
+                  id: 'open',
+                  label: `Abiertos (${orders.filter((o) => o.status === 'pending' || o.status === 'processing').length})`,
+                },
+                { id: 'delivered', label: `Entregados (${summary.delivered})` },
+                { id: 'cancelled', label: `Cancelados (${summary.cancelled})` },
+              ] as const).map((filter) => (
+                <button
+                  key={filter.id}
+                  type="button"
+                  onClick={() => setOrderFilter(filter.id)}
+                  className={`flex-shrink-0 rounded-full px-4 min-h-[38px] text-sm font-semibold transition ${
+                    orderFilter === filter.id
+                      ? 'liquid-tab-blob !rounded-full ring-2 ring-primary text-dark'
+                      : 'liquid-badge text-dark'
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+
+            {ordersError && (
+              <div className="mb-4 bg-danger/10 border border-danger text-danger px-4 py-3 rounded-2xl flex items-start gap-2 text-sm">
+                <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
+                <span>{ordersError}</span>
+              </div>
+            )}
+
+            {ordersLoading && orders.length === 0 ? (
+              <p className="text-sm text-gray-500 text-center py-10">Cargando pedidos…</p>
+            ) : visibleOrders.length === 0 ? (
+              <div className="liquid-badge rounded-3xl p-10 text-center">
+                <ListOrdered size={40} className="mx-auto mb-3 text-primary/40" />
+                <p className="text-gray-500">Todavía no hay pedidos en esta vista.</p>
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {visibleOrders.map((order) => (
+                  <OrderCard
+                    key={order.id}
+                    order={order}
+                    busy={actionBusyId === order.id}
+                    onAction={(target, status) => setActionTarget({ order: target, status })}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === 'ventas' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
+              {[
+                { label: 'Ingresos confirmados', value: formatPrice(summary.revenue), icon: <Wallet size={22} className="text-primary" /> },
+                { label: 'Pedidos entregados', value: String(summary.delivered), icon: <CheckCircle2 size={22} className="text-emerald-600" /> },
+                { label: 'Ticket promedio', value: formatPrice(summary.averageTicket), icon: <Truck size={22} className="text-primary-deep" /> },
+                { label: 'Pendientes', value: String(summary.pending), icon: <Clock size={22} className="text-amber-600" /> },
+              ].map((stat) => (
+                <div key={stat.label} className="glass-panel rounded-3xl p-4 sm:p-6">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="heading-eyebrow text-[11px] sm:text-sm min-w-0 break-words">{stat.label}</p>
+                    <span className="flex-shrink-0">{stat.icon}</span>
+                  </div>
+                  <p className="mt-3 sm:mt-4 text-xl min-[380px]:text-2xl sm:text-3xl font-bold text-dark break-words">{stat.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="glass-panel rounded-3xl p-4 sm:p-6">
+              <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="font-display text-xl font-bold text-primary-dark tracking-tight">Gráfico de ventas</h2>
+                  <p className="text-sm text-gray-500">
+                    Solo los pedidos entregados cuentan como venta confirmada.
+                  </p>
+                </div>
+                <LiquidTabs
+                  items={[
+                    { id: 'diario', label: 'Diario' },
+                    { id: 'semanal', label: 'Semanal' },
+                    { id: 'mensual', label: 'Mensual' },
+                  ]}
+                  activeId={chartMode}
+                  onChange={(id) => setChartMode(id as ChartMode)}
+                />
+              </div>
+
+              {ordersLoading && orders.length === 0 ? (
+                <p className="text-sm text-gray-500 text-center py-10">Cargando ventas…</p>
+              ) : (
+                <RevenueChart
+                  points={series}
+                  unitLabel={chartMode === 'diario' ? 'últimos 14 días' : chartMode === 'semanal' ? 'últimas 8 semanas' : 'últimos 6 meses'}
+                />
+              )}
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                {[
+                  { label: 'Entregados', value: summary.delivered, tone: 'text-emerald-700' },
+                  { label: 'Pendientes', value: summary.pending, tone: 'text-amber-700' },
+                  { label: 'Cancelados', value: summary.cancelled, tone: 'text-red-700' },
+                ].map((item) => (
+                  <div key={item.label} className="liquid-badge rounded-2xl px-4 py-3 flex items-center justify-between">
+                    <span className="text-sm text-gray-600">{item.label}</span>
+                    <span className={`font-bold ${item.tone}`}>{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Visor de imagen de producto */}
@@ -436,7 +803,8 @@ export const AdminPage: React.FC = () => {
           >
             <div className="flex items-center justify-between mb-5">
               <h3 className="font-display text-xl font-bold text-dark">
-                {modalMode === 'create' ? 'Nuevo Producto' : 'Editar Producto'}
+                {modalMode === 'create' ? `Nuevo ${adminStore === 'market' ? 'Producto' : 'Artículo'}` : 'Editar'}
+                <span className="block text-xs font-semibold text-gray-400">{meta.name}</span>
               </h3>
               <button onClick={() => setModalMode(null)} className="tap-icon text-gray-400 hover:text-dark transition">
                 <X size={22} />
@@ -465,9 +833,8 @@ export const AdminPage: React.FC = () => {
                 />
               </div>
 
-              {/* Imagen del producto: subir, pegar URL o elegir de la galería */}
               <div>
-                <label className="block text-sm font-bold text-dark mb-1.5">Imagen del producto</label>
+                <label className="block text-sm font-bold text-dark mb-1.5">Imagen de la {adminStore === 'market' ? 'producto' : 'prenda'}</label>
                 <div className="flex items-start gap-3">
                   <div className="w-20 h-20 rounded-2xl overflow-hidden bg-white/60 border border-white/80 flex items-center justify-center flex-shrink-0">
                     {form.image ? (
@@ -481,12 +848,7 @@ export const AdminPage: React.FC = () => {
                       <label className="btn-liquid-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-sm cursor-pointer">
                         <Upload size={14} />
                         Subir foto
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleImageFile}
-                        />
+                        <input type="file" accept="image/*" className="hidden" onChange={handleImageFile} />
                       </label>
                       {form.image && (
                         <button
@@ -511,7 +873,7 @@ export const AdminPage: React.FC = () => {
                 <p className="text-xs text-gray-500 mt-2 mb-1.5">O elige una imagen del catálogo:</p>
                 <div className="liquid-badge rounded-2xl p-2 max-h-28 overflow-y-auto">
                   <div className="flex flex-wrap gap-2">
-                    {[...MARKET_GALLERY_IMAGES, ...BOUTIQUE_GALLERY_IMAGES].map((src) => (
+                    {(adminStore === 'market' ? MARKET_GALLERY_IMAGES : BOUTIQUE_GALLERY_IMAGES).map((src) => (
                       <button
                         type="button"
                         key={src}
@@ -530,8 +892,6 @@ export const AdminPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* En teléfonos estrechos los campos van a una columna:
-                  dos inputs numéricos a 320px quedan inservibles. */}
               <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-dark mb-1.5">Precio (COP)</label>
@@ -566,22 +926,38 @@ export const AdminPage: React.FC = () => {
                   min="0"
                   value={form.restockDays}
                   onChange={(e) => setForm({ ...form, restockDays: e.target.value })}
-                  placeholder="Ej. 5 (se muestra en Tienda si hay espera)"
+                  placeholder="Ej. 5 (se muestra en la tienda si hay espera)"
                   className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-dark mb-1.5">Categoría</label>
-                  <select
-                    value={form.category}
-                    onChange={(e) => setForm({ ...form, category: e.target.value as 'aseo' | 'alimentos' })}
-                    className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary"
-                  >
-                    <option value="aseo">Aseo</option>
-                    <option value="alimentos">Alimentos</option>
-                  </select>
+                  <label className="block text-sm font-bold text-dark mb-1.5">
+                    {adminStore === 'market' ? 'Categoría' : 'Tipo de prenda'}
+                  </label>
+                  {adminStore === 'market' ? (
+                    <select
+                      value={form.category}
+                      onChange={(e) => setForm({ ...form, category: e.target.value as 'aseo' | 'alimentos' })}
+                      className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary"
+                    >
+                      <option value="aseo">Aseo</option>
+                      <option value="alimentos">Alimentos</option>
+                    </select>
+                  ) : (
+                    <select
+                      value={form.subcategory}
+                      onChange={(e) => setForm({ ...form, subcategory: e.target.value as BoutiqueCategory })}
+                      className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary"
+                    >
+                      {BOUTIQUE_CATEGORIES.filter((cat) => cat.id).map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.label}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-dark mb-1.5">Descuento % (opcional)</label>
@@ -600,7 +976,7 @@ export const AdminPage: React.FC = () => {
               <div>
                 <label className="block text-sm font-bold text-dark mb-1.5">Emoji de vista previa</label>
                 <div className="flex flex-wrap gap-2">
-                  {['🧴', '🧻', '🧼', '🍋', '🧽', '☕', '🍚', '🥛', '🫘', '🫒', '🍪'].map((em) => (
+                  {(adminStore === 'market' ? MARKET_EMOJIS : BOUTIQUE_EMOJIS).map((em) => (
                     <button
                       type="button"
                       key={em}
@@ -628,7 +1004,7 @@ export const AdminPage: React.FC = () => {
                   disabled={saving}
                   className="btn-liquid flex-1 py-3 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {saving ? 'Guardando…' : modalMode === 'create' ? 'Crear Producto' : 'Guardar Cambios'}
+                  {saving ? 'Guardando…' : modalMode === 'create' ? 'Crear' : 'Guardar Cambios'}
                 </button>
                 <button
                   type="button"
@@ -643,7 +1019,7 @@ export const AdminPage: React.FC = () => {
         </div>
       )}
 
-      {/* Modal confirmar eliminación */}
+      {/* Confirmar eliminación de producto */}
       {confirmDeleteId && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-dark/40 backdrop-blur-sm" onClick={() => setConfirmDeleteId(null)} />
@@ -653,7 +1029,7 @@ export const AdminPage: React.FC = () => {
             className="relative glass-strong rounded-3xl p-6 w-full max-w-sm text-center"
           >
             <Trash2 size={36} className="mx-auto mb-3 text-danger" />
-            <h3 className="font-display text-lg font-bold text-dark mb-1">¿Eliminar producto?</h3>
+            <h3 className="font-display text-lg font-bold text-dark mb-1">¿Eliminar {adminStore === 'market' ? 'producto' : 'artículo'}?</h3>
             <p className="text-sm text-gray-600 mb-5">Esta acción no se puede deshacer.</p>
             <div className="flex gap-3">
               <button
@@ -672,6 +1048,52 @@ export const AdminPage: React.FC = () => {
               </button>
               <button onClick={() => setConfirmDeleteId(null)} className="btn-liquid-ghost flex-1 py-3 text-dark">
                 Cancelar
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Confirmar cambio de estado del pedido */}
+      {actionTarget && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-dark/40 backdrop-blur-sm" onClick={() => setActionTarget(null)} />
+          <motion.div
+            initial={{ opacity: 0, y: 24, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            className="relative glass-strong rounded-3xl p-6 w-full max-w-sm text-center"
+          >
+            {actionTarget.status === 'delivered' ? (
+              <CheckCircle2 size={36} className="mx-auto mb-3 text-emerald-600" />
+            ) : (
+              <X size={36} className="mx-auto mb-3 text-danger" />
+            )}
+            <h3 className="font-display text-lg font-bold text-dark mb-1">
+              {actionTarget.status === 'delivered' ? '¿Marcar como entregado?' : '¿Cancelar este pedido?'}
+            </h3>
+            <p className="text-sm text-gray-600 mb-5">
+              Pedido #{actionTarget.order.id.slice(0, 8).toUpperCase()} ·{' '}
+              {formatPrice(Number(actionTarget.order.total))}
+              {actionTarget.status === 'delivered'
+                ? '. Pasará a contar como venta confirmada.'
+                : '. Dejará de contar como venta.'}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => void confirmStatusChange()}
+                disabled={actionBusyId !== null}
+                className={`flex-1 py-3 inline-flex items-center justify-center gap-2 ${
+                  actionTarget.status === 'delivered' ? 'btn-liquid' : 'btn-liquid text-danger'
+                } disabled:opacity-60`}
+              >
+                {actionBusyId ? <Loader2 size={16} className="animate-spin" /> : null}
+                {actionTarget.status === 'delivered' ? 'Sí, entregado' : 'Sí, cancelar'}
+              </button>
+              <button
+                onClick={() => setActionTarget(null)}
+                className="btn-liquid-ghost flex-1 py-3 text-dark"
+              >
+                Volver
               </button>
             </div>
           </motion.div>

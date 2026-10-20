@@ -11,9 +11,9 @@ En el panel del proyecto: **SQL Editor → New query**, pega el contenido de
 - `profiles` — perfil 1:1 con `auth.users` (rol `customer` / `admin`).
 - `products` — catálogo del Mercado y la Boutique, con `restock_days`
   (días de espera por abastecimiento).
-- `orders` y `order_items` — pedidos e histórico, con recargo por
-  transferencia y la ventana de recogida de 1 hora elegida por el cliente
-  (`pickup_ready_at`).
+- `orders` y `order_items` — pedidos e histórico, con la tienda del pedido
+  (`store`: `market` o `boutique`), recargo por transferencia y la ventana de
+  recogida de 1 hora elegida por el cliente (`pickup_ready_at`).
 - `product_reviews` — calificaciones y comentarios reales de clientes. Los
   campos `rating` / `reviews` de cada producto se recalculan desde aquí; el
   esquema limpia las valoraciones inventadas de versiones anteriores.
@@ -23,7 +23,9 @@ En el panel del proyecto: **SQL Editor → New query**, pega el contenido de
 - `create_order(...)` — alta de pedido atómica que valida stock, calcula
   importes (sin impuestos, con 30% de recargo por transferencia), comprueba
   el rango de 1 hora elegido contra el horario de la tienda (lun a sáb,
-  8:00 am – 6:00 pm, hora de Santiago de Cuba) y descuenta unidades.
+  8:00 am – 6:00 pm, hora de Santiago de Cuba) y descuenta unidades. Un
+  pedido pertenece a una sola tienda: no se mezclan productos de Mercado y
+  Boutique.
 
 > Si ya tenías la base creada, vuelve a ejecutar `schema.sql` completo:
 > añade las columnas y la tabla nuevas sin borrar datos y recalcula las
@@ -78,6 +80,33 @@ Puedes copiar `client/.env.example`. Reinicia `npm run dev` después de
 cambiar variables: Vite solo las lee al arrancar. En Vercel/hosting,
 configúralas también en el panel del proyecto.
 
+### Registro sin correo de confirmación (función `/api/register`)
+
+El registro normal de Supabase envía un correo mientras «Confirm email»
+esté activo, y esa casilla solo se cambia en el panel. Para que la cuenta
+entre al instante **sin depender de ese ajuste**, la app incluye
+`client/api/register.js`: crea la cuenta ya confirmada con la Admin API y
+el cliente inicia sesión con la contraseña. La clave de servicio **nunca**
+llega al navegador.
+
+En Vercel: **Settings → Environment Variables** (Production y Preview):
+
+```env
+SUPABASE_URL=https://<ref>.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=<service_role o sb_secret_...>
+```
+
+Después, **Redeploy**. Si esas variables faltan, el endpoint responde 501 y
+la app cae en el registro normal de Supabase (funciona, pero vuelve a
+enviar el correo si «Confirm email» está encendido).
+
+> La `service_role` salta RLS: mantenla solo en el servidor. Rótala si
+> alguna vez se pegó en un chat o en el código.
+
+También puedes apagar del todo **Authentication → Providers → Email →
+Confirm email** (y **Save**): entonces `signUp` devuelve sesión y ni
+siquiera hace falta el endpoint.
+
 ## 4. Crear un administrador
 
 1. Regístrate desde `/login` en la app (queda como `customer`).
@@ -89,8 +118,39 @@ set role = 'admin'
 where email = 'tu@correo.com';
 ```
 
-3. Vuelve a entrar en `/admin`. El panel ya permite crear, editar y borrar
-   productos, y fijar los días de espera por abastecimiento.
+3. Vuelve a entrar en `/admin`. El panel tiene dos tiendas independientes
+   (**Mercado** y **Boutique**): catálogo, pedidos y gráficos de cada una
+   se gestionan por separado.
+   - **Productos**: crear, editar y borrar artículos, con días de espera.
+   - **Pedidos**: lista con cliente, artículos, teléfono y hora de recogida;
+     botones **Entregado** y **Cancelar** para llevar el control.
+   - **Gráficos**: ingresos y ventas confirmadas (solo pedidos entregados)
+     con vista diaria (14 días), semanal (8 semanas) y mensual (6 meses).
+
+## 4.1 Acceso con Google y Apple (iCloud)
+
+La pantalla de acceso ofrece **Continuar con Google** y, en dispositivos de
+Apple, **Continuar con Apple (iCloud)**. Son proveedores OAuth de Supabase:
+
+1. **Authentication → Providers → Google**: activa el proveedor y pega el
+   *Client ID* y *Client Secret* de Google Cloud Console. En Google Cloud,
+   el *Authorized redirect URI* es
+   `https://<ref>.supabase.co/auth/v1/callback`.
+2. **Authentication → Providers → Apple**: activa el proveedor con tu
+   *Services ID*, *Team ID*, *Key ID* y la clave `.p8` de Apple Developer.
+3. En **Authentication → URL Configuration** añade el dominio de la app en
+   **Site URL** y **Redirect URLs** (`https://tu-dominio/**`).
+
+Sin esos pasos, los botones muestran el error del proveedor; el registro con
+correo y contraseña sigue funcionando igual.
+
+## 4.2 Instalar la web como app (icono del logo)
+
+`client/public/manifest.webmanifest` + `client/public/icons/*` usan el logo
+real (`logo.jpg`) como icono. En iPhone/iPad: Safari → Compartir → **Añadir
+a pantalla de inicio**. En Android/Chrome: menú → **Instalar aplicación**.
+El service worker (`client/public/sw.js`) es mínimo y no cachea, así cada
+despliegue se ve al día. Todo se sirve sobre HTTPS.
 
 ## 5. Registro de usuarios (sin verificación de correo)
 
@@ -99,15 +159,15 @@ crear la suya. Si Supabase empieza a rechazar registros por límite de
 intentos, entra en **Authentication → Rate Limits** y sube el límite de
 **Sign-ups** al máximo permitido por tu plan.
 
-**La verificación de correo está desactivada**: el registro entra al
-instante. Es un ajuste del proyecto Supabase, no del código: en el panel,
-**Authentication → Providers → Email → Confirm email** debe estar
-**apagado** (y **Save**). Mientras esté encendido, Supabase no devuelve
-sesión y la app muestra el aviso de revisar el correo.
+Al confirmar el registro, el mensaje de éxito se muestra en **verde**
+(`client/src/pages/AuthPage.tsx`), nunca como error en rojo. Si por algún
+motivo Supabase sigue exigiendo confirmar el correo, el aviso también es
+verde y explica que revises la bandeja.
 
 El formulario de registro **solo acepta correos `@gmail.com`** (validado en
-`client/src/store/authStore.ts`); el inicio de sesión admite cualquier
-correo para no bloquear cuentas creadas antes.
+`client/src/store/authStore.ts` y en el endpoint `api/register.js`); el
+inicio de sesión admite cualquier correo para no bloquear cuentas creadas
+antes.
 
 ### Si vuelves a activar Confirm email
 La app envía en cada registro `emailRedirectTo` con el dominio donde está
