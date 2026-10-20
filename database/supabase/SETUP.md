@@ -12,7 +12,8 @@ En el panel del proyecto: **SQL Editor → New query**, pega el contenido de
 - `products` — catálogo del Mercado y la Boutique, con `restock_days`
   (días de espera por abastecimiento).
 - `orders` y `order_items` — pedidos e histórico, con recargo por
-  transferencia y ventana de recogida (`pickup_ready_at`, 1 hora).
+  transferencia y la ventana de recogida de 1 hora elegida por el cliente
+  (`pickup_ready_at`).
 - `product_reviews` — calificaciones y comentarios reales de clientes. Los
   campos `rating` / `reviews` de cada producto se recalculan desde aquí; el
   esquema limpia las valoraciones inventadas de versiones anteriores.
@@ -20,8 +21,9 @@ En el panel del proyecto: **SQL Editor → New query**, pega el contenido de
   edita y borra su propia reseña; pedidos visibles solo para su dueño (o
   admin).
 - `create_order(...)` — alta de pedido atómica que valida stock, calcula
-  importes (sin impuestos, con 30% de recargo por transferencia), fija la
-  ventana de recogida y descuenta unidades.
+  importes (sin impuestos, con 30% de recargo por transferencia), comprueba
+  el rango de 1 hora elegido contra el horario de la tienda (lun a sáb,
+  8:00 am – 6:00 pm, hora de Santiago de Cuba) y descuenta unidades.
 
 > Si ya tenías la base creada, vuelve a ejecutar `schema.sql` completo:
 > añade las columnas y la tabla nuevas sin borrar datos y recalcula las
@@ -59,16 +61,37 @@ where email = 'tu@correo.com';
 3. Vuelve a entrar en `/admin`. El panel ya permite crear, editar y borrar
    productos, y fijar los días de espera por abastecimiento.
 
-## 5. Registro de usuarios y confirmación de correo
+## 5. Registro de usuarios (sin verificación de correo)
 
 La app **no impone un límite de cuentas registradas**: cualquiera puede
 crear la suya. Si Supabase empieza a rechazar registros por límite de
 intentos, entra en **Authentication → Rate Limits** y sube el límite de
 **Sign-ups** al máximo permitido por tu plan.
 
-Por defecto Supabase pide confirmar el correo al registrarse. Para probar
-sin correo: **Authentication → Providers → Email → Confirm email** (desactivar).
-Con la confirmación activada, la app avisa de que revises el correo.
+**La verificación de correo está desactivada**: el registro entra al
+instante. Es un ajuste del proyecto Supabase, no del código: en el panel,
+**Authentication → Providers → Email → Confirm email** debe estar
+**apagado** (y **Save**). Mientras esté encendido, Supabase no devuelve
+sesión y la app muestra el aviso de revisar el correo.
+
+El formulario de registro **solo acepta correos `@gmail.com`** (validado en
+`client/src/store/authStore.ts`); el inicio de sesión admite cualquier
+correo para no bloquear cuentas creadas antes.
+
+### Si vuelves a activar Confirm email
+La app envía en cada registro `emailRedirectTo` con el dominio donde está
+abierta (`window.location.origin`), así que el enlace de verificación abre
+la URL de producción y no `localhost`. Para que Supabase lo acepte:
+
+1. **Authentication → URL Configuration → Site URL**: pon la URL de
+   producción (por ejemplo `https://tu-dominio.vercel.app`).
+2. En **Redirect URLs** añade `https://tu-dominio.vercel.app/**`. Si el
+   enlace no está en esa lista, Supabase **ignora** el `emailRedirectTo` y
+   vuelve al Site URL: por eso antes acababas en localhost.
+3. Conserva `http://localhost:5173/**` (y el puerto que uses en `npm run dev`)
+   para poder seguir probando el registro en local.
+
+Tras verificar, la app recibe el token en la URL y queda logueada.
 
 ## Notas
 

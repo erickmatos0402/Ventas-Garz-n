@@ -227,11 +227,18 @@ export const AuthPage: React.FC = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     autoComplete="email"
-                    aria-label="Correo electrónico"
-                    placeholder="tu@correo.com"
-                    className={INPUT_CLASS}
-                  />
-                </div>
+                  aria-label="Correo electrónico"
+                  placeholder={isLogin ? 'tu@correo.com' : 'tuusuario@gmail.com'}
+                  className={INPUT_CLASS}
+                />
+              </div>
+
+              {!isLogin && (
+                <p className="-mt-3 pl-4 text-xs text-gray-400">
+                  El registro solo acepta correos <span className="font-semibold">@gmail.com</span>.
+                  No hace falta confirmar el correo: entras al instante.
+                </p>
+              )}
 
                 <div className={`${FIELD_CLASS} pl-4 pr-1.5`}>
                   <Lock size={16} className="text-primary-deep flex-shrink-0" />

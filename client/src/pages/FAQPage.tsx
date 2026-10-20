@@ -11,7 +11,7 @@ const faqs = [
   {
     question: '¿Puedo recoger mi pedido en tienda?',
     answer:
-      'Sí. Todos los pedidos se recogen en tienda, sin costo de envío. Al confirmar, tu pedido queda listo en 1 hora y tienes una ventana de 1 hora para recogerlo.',
+      'Sí. Todos los pedidos se recogen en tienda, sin costo de envío. En el checkout eliges el rango de 1 hora en el que vienes a recogerlo (lun a sáb, de 8:00 am a 6:00 pm).',
   },
   {
     question: '¿Cómo puedo pagar?',
@@ -31,7 +31,7 @@ const faqs = [
   {
     question: '¿Cuándo puedo recoger mi pedido?',
     answer:
-      'Al confirmar el pedido se marca una ventana de 1 hora: la hora exacta aparece en pantalla y se añade al mensaje de WhatsApp de la tienda.',
+      'Tú eliges: en el checkout hay rangos de 1 hora dentro del horario de la tienda. La hora elegida aparece en pantalla y se añade al mensaje de WhatsApp de la tienda.',
   },
   {
     question: '¿Los productos agotados tienen fecha de reposición?',

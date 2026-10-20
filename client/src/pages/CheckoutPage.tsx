@@ -16,7 +16,12 @@ import {
 } from 'lucide-react';
 import { useAuthStore, useCartStore, useThemeStore } from '../store';
 import { SlideUp } from '../utils/animations';
-import { formatPrice, getPickupWindow } from '../utils';
+import {
+  formatPrice,
+  getPickupSlots,
+  getPickupWindow,
+  groupPickupSlotsByDay,
+} from '../utils';
 import { getDiscountedPrice } from '../data/mockData';
 import { orderService } from '../services/orders';
 import type { OrderRow } from '../types/database';
@@ -85,8 +90,14 @@ export const CheckoutPage: React.FC = () => {
 
   const [paymentMode, setPaymentMode] = useState<PaymentMode>('cash');
   const [phone, setPhone] = useState('');
+  const [pickupSlot, setPickupSlot] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Rangos de 1 hora disponibles (horario de la tienda, con 1 h de preparación).
+  const slots = React.useMemo(() => getPickupSlots(12), []);
+  // Mismo orden que los huecos, agrupados por día ("Hoy", "Mañana"…).
+  const days = React.useMemo(() => groupPickupSlotsByDay(slots), [slots]);
 
   const [success, setSuccess] = useState(false);
   const [order, setOrder] = useState<OrderRow | null>(null);
@@ -121,6 +132,11 @@ export const CheckoutPage: React.FC = () => {
       return;
     }
 
+    if (!pickupSlot) {
+      setError('Elige el rango de 1 hora en el que recogerás tu pedido');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -131,6 +147,7 @@ export const CheckoutPage: React.FC = () => {
         items: items.map((item: any) => ({ productId: item.id, quantity: item.quantity })),
         phone,
         paymentMode,
+        pickupReadyAt: pickupSlot,
       });
 
       setOrder(created);
@@ -295,9 +312,54 @@ export const CheckoutPage: React.FC = () => {
                 </div>
                 <p className="mt-3 liquid-badge rounded-2xl p-4 flex items-start gap-3 text-sm text-gray-600">
                   <Clock size={18} className="text-primary flex-shrink-0 mt-0.5" />
-                  Confirmado el pedido, tienes <strong className="font-bold">1 hora</strong> para recogerlo.
-                  La hora exacta se añade al mensaje de WhatsApp.
+                  Elige abajo el rango de <strong className="font-bold">1 hora</strong> en el que vienes a
+                  recogerlo: preparamos tu pedido y la hora queda en el mensaje de WhatsApp.
                 </p>
+              </div>
+
+              {/* Hora de recogida: rango de 1 hora elegido por el cliente */}
+              <div>
+                <h2 className="text-xl font-bold text-dark mb-1 flex items-center gap-2">
+                  <Clock size={20} className="text-primary" />
+                  Hora de recogida
+                </h2>
+                <p className="text-xs text-gray-400 mb-3">
+                  Horario de la tienda: lun a sáb, 8:00 am – 6:00 pm. Cada opción dura 1 hora.
+                </p>
+
+                {slots.length === 0 ? (
+                  <p className="text-sm text-danger">No hay rangos disponibles hoy. Escríbenos por WhatsApp.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {days.map((day) => (
+                      <div key={day.key}>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1.5">
+                          {day.label}
+                        </p>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {day.slots.map((slot) => {
+                            const window = getPickupWindow(slot.toISOString());
+                            const selected = pickupSlot === slot.toISOString();
+                            return (
+                              <button
+                                key={slot.toISOString()}
+                                type="button"
+                                onClick={() => setPickupSlot(slot.toISOString())}
+                                className={`rounded-2xl px-3 py-2.5 text-sm font-semibold transition cursor-pointer ${
+                                  selected
+                                    ? 'liquid-tab-blob !rounded-2xl ring-2 ring-primary text-dark'
+                                    : 'liquid-badge text-dark hover:scale-[1.02]'
+                                }`}
+                              >
+                                {window.startTime} – {window.endTime}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Contacto */}
@@ -445,7 +507,11 @@ export const CheckoutPage: React.FC = () => {
 
                 <div className="mt-3 rounded-2xl bg-white/50 border border-white/70 p-3 text-xs text-gray-600 flex items-start gap-2">
                   <Clock size={15} className="text-primary flex-shrink-0 mt-0.5" />
-                  <span>Recogida en tienda con ventana de 1 hora desde la confirmación.</span>
+                  <span>
+                    {pickupSlot
+                      ? `Recogida: ${getPickupWindow(pickupSlot).label}`
+                      : 'Elige la hora de recogida (rangos de 1 hora).'}
+                  </span>
                 </div>
               </div>
 

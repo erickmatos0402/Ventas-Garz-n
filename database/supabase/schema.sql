@@ -100,7 +100,8 @@ create table if not exists public.orders (
   phone text,
   delivery_mode text not null default 'pickup' check (delivery_mode in ('pickup', 'delivery')),
   payment_mode text not null default 'cash' check (payment_mode in ('cash', 'transfer')),
-  -- Ventana de recogida: listo a esta hora y durante la hora siguiente.
+  -- Ventana de recogida: rango de 1 hora elegido por el cliente
+  -- (por defecto, una hora desde la confirmación).
   pickup_ready_at timestamptz not null default (now() + interval '1 hour'),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -327,14 +328,21 @@ create policy "product_reviews_delete_own_or_admin" on public.product_reviews
 -- Recibe solo id + cantidad; los precios, el recargo por transferencia
 -- (30%), el total y la ventana de recogida se calculan aquí, nunca en el
 -- cliente. Sin impuestos ni envío: el flujo es solo recogida en tienda.
--- Bloquea las filas de producto para evitar sobreventa.
+-- El cliente elige el rango de 1 hora (p_pickup_ready_at) y aquí se valida
+-- contra el horario de la tienda. Bloquea las filas de producto para
+-- evitar sobreventa.
 -- ----------------------------------------------------------------------------
+-- Firma antigua (sin p_pickup_ready_at): se retira para que solo exista
+-- la nueva y PostgREST no encuentre dos variantes ambiguas.
+drop function if exists public.create_order(jsonb, text, text, text, text);
+
 create or replace function public.create_order(
   p_items jsonb,
   p_shipping_address text,
   p_phone text,
   p_delivery_mode text default 'pickup',
-  p_payment_mode text default 'cash'
+  p_payment_mode text default 'cash',
+  p_pickup_ready_at timestamptz default null
 )
 returns public.orders
 language plpgsql
@@ -350,6 +358,7 @@ declare
   v_subtotal integer := 0;
   v_transfer_fee integer := 0;
   v_total integer;
+  v_pickup_local timestamp;
 begin
   if v_user_id is null then
     raise exception 'Inicia sesión para confirmar tu pedido' using errcode = '28000';
@@ -371,8 +380,36 @@ begin
     raise exception 'Escribe un teléfono para coordinar la recogida' using errcode = '22023';
   end if;
 
+  -- Rango de recogida elegido por el cliente: en punto, dentro del horario
+  -- de la tienda (Lun a Sáb, 8:00 a 18:00, hora de Santiago de Cuba) y con
+  -- al menos 30 minutos de antelación. Sin elección, se prepara en 1 hora.
+  if p_pickup_ready_at is null then
+    p_pickup_ready_at := now() + interval '1 hour';
+  else
+    if p_pickup_ready_at < now() + interval '30 minutes' then
+      raise exception 'La hora de recogida debe ser al menos 30 minutos después'
+        using errcode = '22023';
+    end if;
+
+    v_pickup_local := p_pickup_ready_at at time zone 'America/Havana';
+
+    if extract(minute from v_pickup_local) <> 0 then
+      raise exception 'Los rangos de recogida duran 1 hora y empiezan en punto'
+        using errcode = '22023';
+    end if;
+
+    if extract(dow from v_pickup_local) = 0 then
+      raise exception 'Los domingos la tienda está cerrada' using errcode = '22023';
+    end if;
+
+    if extract(hour from v_pickup_local) < 8 or extract(hour from v_pickup_local) >= 18 then
+      raise exception 'Elige una hora dentro del horario: lunes a sábado, 8:00 am a 6:00 pm'
+        using errcode = '22023';
+    end if;
+  end if;
+
   -- Pedido vacío primero: el total se actualiza al final. La ventana de
-  -- recogida queda fijada en una hora desde la confirmación.
+  -- recogida es la hora elegida por el cliente.
   insert into public.orders (
     user_id, subtotal, tax, transfer_fee, delivery_fee, total,
     shipping_address, phone, delivery_mode, payment_mode, pickup_ready_at
@@ -380,7 +417,7 @@ begin
   values (
     v_user_id, 0, 0, 0, 0, 0,
     null, nullif(trim(p_phone), ''),
-    'pickup', p_payment_mode, now() + interval '1 hour'
+    'pickup', p_payment_mode, p_pickup_ready_at
   )
   returning * into v_order;
 
@@ -441,8 +478,8 @@ begin
 end;
 $$;
 
-revoke all on function public.create_order(jsonb, text, text, text, text) from public, anon;
-grant execute on function public.create_order(jsonb, text, text, text, text) to authenticated;
+revoke all on function public.create_order(jsonb, text, text, text, text, timestamptz) from public, anon;
+grant execute on function public.create_order(jsonb, text, text, text, text, timestamptz) to authenticated;
 
 -- ----------------------------------------------------------------------------
 -- Permisos (Supabase ya los concede por defecto; explícitos para claridad)

@@ -5,6 +5,8 @@ export interface CreateOrderInput {
   items: { productId: string; quantity: number }[];
   phone: string;
   paymentMode: PaymentMode;
+  /** Inicio (ISO 8601) del rango de 1 hora elegido para la recogida. */
+  pickupReadyAt: string;
 }
 
 export const orderService = {
@@ -12,7 +14,8 @@ export const orderService = {
    * Crea el pedido en Supabase. La función `create_order` recalcula precios,
    * el recargo por transferencia (30%), el total y la ventana de recogida,
    * valida el stock y lo descuenta en una sola transacción: el cliente nunca
-   * envía importes. El flujo actual es siempre recogida en tienda.
+   * envía importes. El rango de 1 hora lo elige el cliente y lo confirma la
+   * base de datos (horario de la tienda). El flujo actual es solo recogida.
    */
   create: async (input: CreateOrderInput): Promise<OrderRow> => {
     // Si la base aún no tiene la migración nueva, `create_order` cobraría el
@@ -37,6 +40,7 @@ export const orderService = {
       p_phone: input.phone.trim(),
       p_delivery_mode: 'pickup',
       p_payment_mode: input.paymentMode,
+      p_pickup_ready_at: input.pickupReadyAt,
     });
 
     if (error) {

@@ -13,6 +13,21 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseKey);
 
 /**
+ * URL absoluta de la app para los enlaces que manda Supabase por correo
+ * (confirmación de cuenta, recuperación de contraseña).
+ *
+ * Se calcula desde el origen real del navegador: en producción devuelve el
+ * dominio desplegado y en desarrollo el localhost, nunca al revés. Así el
+ * enlace de verificación no acaba en `http://localhost:3000` cuando la app
+ * está publicada.
+ */
+export function getAppUrl(path = '/'): string {
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const suffix = path.startsWith('/') ? path : `/${path}`;
+  return `${origin.replace(/\/+$/, '')}${suffix}`;
+}
+
+/**
  * Cliente único de Supabase para todo el frontend.
  * Si faltan las variables se crea con valores inválidos a propósito: las
  * peticiones fallan y las pantallas muestran el error, en vez de romper.

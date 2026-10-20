@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { User } from '../types';
-import { supabase } from '../utils/supabase';
+import { getAppUrl, supabase } from '../utils/supabase';
 import type { ProfileRow } from '../types/database';
 
 interface AuthStore {
@@ -26,6 +26,9 @@ const AUTH_ERRORS: Record<string, string> = {
     'Supabase limitó el envío de correos. Sube el límite en Authentication → Rate Limits o desactiva la confirmación por correo.',
   'Unable to validate email address: invalid format': 'Escribe un correo válido',
 };
+
+/** Solo se admiten cuentas @gmail.com cuando se crea una cuenta nueva. */
+const GMAIL_PATTERN = /^[^\s@]+@gmail\.com$/i;
 
 function authError(message: string): Error {
   return new Error(AUTH_ERRORS[message] ?? message);
@@ -111,10 +114,21 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     const cleanName = name.trim();
     if (cleanName.length < 2) throw new Error('Escribe tu nombre');
 
+    const cleanEmail = email.trim();
+    if (!GMAIL_PATTERN.test(cleanEmail)) {
+      throw new Error('El correo debe ser @gmail.com');
+    }
+
     const { data, error } = await supabase.auth.signUp({
-      email: email.trim(),
+      email: cleanEmail,
       password,
-      options: { data: { name: cleanName } },
+      options: {
+        data: { name: cleanName },
+        // Enlace de confirmación hacia el dominio donde está abierta la app
+        // (producción real, no localhost). Supabase lo validará contra
+        // Authentication → URL Configuration → Redirect URLs.
+        emailRedirectTo: getAppUrl('/'),
+      },
     });
 
     if (error) throw authError(error.message);

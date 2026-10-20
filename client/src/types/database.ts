@@ -60,7 +60,7 @@ export type OrderRow = {
   phone: string | null;
   delivery_mode: DeliveryMode;
   payment_mode: PaymentMode;
-  /** Inicio de la ventana de recogida (1 hora desde la confirmación). */
+  /** Inicio del rango de 1 hora elegido por el cliente para recoger. */
   pickup_ready_at: string;
   created_at: string;
   updated_at: string;
@@ -94,6 +94,8 @@ export type CreateOrderArgs = {
   p_phone: string | null;
   p_delivery_mode: DeliveryMode;
   p_payment_mode: PaymentMode;
+  /** Inicio del rango de 1 hora elegido para la recogida (ISO 8601). */
+  p_pickup_ready_at: string | null;
 };
 
 export interface Database {
