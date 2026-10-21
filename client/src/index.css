@@ -1321,6 +1321,29 @@ body {
   display: none;
 }
 
+/* Tambor de horas: barra de scroll fina y VISIBLE, para que se vea de un
+   vistazo que la lista de horas sigue por debajo. La regla global de
+   escritorio (10px) y la de móvil (0px) no se aplican aquí: el tambor
+   mantiene siempre su propio medidor. */
+.time-drum {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-primary) transparent;
+}
+
+.time-drum::-webkit-scrollbar {
+  width: 6px;
+}
+
+.time-drum::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.time-drum::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--c-primary), var(--c-primary-deep));
+  border-radius: 9999px;
+}
+
 /* Reserva el espacio del notch / barra gestual (requiere viewport-fit=cover) */
 .safe-t { padding-top: env(safe-area-inset-top); }
 .safe-b { padding-bottom: env(safe-area-inset-bottom); }

@@ -67,16 +67,20 @@ listo en 1 hora y tienes una ventana de 1 hora para recogerlo.
 No hay límite de cuentas: pueden registrarse todos los clientes que necesites.
 
 ### Iniciar Sesión
-1. Haz clic en **"Ingresar"**
-2. Ingresa email y contraseña
-3. Haz clic en **"Iniciar Sesión"**
+1. Abre **"Mi cuenta"** desde el menú de la barra superior
+2. Elige la pestaña **"Iniciar sesión"** o **"Registrarse"**
+3. Ingresa email y contraseña y pulsa **"Iniciar sesión"**
 
-### Perfil de Usuario
-1. Haz clic en el ícono 👤 (esquina superior derecha)
-2. Opciones:
-   - **Mi Perfil**: Ver y editar información
-   - **Mis Pedidos**: Historial de compras
-   - **Cerrar Sesión**: Salir de tu cuenta
+También puedes entrar con tu cuenta de Google (**"Continuar con Google"**).
+En iPhone, iPad y Mac aparece además **"Continuar con Apple (iCloud)"**.
+Ambos proveedores los habilita el administrador del proyecto (Supabase →
+Authentication → Providers); si no están activos, la app avisa con un error.
+
+### Tu cuenta en el menú
+1. Abre el menú ☰ de la barra superior
+2. Con sesión iniciada aparece tu **nombre** (y la etiqueta **Admin** si eres
+   administrador). Al pulsarlo se abre **"Mi cuenta"**, donde está el botón
+   **"Cerrar sesión"**.
 
 ## 💳 Proceso de Pago
 
@@ -97,9 +101,10 @@ No hay límite de cuentas: pueden registrarse todos los clientes que necesites.
 ## 📦 Mis Pedidos
 
 ### Ver Pedidos
-1. Accede a **"Mis Pedidos"** desde tu perfil
-2. Muestra todos tus pedidos ordenados por fecha
-3. Haz clic en un pedido para ver detalles
+1. Entra en **"Mi cuenta"** (pulsa tu nombre en el menú ☰)
+2. El administrador de la tienda ve todos los pedidos de **Mercado** o de
+   **Boutique** en la pestaña **"Pedidos"**; desde ahí se marcan como
+   **entregados** o se cancelan
 
 ### Detalles de Pedido
 - Número de orden
@@ -147,6 +152,12 @@ La aplicación es completamente responsiva:
 - Funciona perfecto en smartphone
 - Interfaz optimizada para touch
 - Velocidad optimizada
+
+### Instalar como app (PWA)
+- **Android/Chrome**: menú ⋮ → **"Instalar app"** (o "Añadir a pantalla de inicio")
+- **iPhone/Safari**: botón Compartir → **"Añadir a pantalla de inicio"**
+- Se instala con el logo de la tienda y abre a pantalla completa, con los
+  atajos de Mercado y Boutique en la barra superior
 
 ## 💬 Contacto y Soporte
 

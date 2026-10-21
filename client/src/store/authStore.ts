@@ -99,10 +99,19 @@ async function registerOnServer(
   }
 
   // En `vite dev` o en un hosting sin funciones, la ruta devuelve el HTML de
-  // la app (o 404): en ese caso se usa el registro normal de Supabase.
+  // la app (o 404): en ese caso se usa el registro normal de Supabase. Lo
+  // mismo cuando el servidor está mal configurado (501/502/503): más vale
+  // registrar con confirmación por correo que dejar al usuario sin cuenta.
   const contentType = response.headers.get('content-type') ?? '';
   const isJson = contentType.includes('application/json');
-  if (response.status === 404 || response.status === 405 || response.status === 501 || !isJson) {
+  if (
+    response.status === 404 ||
+    response.status === 405 ||
+    response.status === 501 ||
+    response.status === 502 ||
+    response.status === 503 ||
+    !isJson
+  ) {
     return null;
   }
 

@@ -12,7 +12,6 @@ import {
   HelpCircle,
   ShieldCheck,
   LogIn,
-  LogOut,
   UserCircle,
 } from 'lucide-react';
 import { useThemeStore } from '../store/themeStore';
@@ -65,7 +64,6 @@ export const Header: React.FC = () => {
   const toggleMode = useAppearanceStore((s) => s.toggleMode);
   const isDark = mode === 'dark';
   const user = useAuthStore((s) => s.user);
-  const logout = useAuthStore((s) => s.logout);
   const { items } = useCartStore(theme)();
   const totalItems = items.reduce((sum: number, item: any) => sum + item.quantity, 0);
   const location = useLocation();
@@ -174,24 +172,27 @@ export const Header: React.FC = () => {
                         );
                       })}
 
-                      {/* Cuenta: registrarse o iniciar sesión; con sesión
-                          abierta la fila se convierte en "cerrar sesión". */}
+                      {/* Cuenta: sin sesión se ofrece entrar; con sesión
+                          abierta solo se muestra QUIÉN está dentro (el cierre
+                          de sesión vive en /login, no en este menú). */}
                       <motion.li variants={menuItemVariants}>
                         {user ? (
-                          <button
-                            type="button"
-                            onClick={logout}
-                            className="menu-theme-item w-full"
+                          <Link
+                            to="/login"
+                            onClick={() => setIsMenuOpen(false)}
+                            className="menu-theme-item"
                           >
                             <span className="flex items-center gap-2.5 min-w-0">
                               <UserCircle size={16} aria-hidden />
                               <span className="truncate">{user.name.split(' ')[0]}</span>
+                              {user.role === 'admin' && (
+                                <span className="flex-shrink-0 text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5 bg-white/20 text-white">
+                                  Admin
+                                </span>
+                              )}
                             </span>
-                            <span className="flex items-center gap-1.5">
-                              <span className="sr-only">Cerrar sesión</span>
-                              <LogOut size={16} aria-hidden />
-                            </span>
-                          </button>
+                            <ChevronRight size={16} aria-hidden />
+                          </Link>
                         ) : (
                           <Link
                             to="/login"

@@ -224,7 +224,6 @@ export const CheckoutPage: React.FC = () => {
                 <span className="font-bold text-primary-deep">{pickup.startTime}</span> a{' '}
                 <span className="font-bold text-primary-deep">{pickup.endTime}</span>.
               </p>
-              <p className="text-xs text-gray-400 mt-1">Hora de la tienda en Santiago de Cuba.</p>
             </div>
 
             <p className="text-gray-500 text-sm mb-5">
@@ -272,9 +271,7 @@ export const CheckoutPage: React.FC = () => {
     <div className="min-h-dvh pt-10 sm:pt-20 pb-24 sm:pb-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <SlideUp>
-          <p className="heading-eyebrow">Último paso</p>
           <h1 className="heading-page text-3xl sm:text-4xl md:text-5xl mb-2">Finalizar Compra</h1>
-          <p className="text-gray-500 mb-8">Completa tus datos para coordinar tu pedido</p>
         </SlideUp>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -298,11 +295,6 @@ export const CheckoutPage: React.FC = () => {
                     </span>
                   </span>
                 </div>
-                <p className="mt-3 liquid-badge rounded-2xl p-4 flex items-start gap-3 text-sm text-gray-600">
-                  <Clock size={18} className="text-primary flex-shrink-0 mt-0.5" />
-                  Elige abajo el rango de <strong className="font-bold">1 hora</strong> en el que vienes a
-                  recogerlo: preparamos tu pedido y la hora queda en el mensaje de WhatsApp.
-                </p>
               </div>
 
               {/* Hora de recogida: rueda tipo alarma del Reloj */}
@@ -312,7 +304,7 @@ export const CheckoutPage: React.FC = () => {
                   Hora de recogida
                 </h2>
                 <p className="text-xs text-gray-400 mb-3">
-                  Elige el día y desliza la hora, como cuando pones una alarma. Cada rango dura 1 hora.
+                  Elige el día y desliza la hora. Cada rango dura 1 hora.
                 </p>
 
                 <ClockTimePicker days={days} value={pickupSlot} onChange={setPickupSlot} />
@@ -389,8 +381,7 @@ export const CheckoutPage: React.FC = () => {
                   >
                     <div className="mt-3 liquid-badge rounded-2xl p-4 flex items-start gap-3 text-sm text-gray-600">
                       <Landmark size={18} className="text-primary flex-shrink-0 mt-0.5" />
-                      El total incluye un recargo del <strong className="font-bold">30%</strong> por
-                      transferencia. Te enviamos los datos de la cuenta para completar el pago.
+                      Te enviamos los datos de la cuenta para completar el pago.
                     </div>
                   </motion.div>
                 )}
@@ -455,7 +446,6 @@ export const CheckoutPage: React.FC = () => {
                     <span>{formatPrice(transferFee)}</span>
                   </div>
                 )}
-                <p className="text-xs text-gray-400">No se cobran impuestos.</p>
                 <div className="flex justify-between text-lg font-bold text-dark pt-2 border-t border-white/70">
                   <span>Total:</span>
                   <span className="text-primary-deep">{formatPrice(total)}</span>
@@ -470,8 +460,6 @@ export const CheckoutPage: React.FC = () => {
                   </span>
                 </div>
               </div>
-
-              <p className="mt-4 text-xs text-gray-400 text-center">Tu pedido quedará registrado en tu cuenta</p>
             </div>
           </div>
         </div>

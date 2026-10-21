@@ -1,9 +1,11 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import type { PickupSlotDay } from '../utils';
 
 /** Alto de cada fila del tambor: debe coincidir con la ventana central. */
-const ITEM_HEIGHT = 48;
+const ITEM_HEIGHT = 56;
+
+/** Filas visibles a la vez: la del medio es la hora elegida. */
+const VISIBLE_ROWS = 3;
 
 /** Hora del reloj de la tienda en formato corto (`8:00 AM`). */
 function pickTimeLabel(date: Date): { hour: number; minute: string; period: string; text: string } {
@@ -22,10 +24,9 @@ function pickTimeLabel(date: Date): { hour: number; minute: string; period: stri
 }
 
 /**
- * Reloj de alarma de iOS: un tambor que gira en la rueda del medio en vez
- * de mostrar la lista completa de horarios. Solo se ven las horas cercanas
- * a la seleccionada, con el día elegido arriba y una esfera de reloj que
- * resume el rango de 1 hora.
+ * Tambor de horas: una rueda de tres filas que gira como la del despertador
+ * del teléfono. El día elegido se muestra arriba, la fila del centro es la
+ * hora de recogida y cada rango dura 1 hora.
  */
 export const ClockTimePicker: React.FC<{
   /** Días con sus rangos de 1 hora (ya calculados en `utils`). */
@@ -125,37 +126,35 @@ export const ClockTimePicker: React.FC<{
       </div>
 
       <div className="rounded-3xl p-4 sm:p-5 liquid-badge">
-        <div className="flex items-center gap-4">
-          {/* Esfera tipo reloj: manecilla en la hora de inicio y arco del rango. */}
-          <AlarmDial hour={start.hour} />
-
-          <div className="min-w-0">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-gray-400">Recoges entre</p>
-            <p className="font-display text-2xl sm:text-3xl font-extrabold text-dark leading-tight">
-              {start.hour}:{start.minute}
-              <span className="text-sm font-bold text-gray-400 ml-1">{start.period}</span>
-            </p>
-            <p className="text-sm text-gray-500">
-              hasta las <span className="font-semibold text-primary-deep">{end.text}</span>
-            </p>
-          </div>
+        {/* Resumen del rango elegido: desde qué hora y hasta qué hora. */}
+        <div className="text-center px-2">
+          <p className="text-[11px] uppercase tracking-[0.22em] text-gray-400">Recoges entre</p>
+          <p className="font-display text-3xl sm:text-4xl font-extrabold text-dark leading-tight">
+            {start.hour}:{start.minute}
+            <span className="text-sm font-bold text-gray-400 ml-1">{start.period}</span>
+          </p>
+          <p className="text-sm text-gray-500">
+            hasta las <span className="font-semibold text-primary-deep">{end.text}</span>
+          </p>
         </div>
 
-        {/* Tambor: ventana de 3 filas que gira como la rueda de la alarma. */}
-        <div className="relative mt-4">
+        {/* Tambor: rueda de tres filas que gira al deslizar. */}
+        <div className="relative mt-4 rounded-2xl border border-white/70 bg-white/40 overflow-hidden">
+          {/* Velo superior e inferior: las filas se desvanecen en los bordes. */}
           <div
-            className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 z-10 rounded-2xl border border-white/80 bg-white/55 shadow-glass"
+            className="pointer-events-none absolute inset-x-0 top-0 z-20 h-14"
+            style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.92), rgba(255,255,255,0))' }}
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-14"
+            style={{ background: 'linear-gradient(to top, rgba(255,255,255,0.92), rgba(255,255,255,0))' }}
+            aria-hidden
+          />
+          {/* Guía de la fila central: ahí queda la hora elegida. */}
+          <div
+            className="pointer-events-none absolute inset-x-2 top-1/2 -translate-y-1/2 z-10 rounded-2xl border border-white/80 bg-white/45"
             style={{ height: ITEM_HEIGHT }}
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute inset-x-0 top-0 z-20"
-            style={{ height: ITEM_HEIGHT, background: 'linear-gradient(to bottom, rgba(250,252,252,0.95), rgba(250,252,252,0))' }}
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-20"
-            style={{ height: ITEM_HEIGHT, background: 'linear-gradient(to top, rgba(250,252,252,0.95), rgba(250,252,252,0))' }}
             aria-hidden
           />
 
@@ -164,8 +163,12 @@ export const ClockTimePicker: React.FC<{
             onScroll={handleScroll}
             role="listbox"
             aria-label="Hora de recogida"
-            className="relative z-0 h-[144px] overflow-y-auto no-scrollbar snap-y snap-mandatory"
-            style={{ scrollPaddingTop: ITEM_HEIGHT }}
+            className="time-drum relative z-0 overflow-y-auto snap-y snap-proximity"
+            style={{
+              height: ITEM_HEIGHT * VISIBLE_ROWS,
+              scrollPaddingTop: ITEM_HEIGHT,
+              scrollPaddingBottom: ITEM_HEIGHT,
+            }}
           >
             <div style={{ height: ITEM_HEIGHT }} aria-hidden />
             {slots.map((slot, index) => {
@@ -182,14 +185,20 @@ export const ClockTimePicker: React.FC<{
                     onChange(slot.toISOString());
                     scrollToIndex(index, true);
                   }}
-                  className={`w-full snap-center flex items-center justify-center font-display text-xl font-bold transition ${
-                    isSelected ? 'text-primary-deep scale-105' : 'text-gray-400'
-                  }`}
+                  className="w-full snap-center flex items-center justify-center border-b border-white/60 focus:outline-none"
                   style={{ height: ITEM_HEIGHT }}
                 >
-                  {slotStart.hour}:{slotStart.minute} {slotStart.period}
-                  <span className="text-xs font-semibold text-gray-400 ml-2">
-                    – {slotEnd.hour}:{slotEnd.minute} {slotEnd.period}
+                  <span
+                    className={`flex items-baseline gap-2 rounded-full px-4 py-1.5 transition-all duration-200 ${
+                      isSelected
+                        ? 'bg-primary/15 ring-2 ring-primary text-primary-deep font-display text-2xl scale-[1.04]'
+                        : 'text-gray-400 text-lg font-semibold'
+                    }`}
+                  >
+                    {slotStart.hour}:{slotStart.minute} {slotStart.period}
+                    <span className="text-xs font-semibold opacity-80">
+                      – {slotEnd.hour}:{slotEnd.minute} {slotEnd.period}
+                    </span>
                   </span>
                 </button>
               );
@@ -199,63 +208,9 @@ export const ClockTimePicker: React.FC<{
         </div>
 
         <p className="text-[11px] text-gray-400 text-center mt-2">
-          Desliza el reloj para elegir la hora · horario de la tienda, lun a sáb
+          Desliza para elegir la hora · horario de la tienda, lun a sáb
         </p>
       </div>
     </div>
-  );
-};
-
-/**
- * Esfera del reloj con la manecilla en la hora elegida y un arco que marca
- * la ventana de 1 hora, como la carátula del despertador.
- */
-const AlarmDial: React.FC<{ hour: number }> = ({ hour }) => {
-  const R = 30;
-  const center = 40;
-  const startDeg = ((hour % 12) + 0) * 30 - 90;
-  const endDeg = startDeg + 30;
-  const point = (deg: number) => {
-    const rad = (deg * Math.PI) / 180;
-    return [center + R * Math.cos(rad), center + R * Math.sin(rad)] as const;
-  };
-  const [x1, y1] = point(startDeg);
-  const [x2, y2] = point(endDeg);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white/85 border border-white shadow-inner flex-shrink-0"
-    >
-      <svg viewBox="0 0 80 80" className="absolute inset-0 w-full h-full" aria-hidden>
-        <circle cx="40" cy="40" r="36" fill="none" stroke="rgba(5,36,43,0.08)" strokeWidth="2" />
-        <path
-          d={`M ${x1} ${y1} A ${R} ${R} 0 0 1 ${x2} ${y2}`}
-          fill="none"
-          stroke="var(--c-primary)"
-          strokeWidth="7"
-          strokeLinecap="round"
-          opacity="0.35"
-        />
-        {[0, 3, 6, 9].map((tick) => {
-          const deg = tick * 30;
-          const [tx, ty] = point(deg);
-          return <circle key={tick} cx={tx} cy={ty} r="1.6" fill="rgba(5,36,43,0.35)" />;
-        })}
-        {/* Manecilla de la hora (el minutero queda en punto, :00). */}
-        <line
-          x1="40"
-          y1="40"
-          x2="40"
-          y2="19"
-          stroke="var(--c-primary-deep)"
-          strokeWidth="3.2"
-          strokeLinecap="round"
-          transform={`rotate(${hour * 30} 40 40)`}
-        />
-        <circle cx="40" cy="40" r="3" fill="var(--c-primary-deep)" />
-      </svg>
-    </motion.div>
   );
 };

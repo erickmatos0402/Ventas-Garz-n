@@ -320,7 +320,9 @@ export const AdminPage: React.FC = () => {
   const { products, addProduct, updateProduct, deleteProduct, loading, error } = useCatalogStore();
 
   const [tab, setTab] = useState<AdminTab>('productos');
-  const [adminStore, setAdminStore] = useState<StoreId>(siteTheme);
+  // El panel administra SIEMPRE la tienda activa (Mercado o Boutique): no hay
+  // conmutador dentro del panel, se cambia desde la barra superior.
+  const adminStore: StoreId = siteTheme;
   const [chartMode, setChartMode] = useState<ChartMode>('diario');
 
   const [modalMode, setModalMode] = useState<ModalMode>(null);
@@ -539,7 +541,7 @@ export const AdminPage: React.FC = () => {
   return (
     <div className="min-h-dvh pt-10 sm:pt-20 pb-24 sm:pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Cabecera con el conmutador de tienda */}
+        {/* Cabecera: el panel corresponde siempre a la tienda activa */}
         <div className="mb-6 glass-panel rounded-3xl p-5 sm:p-8">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div className="min-w-0">
@@ -551,7 +553,8 @@ export const AdminPage: React.FC = () => {
                 {adminStore === 'market'
                   ? 'Catálogo, pedidos y ventas del mercado: aseo y alimentos.'
                   : 'Catálogo, pedidos y ventas de la boutique: prendas y accesorios.'}{' '}
-                Cada tienda se gestiona por separado.
+                El panel sigue la tienda activa: para pasar de Mercado a Boutique,
+                usa el conmutador de la barra superior.
               </p>
             </div>
             {tab === 'productos' && (
@@ -562,19 +565,9 @@ export const AdminPage: React.FC = () => {
             )}
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-3">
-            <LiquidTabs
-              items={[
-                { id: 'market', label: 'Mercado', icon: <ShoppingCart size={15} /> },
-                { id: 'boutique', label: 'Boutique', icon: <Sparkles size={15} /> },
-              ]}
-              activeId={adminStore}
-              onChange={(id) => setAdminStore(id as StoreId)}
-            />
-            <span className="text-xs text-gray-400 self-center">
-              {storeProducts.length} {adminStore === 'market' ? 'productos' : 'artículos'} en {meta.name}
-            </span>
-          </div>
+          <p className="mt-5 text-xs text-gray-400">
+            {storeProducts.length} {adminStore === 'market' ? 'productos' : 'artículos'} en {meta.name}
+          </p>
         </div>
 
         {/* Secciones del panel */}

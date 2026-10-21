@@ -80,6 +80,28 @@ Puedes copiar `client/.env.example`. Reinicia `npm run dev` después de
 cambiar variables: Vite solo las lee al arrancar. En Vercel/hosting,
 configúralas también en el panel del proyecto.
 
+### Variables del servidor (Vercel)
+
+El endpoint `client/api/register.js` crea la cuenta **ya confirmada** (sin
+correo de verificación) usando la clave de servicio, que nunca llega al
+navegador. En **Vercel → Project → Settings → Environment Variables** añade
+(para Production y Preview) y vuelve a desplegar:
+
+```env
+SUPABASE_URL=https://tu-proyecto.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=sb_secret_...   # Project Settings → API Keys
+```
+
+Si falta alguna, el endpoint responde 501 y la app cae en el registro normal
+de Supabase (que pide confirmar el correo).
+
+Si Supabase responde **401 «Invalid API key»**, el valor pegado no encaja con
+el proyecto: revisa que la clave sea la de servicio (**empieza por
+`sb_secret_`**, no la publicable `sb_publishable_…`), del **mismo proyecto**
+que `SUPABASE_URL`, y sin comillas ni espacios alrededor. El endpoint ya
+limpia comillas y espacios; si sigue fallando, la app sigue registrando por
+la vía normal de Supabase.
+
 ### Registro sin correo de confirmación (función `/api/register`)
 
 El registro normal de Supabase envía un correo mientras «Confirm email»
@@ -129,20 +151,11 @@ where email = 'tu@correo.com';
 
 ## 4.1 Acceso con Google y Apple (iCloud)
 
-La pantalla de acceso ofrece **Continuar con Google** y, en dispositivos de
-Apple, **Continuar con Apple (iCloud)**. Son proveedores OAuth de Supabase:
-
-1. **Authentication → Providers → Google**: activa el proveedor y pega el
-   *Client ID* y *Client Secret* de Google Cloud Console. En Google Cloud,
-   el *Authorized redirect URI* es
-   `https://<ref>.supabase.co/auth/v1/callback`.
-2. **Authentication → Providers → Apple**: activa el proveedor con tu
-   *Services ID*, *Team ID*, *Key ID* y la clave `.p8` de Apple Developer.
-3. En **Authentication → URL Configuration** añade el dominio de la app en
-   **Site URL** y **Redirect URLs** (`https://tu-dominio/**`).
-
-Sin esos pasos, los botones muestran el error del proveedor; el registro con
-correo y contraseña sigue funcionando igual.
+Los botones **Continuar con Google** y **Continuar con Apple (iCloud)** ya
+están en la pantalla de acceso (Apple solo se muestra en iPhone, iPad y Mac).
+Para activarlos sigue los pasos **6.1 Google** y **6.2 Apple** de más abajo;
+hasta entonces los botones devuelven el error del proveedor y el registro
+con correo y contraseña sigue funcionando igual.
 
 ## 4.2 Instalar la web como app (icono del logo)
 
@@ -183,6 +196,70 @@ la URL de producción y no `localhost`. Para que Supabase lo acepte:
    para poder seguir probando el registro en local.
 
 Tras verificar, la app recibe el token en la URL y queda logueada.
+
+## 6. Iniciar sesión con Google y con Apple (iCloud)
+
+La pantalla de acceso ya tiene los dos botones. **"Continuar con Google"**
+aparece siempre; **"Continuar con Apple (iCloud)"** solo en iPhone, iPad y Mac
+(la app lo detecta por el navegador). Para que funcionen hay que activar los
+proveedores en Supabase: con ellos apagados, el botón devuelve un error.
+
+### 6.1 Google
+
+1. Entra en [Google Cloud Console](https://console.cloud.google.com/) y crea
+   un proyecto (o usa el que ya tienes).
+2. En **APIs & Services → Credentials → Create credentials → OAuth client ID**
+   elige **Web application**.
+   - **Authorized JavaScript origins**: `https://tu-dominio` (por ejemplo
+     `https://tu-app.vercel.app`) y `http://localhost:5173` para pruebas locales.
+   - **Authorized redirect URIs**:
+     `https://TU_REF.supabase.co/auth/v1/callback` (sustituye `TU_REF` por el
+     identificador de tu proyecto, aparece en la URL del panel de Supabase).
+3. Copia el **Client ID** y el **Client Secret**.
+4. En Supabase: **Authentication → Providers → Google**, activa el interruptor
+   y pega el Client ID y el Client Secret. **Save**.
+5. Comprueba que en **Authentication → URL Configuration** está tu URL de
+   producción en *Site URL* y que tu dominio está en *Redirect URLs*
+   (`https://tu-dominio/**` y `http://localhost:5173/**`).
+
+### 6.2 Apple (iCloud)
+
+Requiere una cuenta de **Apple Developer Program** (de pago):
+
+1. En [developer.apple.com](https://developer.apple.com/) → **Certificates,
+   Identifiers & Profiles → Identifiers → Services IDs → +** → activa la
+   casilla **Sign in with Apple** y registra un identificador, por ejemplo
+   `com.ventasgarzon.app`. Anota el **Team ID** y el **Service ID**.
+2. En **Keys → +** → **Sign in with Apple** → descarga el archivo `.p8` y anota
+   el **Key ID**.
+3. En Supabase: **Authentication → Providers → Apple**, activa el interruptor y
+   rellena:
+   - **Client ID**: el Service ID (`com.ventasgarzon.app`).
+   - **Client Secret**: pulsa **"Generate secret"** en ese mismo panel
+     (Supabase lo crea con tu Team ID, Key ID y la clave `.p8`).
+4. Guarda. Las mismas *Redirect URLs* que en Google.
+
+### 6.3 Comprobarlo
+
+Abre `/login` en la app: el botón del proveedor elegido debe devolverte a la
+tienda con la sesión iniciada. Si Supabase responde con un error de
+proveedor, revisa que el dominio de la app esté en *Redirect URLs* y que las
+credenciales del proveedor estén guardadas (se pueden volver a guardar sin
+cambiar nada: **Save**).
+
+## 7. Instalar la app en el teléfono (PWA)
+
+La web ya es instalable: `client/public/manifest.webmanifest` (con el logo en
+192, 512 y maskable), `client/public/sw.js` (service worker) y los enlaces en
+`client/index.html`.
+
+- **Android / Chrome**: menú ⋮ → **"Instalar app"**.
+- **iPhone / Safari**: botón Compartir → **"Añadir a pantalla de inicio"**.
+
+En Vercel no hay que hacer nada más: `sw.js` y `manifest.webmanifest` se
+sirven como archivos estáticos (el `rewrite` a `index.html` solo afecta a las
+rutas de la app). Comprueba que en el despliegue `/sw.js` y
+`/manifest.webmanifest` devuelven 200 y no el HTML de la app.
 
 ## Notas
 

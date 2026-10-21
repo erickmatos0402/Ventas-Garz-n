@@ -39,8 +39,10 @@ export default async function handler(req, res) {
     return;
   }
 
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // Un valor pegado con comillas o espacios da «Invalid API key» en Supabase.
+  const clean = (value) => (value || '').trim().replace(/^["']|["']$/g, '');
+  const supabaseUrl = clean(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL);
+  const serviceKey = clean(process.env.SUPABASE_SERVICE_ROLE_KEY);
   if (!supabaseUrl || !serviceKey) {
     res.status(501).json({ error: 'Falta configurar SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY' });
     return;
@@ -102,6 +104,17 @@ export default async function handler(req, res) {
       const message = String(data.msg || data.error_description || data.message || '');
       if (/already|registered|exists/i.test(message)) {
         res.status(409).json({ error: 'Ese correo ya está registrado. Inicia sesión.' });
+        return;
+      }
+      // La clave no encaja con el proyecto: suele ser la clave publicable en
+      // lugar de la de servicio, o de otro proyecto, o con comillas pegadas.
+      if (response.status === 401 || response.status === 403) {
+        res.status(503).json({
+          error:
+            'Configuración del servidor incompleta: la variable SUPABASE_SERVICE_ROLE_KEY ' +
+            'no corresponde al proyecto de SUPABASE_URL. Revisa las variables en Vercel ' +
+            '(debe ser la clave de servicio, empieza por sb_secret_) y vuelve a desplegar.',
+        });
         return;
       }
       res.status(response.status).json({ error: message || 'No se pudo crear la cuenta' });
