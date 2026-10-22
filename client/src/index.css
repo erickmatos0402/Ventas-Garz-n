@@ -224,17 +224,14 @@ html[data-theme='boutique'] {
   --c-hero-bg-position: center, center, center 22%;
   --c-hero-bg-attachment: fixed, fixed, fixed;
   --c-hero-bg-repeat: no-repeat, no-repeat, no-repeat;
-  /* Footer: la foto del hero (600×738, casi vertical) quedaba
-     sobredimensionada y con un recorte muy cerrado en una franja ancha.
-     Se usa una foto horizontal de la misma tienda (bolso, 1024×610) con
-     velo cálido: el encuadre respira y conserva el tono marrón del hero. */
-  --c-footer-bg-image:
-    linear-gradient(180deg, rgba(35, 24, 17, 0.62) 0%, rgba(35, 24, 17, 0.82) 100%),
-    url('/img/boutique/real/bolso.webp');
-  --c-footer-bg-size: auto, cover;
-  --c-footer-bg-position: center, center 42%;
-  --c-footer-bg-attachment: scroll, scroll;
-  --c-footer-bg-repeat: no-repeat, no-repeat;
+  /* Footer: continúa la foto del hero (ver regla .footer-theme más abajo).
+     La foto es casi vertical (600×738) y a ancho completo se ampliaba más
+     de 2×; allí se pinta desenfocada para conservar el tono sin pixelar. */
+  --c-footer-bg-image: none;
+  --c-footer-bg-size: auto;
+  --c-footer-bg-position: center;
+  --c-footer-bg-attachment: scroll;
+  --c-footer-bg-repeat: no-repeat;
   /* Velos cálidos y ligeros: antes tapaban la foto por completo. Ahora
      son casi neutros (marrón-negro tenue) para que la foto muestre sus
      colores reales en lugar de salir teñida de marrón. */
@@ -891,6 +888,30 @@ h1, h2, h3, h4 {
 }
 
 .footer-theme h4 { color: #ffffff; }
+
+/* Boutique: el hero es una foto vertical. En la franja ancha del footer se
+   ampliaba de más y el recorte se veía duro, así que la misma foto sigue
+   como fondo desenfocado: el tono cálido del hero continúa sin pixelarse y
+   el texto mantiene contraste (velo marrón oscuro). */
+html[data-theme='boutique'] .footer-theme {
+  overflow: hidden;
+}
+
+html[data-theme='boutique'] .footer-theme::before {
+  content: '';
+  position: absolute;
+  /* Margen negativo: el desenfoque no deja bordes transparentes. */
+  inset: -40px;
+  z-index: -1;
+  background-image:
+    linear-gradient(180deg, rgba(56, 38, 26, 0.46) 0%, rgba(45, 31, 22, 0.64) 42%, rgba(35, 24, 17, 0.86) 100%),
+    var(--c-hero-photo);
+  background-size: auto, cover;
+  background-position: center, center 30%;
+  background-repeat: no-repeat;
+  filter: blur(18px) saturate(1.08);
+  pointer-events: none;
+}
 
 /* Franjas muy cortas (móvil): la barra recorta la foto a una banda tan
    fina que conviene elegir qué parte se ve, en ambos temas. */
