@@ -852,6 +852,27 @@ h1, h2, h3, h4 {
   border-radius: 0 0 50% 50% / 0 0 44px 44px;
 }
 
+/* ---------- FOOTER: mismo fondo que el hero de la tienda ---------- */
+/* El hero y el footer comparten la foto del tema (--c-hero-photo) y los
+   mismos velos, con un velo extra para que los enlaces pequeños se lean.
+   Así Mercado cierra en verde/foto y Boutique en cálido/foto, en vez de
+   caer en un degradado ajeno a la tienda. */
+.footer-theme {
+  position: relative;
+  isolation: isolate;
+  background-image:
+    linear-gradient(180deg, rgba(6, 9, 12, 0.58) 0%, rgba(6, 9, 12, 0.78) 100%),
+    var(--c-hero-bg-image);
+  background-size: auto, var(--c-hero-bg-size);
+  background-position: center, var(--c-hero-bg-position);
+  background-attachment: scroll, var(--c-hero-bg-attachment);
+  background-repeat: no-repeat, var(--c-hero-bg-repeat);
+  background-color: var(--c-grove-3);
+  color: var(--c-grove-text);
+}
+
+.footer-theme h4 { color: #ffffff; }
+
 /* Franjas muy cortas (móvil): la barra recorta la foto a una banda tan
    fina que conviene elegir qué parte se ve, en ambos temas. */
 @media (max-width: 767px) {

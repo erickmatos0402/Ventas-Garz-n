@@ -102,7 +102,9 @@ export const ClockTimePicker: React.FC<{
   const end = pickTimeLabel(new Date(selected.getTime() + 60 * 60 * 1000));
 
   return (
-    <div className="space-y-2">
+    // Más estrecho y centrado: el tambor no necesita todo el ancho del
+    // formulario y así el checkout se lee como una columna limpia.
+    <div className="space-y-2 mx-auto w-full max-w-md">
       {/* Días: se elige el día y el tambor solo muestra sus horas. */}
       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1" role="tablist" aria-label="Día de recogida">
         {days.map((day) => {

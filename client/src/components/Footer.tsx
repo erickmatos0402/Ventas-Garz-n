@@ -14,7 +14,7 @@ export const Footer: React.FC = () => {
   const meta = STORE_META_DATA[theme];
 
   return (
-    <footer className="grove-theme border-t border-white/10 safe-b safe-l safe-r">
+    <footer className="footer-theme border-t border-white/10 safe-b safe-l safe-r">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {/* Marca */}
