@@ -54,7 +54,7 @@ export const CartPage: React.FC = () => {
             <Store size={18} className="text-primary flex-shrink-0" />
             <p className="text-sm text-dark min-w-0 flex-1">
               Recogida en tienda <span className="text-gray-400">·</span>{' '}
-              <span className="font-bold text-primary-deep">ventana de 1 hora</span>{' '}
+              <span className="font-bold text-primary-deep">a la hora que elijas</span>{' '}
               <span className="text-gray-400">·</span> sin impuestos ni envío
             </p>
           </div>
@@ -171,7 +171,7 @@ export const CartPage: React.FC = () => {
 
                 <p className="mb-3 text-xs text-gray-500 text-center flex items-center justify-center gap-1.5">
                   <Clock size={13} className="text-primary" />
-                  Recoges en tienda dentro de 1 hora
+                  Recoges en tienda a la hora elegida
                 </p>
 
                 <button

@@ -11,7 +11,7 @@ const faqs = [
   {
     question: '¿Puedo recoger mi pedido en tienda?',
     answer:
-      'Sí. Todos los pedidos se recogen en tienda, sin costo de envío. En el checkout eliges el rango de 1 hora en el que vienes a recogerlo (lun a sáb, de 8:00 am a 6:00 pm).',
+      'Sí. Todos los pedidos se recogen en tienda, sin costo de envío. En el checkout eliges la hora en la que vienes a recogerlo (lun a sáb, de 8:00 am a 6:00 pm).',
   },
   {
     question: '¿Cómo puedo pagar?',
@@ -21,7 +21,7 @@ const faqs = [
   {
     question: '¿Hay entrega a domicilio?',
     answer:
-      'Por ahora el flujo es solo recogida en tienda en Santiago de Cuba. Así garantizamos que tu pedido esté listo en una hora.',
+      'Por ahora el flujo es solo recogida en tienda en Santiago de Cuba, sin costo de envío.',
   },
   {
     question: '¿Puedo comprar al por mayor?',
@@ -31,7 +31,7 @@ const faqs = [
   {
     question: '¿Cuándo puedo recoger mi pedido?',
     answer:
-      'Tú eliges: en el checkout hay rangos de 1 hora dentro del horario de la tienda. La hora elegida aparece en pantalla y se añade al mensaje de WhatsApp de la tienda.',
+      'Tú eliges: en el checkout eliges la hora dentro del horario de la tienda. La hora elegida aparece en pantalla y se añade al mensaje de WhatsApp de la tienda.',
   },
   {
     question: '¿Los productos agotados tienen fecha de reposición?',

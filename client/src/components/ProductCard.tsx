@@ -57,7 +57,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, 
       transition={{ type: 'spring', stiffness: 300, damping: 22 }}
       onPointerMove={trackBubblePointer}
       onPointerLeave={resetBubblePointer}
-      className="ios-glass bubble-hl rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col h-full"
+      className="ios-glass bubble-hl rounded-[1.4rem] sm:rounded-[2rem] overflow-hidden flex flex-col h-full"
     >
       {/* Imagen del producto: ventana ancha con relación fija, recorta con object-cover */}
       <div className="relative w-full aspect-[16/10] overflow-hidden bg-white/60">
@@ -72,7 +72,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, 
       {/* La tarjeta debe caber en dos columnas de móvil: tipografía y aire
           se reducen por debajo de `sm` para que quepan la foto, el precio,
           la cantidad y el botón sin apilarse en una sola columna. */}
-      <div className="p-3 sm:p-5 flex flex-col flex-1">
+      <div className="p-3 sm:p-4 flex flex-col flex-1">
         <h3 className="font-bold text-[13px] sm:text-lg text-dark mb-1 sm:mb-1.5 line-clamp-2 leading-tight">{product.name}</h3>
         <p className="text-gray-500 text-[11px] sm:text-sm mb-2 sm:mb-3 line-clamp-2 leading-snug">{product.description}</p>
 

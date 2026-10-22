@@ -257,7 +257,7 @@ html[data-theme='boutique'] {
 
 /* CRISTAL LIQUIDO VERDE (paneles) */
 .glass-panel {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(var(--c-soft-rgb), 0.35));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(var(--c-soft-rgb), 0.35) 55%, rgba(var(--c-primary-rgb), 0.10));
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.4);
@@ -270,7 +270,7 @@ html[data-theme='boutique'] {
 }
 
 .glass-strong {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(var(--c-soft-rgb), 0.5));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(var(--c-soft-rgb), 0.5) 55%, rgba(var(--c-primary-rgb), 0.08));
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.45);
@@ -295,7 +295,7 @@ html[data-theme='boutique'] {
 }
 
 .liquid-panel {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.45), rgba(var(--c-soft-rgb), 0.25));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.45), rgba(var(--c-soft-rgb), 0.25) 55%, rgba(var(--c-primary-rgb), 0.09));
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.4);
@@ -308,7 +308,7 @@ html[data-theme='boutique'] {
 }
 
 .liquid-badge {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.3));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.3) 52%, rgba(var(--c-primary-rgb), 0.07));
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.45);
@@ -1419,7 +1419,7 @@ html[data-theme='boutique'] {
   position: relative;
   isolation: isolate;
   background:
-    linear-gradient(140deg, rgba(255, 255, 255, 0.62), rgba(var(--c-soft-rgb), 0.30) 58%, rgba(255, 255, 255, 0.16));
+    linear-gradient(140deg, rgba(255, 255, 255, 0.62), rgba(var(--c-soft-rgb), 0.30) 58%, rgba(var(--c-primary-rgb), 0.14));
   backdrop-filter: blur(26px) saturate(185%);
   -webkit-backdrop-filter: blur(26px) saturate(185%);
   border: 1px solid rgba(255, 255, 255, 0.5);

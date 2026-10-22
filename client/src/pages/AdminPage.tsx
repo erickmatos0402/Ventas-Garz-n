@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Package,
@@ -24,6 +24,7 @@ import {
   Clock,
   Truck,
   CreditCard,
+  LogOut,
 } from 'lucide-react';
 import { LiquidTabs, RevenueChart } from '../components';
 import { useAuthStore, useCatalogStore, useThemeStore } from '../store';
@@ -314,7 +315,9 @@ const OrderCard: React.FC<{
 };
 
 export const AdminPage: React.FC = () => {
+  const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
   const authLoading = useAuthStore((s) => s.loading);
   const siteTheme = useThemeStore((s) => s.theme);
   const { products, addProduct, updateProduct, deleteProduct, loading, error } = useCatalogStore();
@@ -405,6 +408,13 @@ export const AdminPage: React.FC = () => {
     if (orderFilter === 'cancelled') return orders.filter((order) => order.status === 'cancelled');
     return orders;
   }, [orders, orderFilter]);
+
+  // Salir del panel es una acción directa (no escondida en un desplegable):
+  // cierra la sesión y devuelve a la tienda.
+  const handleLogout = async () => {
+    await logout();
+    navigate('/', { replace: true });
+  };
 
   const openCreate = () => {
     setForm({ ...EMPTY_FORM, emoji: adminStore === 'market' ? '🧴' : '👗' });
@@ -557,12 +567,22 @@ export const AdminPage: React.FC = () => {
                 usa el conmutador de la barra superior.
               </p>
             </div>
-            {tab === 'productos' && (
-              <button onClick={openCreate} className="btn-liquid inline-flex items-center gap-2 px-6 py-3 flex-shrink-0">
-                <Plus size={18} />
-                Nuevo {adminStore === 'market' ? 'Producto' : 'Artículo'}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 flex-shrink-0">
+              {tab === 'productos' && (
+                <button onClick={openCreate} className="btn-liquid inline-flex items-center gap-2 px-5 py-3 text-sm">
+                  <Plus size={18} />
+                  Nuevo {adminStore === 'market' ? 'Producto' : 'Artículo'}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => void handleLogout()}
+                className="btn-liquid-ghost inline-flex items-center gap-2 px-5 py-3 text-sm text-danger"
+              >
+                <LogOut size={17} />
+                Cerrar sesión
               </button>
-            )}
+            </div>
           </div>
 
           <p className="mt-5 text-xs text-gray-400">

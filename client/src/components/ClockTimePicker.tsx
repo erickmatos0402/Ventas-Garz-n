@@ -1,8 +1,9 @@
 import React from 'react';
 import type { PickupSlotDay } from '../utils';
 
-/** Alto de cada fila del tambor: debe coincidir con la ventana central. */
-const ITEM_HEIGHT = 56;
+/** Alto de cada fila del tambor: debe coincidir con la ventana central.
+ *  Compacto a propósito: el checkout es largo y la hora no debe dominarlo. */
+const ITEM_HEIGHT = 40;
 
 /** Filas visibles a la vez: la del medio es la hora elegida. */
 const VISIBLE_ROWS = 3;
@@ -101,7 +102,7 @@ export const ClockTimePicker: React.FC<{
   const end = pickTimeLabel(new Date(selected.getTime() + 60 * 60 * 1000));
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {/* Días: se elige el día y el tambor solo muestra sus horas. */}
       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1" role="tablist" aria-label="Día de recogida">
         {days.map((day) => {
@@ -113,7 +114,7 @@ export const ClockTimePicker: React.FC<{
               role="tab"
               aria-selected={active}
               onClick={() => setActiveKey(day.key)}
-              className={`relative flex-shrink-0 rounded-full px-4 min-h-[40px] text-sm font-semibold transition ${
+              className={`relative flex-shrink-0 rounded-full px-3 min-h-[36px] text-xs font-semibold transition ${
                 active
                   ? 'liquid-tab-blob !rounded-full ring-2 ring-primary text-dark'
                   : 'liquid-badge text-dark hover:scale-[1.02]'
@@ -125,36 +126,48 @@ export const ClockTimePicker: React.FC<{
         })}
       </div>
 
-      <div className="rounded-3xl p-4 sm:p-5 liquid-badge">
-        {/* Resumen del rango elegido: desde qué hora y hasta qué hora. */}
-        <div className="text-center px-2">
-          <p className="text-[11px] uppercase tracking-[0.22em] text-gray-400">Recoges entre</p>
-          <p className="font-display text-3xl sm:text-4xl font-extrabold text-dark leading-tight">
+      <div className="rounded-2xl p-3 liquid-badge">
+        {/* Resumen compacto: la hora elegida y el final del rango en una línea. */}
+        <div className="flex items-baseline justify-between gap-2 px-1">
+          <p className="text-[10px] uppercase tracking-[0.18em] text-gray-400">Recoges</p>
+          <p className="font-display text-base font-extrabold text-primary-deep leading-tight text-right">
             {start.hour}:{start.minute}
-            <span className="text-sm font-bold text-gray-400 ml-1">{start.period}</span>
-          </p>
-          <p className="text-sm text-gray-500">
-            hasta las <span className="font-semibold text-primary-deep">{end.text}</span>
+            <span className="text-[10px] font-bold text-gray-400 ml-0.5">{start.period}</span>
+            <span className="text-[11px] font-semibold text-gray-500"> – {end.text}</span>
           </p>
         </div>
 
         {/* Tambor: rueda de tres filas que gira al deslizar. */}
-        <div className="relative mt-4 rounded-2xl border border-white/70 bg-white/40 overflow-hidden">
+        {/* Tambor teñido con la paleta de la tienda activa (verde Mercado /
+            topo Boutique): fondo, cantos y velos salen de las variables
+            --c-primary-rgb y --c-soft-rgb, nunca de colores fijos. */}
+        <div
+          className="relative mt-2 rounded-xl overflow-hidden"
+          style={{
+            background:
+              'linear-gradient(160deg, rgba(var(--c-primary-rgb), 0.08), rgba(var(--c-soft-rgb), 0.45))',
+            border: '1px solid rgba(var(--c-primary-rgb), 0.22)',
+          }}
+        >
           {/* Velo superior e inferior: las filas se desvanecen en los bordes. */}
           <div
-            className="pointer-events-none absolute inset-x-0 top-0 z-20 h-14"
-            style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.92), rgba(255,255,255,0))' }}
+            className="pointer-events-none absolute inset-x-0 top-0 z-20 h-10"
+            style={{ background: 'linear-gradient(to bottom, rgba(var(--c-soft-rgb), 0.96), rgba(var(--c-soft-rgb), 0))' }}
             aria-hidden
           />
           <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-14"
-            style={{ background: 'linear-gradient(to top, rgba(255,255,255,0.92), rgba(255,255,255,0))' }}
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-10"
+            style={{ background: 'linear-gradient(to top, rgba(var(--c-soft-rgb), 0.96), rgba(var(--c-soft-rgb), 0))' }}
             aria-hidden
           />
           {/* Guía de la fila central: ahí queda la hora elegida. */}
           <div
-            className="pointer-events-none absolute inset-x-2 top-1/2 -translate-y-1/2 z-10 rounded-2xl border border-white/80 bg-white/45"
-            style={{ height: ITEM_HEIGHT }}
+            className="pointer-events-none absolute inset-x-1.5 top-1/2 -translate-y-1/2 z-10 rounded-xl"
+            style={{
+              height: ITEM_HEIGHT,
+              background: 'rgba(var(--c-primary-rgb), 0.12)',
+              border: '1px solid rgba(var(--c-primary-rgb), 0.35)',
+            }}
             aria-hidden
           />
 
@@ -185,18 +198,18 @@ export const ClockTimePicker: React.FC<{
                     onChange(slot.toISOString());
                     scrollToIndex(index, true);
                   }}
-                  className="w-full snap-center flex items-center justify-center border-b border-white/60 focus:outline-none"
+                  className="w-full snap-center flex items-center justify-center border-b border-white/40 focus:outline-none"
                   style={{ height: ITEM_HEIGHT }}
                 >
                   <span
-                    className={`flex items-baseline gap-2 rounded-full px-4 py-1.5 transition-all duration-200 ${
+                    className={`flex items-baseline gap-1.5 rounded-full px-3 py-0.5 transition-all duration-200 ${
                       isSelected
-                        ? 'bg-primary/15 ring-2 ring-primary text-primary-deep font-display text-2xl scale-[1.04]'
-                        : 'text-gray-400 text-lg font-semibold'
+                        ? 'bg-primary/15 ring-1 ring-primary text-primary-deep font-display text-base scale-[1.03]'
+                        : 'text-gray-400 text-[13px] font-semibold'
                     }`}
                   >
                     {slotStart.hour}:{slotStart.minute} {slotStart.period}
-                    <span className="text-xs font-semibold opacity-80">
+                    <span className="text-[10px] font-semibold opacity-80">
                       – {slotEnd.hour}:{slotEnd.minute} {slotEnd.period}
                     </span>
                   </span>
@@ -207,8 +220,8 @@ export const ClockTimePicker: React.FC<{
           </div>
         </div>
 
-        <p className="text-[11px] text-gray-400 text-center mt-2">
-          Desliza para elegir la hora · horario de la tienda, lun a sáb
+        <p className="text-[10px] text-gray-400 text-center mt-1.5">
+          Desliza para elegir la hora · lun a sáb
         </p>
       </div>
     </div>

@@ -39,7 +39,7 @@ const INPUT_CLASS =
 const BENEFITS: Record<'market' | 'boutique', { icon: React.ReactNode; text: string }[]> = {
   market: [
     { icon: <Package size={17} />, text: 'Sigue el estado de tus pedidos' },
-    { icon: <Store size={17} />, text: 'Recogida en tienda con ventana de 1 hora' },
+    { icon: <Store size={17} />, text: 'Recogida en tienda a la hora que elijas' },
     { icon: <Landmark size={17} />, text: 'Efectivo presencial o transferencia (+30%)' },
   ],
   boutique: [
@@ -69,6 +69,36 @@ function isAppleDevice(): boolean {
   return /iPad|iPhone|iPod|Macintosh/.test(ua) || /Mac/.test(navigator.platform ?? '');
 }
 
+/**
+ * Supabase devuelve los fallos del proveedor (Google/Apple) en la URL de
+ * retorno. Sin esto el usuario volvía a /login sin saber qué pasó.
+ * Devuelve el mensaje y limpia la URL para que no reaparezca al recargar.
+ */
+function providerErrorFromUrl(): string | null {
+  if (typeof window === 'undefined') return null;
+  const url = new URL(window.location.href);
+  const hash = new URLSearchParams(url.hash.replace(/^#/, ''));
+  const raw =
+    hash.get('error_description') ||
+    url.searchParams.get('error_description') ||
+    hash.get('error') ||
+    url.searchParams.get('error');
+  if (!raw) return null;
+
+  const message = decodeURIComponent(raw.replace(/\+/g, ' '));
+  url.hash = '';
+  url.searchParams.delete('error');
+  url.searchParams.delete('error_code');
+  url.searchParams.delete('error_description');
+  window.history.replaceState({}, '', url.toString());
+
+  const lower = message.toLowerCase();
+  if (lower.includes('provider is not enabled') || lower.includes('unsupported provider')) {
+    return 'El acceso con Google/Apple todavía no está activado en Supabase (Authentication → Providers).';
+  }
+  return message;
+}
+
 export const AuthPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -91,6 +121,14 @@ export const AuthPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<OAuthProvider | null>(null);
   const [error, setError] = useState('');
+
+  // Si volvemos del proveedor con un error, se muestra en la pantalla de
+  // acceso en lugar de dejar al usuario sin explicación.
+  React.useEffect(() => {
+    const message = providerErrorFromUrl();
+    if (message) setError(message);
+  }, []);
+
   // Mensaje de éxito en verde (cuenta creada). Nunca se muestra en rojo.
   const [success, setSuccess] = useState<{ title: string; message: string; needsConfirmation: boolean } | null>(null);
 

@@ -6,6 +6,7 @@ import {
   ShieldCheck,
   BadgeCheck,
   ArrowRight,
+  ArrowUpRight,
   Search,
   Star,
   ShoppingBasket,
@@ -190,7 +191,7 @@ export const LandingPage: React.FC = () => {
       step: '2',
       icon: <Store size={22} />,
       title: 'Confirma y recoge',
-      description: 'Recogida en tienda con una ventana de 1 hora.',
+      description: 'Recogida en tienda a la hora que elijas.',
     },
     {
       step: '3',
@@ -292,17 +293,30 @@ export const LandingPage: React.FC = () => {
                     </div>
                   </motion.form>
 
+                  {/* Dos acciones primarias del hero: misma altura, mismo
+                      ancho y el ícono alineado a la derecha en ambas. En
+                      móvil ocupan toda la columna; en escritorio crecen
+                      juntas desde el borde izquierdo. */}
                   <motion.div
                     variants={heroItem}
-                    className="flex flex-col gap-3 min-[420px]:flex-row justify-center sm:justify-start"
+                    className="w-full max-w-sm mx-auto sm:mx-0 sm:max-w-md"
                   >
-                    <Link to="/products" className="btn-liquid px-8 py-3.5">
-                      Compra Ahora
-                      <ArrowRight size={18} className="ml-2" />
-                    </Link>
-                    <Link to="/about" className="btn-liquid-ghost px-8 py-3.5">
-                      Conoce Más
-                    </Link>
+                    <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-2.5 sm:gap-3">
+                      <Link
+                        to="/products"
+                        className="btn-liquid inline-flex w-full items-center justify-center gap-2 min-h-[52px] px-5 py-3 text-sm sm:text-base"
+                      >
+                        Compra ahora
+                        <ArrowRight size={18} className="flex-shrink-0" />
+                      </Link>
+                      <Link
+                        to="/about"
+                        className="btn-liquid-ghost inline-flex w-full items-center justify-center gap-2 min-h-[52px] px-5 py-3 text-sm sm:text-base"
+                      >
+                        Conoce más
+                        <ArrowUpRight size={18} className="flex-shrink-0" />
+                      </Link>
+                    </div>
                   </motion.div>
                 </div>
               </motion.div>

@@ -239,13 +239,29 @@ Requiere una cuenta de **Apple Developer Program** (de pago):
      (Supabase lo crea con tu Team ID, Key ID y la clave `.p8`).
 4. Guarda. Las mismas *Redirect URLs* que en Google.
 
-### 6.3 Comprobarlo
+### 6.3 Validar que funciona (checklist)
 
-Abre `/login` en la app: el botón del proveedor elegido debe devolverte a la
-tienda con la sesión iniciada. Si Supabase responde con un error de
-proveedor, revisa que el dominio de la app esté en *Redirect URLs* y que las
-credenciales del proveedor estén guardadas (se pueden volver a guardar sin
-cambiar nada: **Save**).
+1. **URLs de retorno en Supabase**: *Authentication → URL Configuration*.
+   *Site URL* = dominio de producción y en *Redirect URLs* deben estar
+   `https://tu-dominio/**` **y** `http://localhost:5173/**` (con el puerto
+   real de `npm run dev`). Sin esta lista Supabase ignora el `redirectTo`.
+2. **Google**: en el cliente OAuth de Google Cloud, *Authorized JavaScript
+   origins* lleva el dominio de la app (no la URL de Supabase) y *Authorized
+   redirect URIs* lleva `https://TU_REF.supabase.co/auth/v1/callback`.
+3. **Apple**: el *Service ID* y el *Return URL*
+   (`https://TU_REF.supabase.co/auth/v1/callback`) deben coincidir con lo
+   registrado en Apple Developer. El *Client Secret* generado en Supabase
+   caduca a los 6 meses: si Apple deja de responder, vuelve a generarlo.
+4. **Proveedor activo**: *Authentication → Providers → Google/Apple* con el
+   interruptor en verde y **Save** (guardar de nuevo nunca estorba).
+5. **Prueba real**: abre `/login` en una ventana privada, pulsa el botón y
+   confirma que vuelves a la tienda con tu nombre en la barra. Si falla, la
+   propia pantalla de acceso muestra ahora el mensaje que devuelve Supabase
+   (por ejemplo, «provider is not enabled»), y en **Supabase → Logs → Auth**
+   queda el detalle del proveedor.
+
+Recuerda que **Apple solo aparece en iPhone, iPad y Mac**; en Windows o
+Android es normal no ver ese botón.
 
 ## 7. Instalar la app en el teléfono (PWA)
 

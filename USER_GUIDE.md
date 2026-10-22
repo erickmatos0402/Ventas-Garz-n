@@ -51,7 +51,7 @@ Muestra:
 - **Total a pagar**
 
 La única modalidad es **recogida en tienda**. Al confirmar, el pedido queda
-listo en 1 hora y tienes una ventana de 1 hora para recogerlo.
+listo y recoges a la hora que elegiste en el checkout.
 
 ## 👤 Cuenta de Usuario
 
@@ -88,8 +88,9 @@ Authentication → Providers); si no están activos, la app avisa con un error.
 2. **Haz clic en "Proceder al Pago"** (se pide iniciar sesión)
 3. **Ingresa tu teléfono** para coordinar la recogida
 4. **Elige forma de pago**: efectivo presencial o transferencia (+30%)
-5. **Confirma la orden**
-6. Se abre WhatsApp con el pedido y la **hora de recogida**
+5. **Elige la hora de recogida** con el tambor de horas
+6. **Confirma la orden**
+7. Se abre WhatsApp con el pedido y la hora de recogida
 
 ### Estados de Orden
 - 🔵 **Pendiente**: Esperando confirmación
@@ -124,8 +125,8 @@ Authentication → Providers); si no están activos, la app avisa con un error.
 ### Recogida
 - Modalidad: solo recogida en tienda, en Santiago de Cuba
 - Costo: sin envío
-- Listo: 1 hora después de confirmar el pedido
-- Ventana para recoger: 1 hora
+- Listo: a la hora elegida al confirmar el pedido
+- Hora de recogida: tú la eliges en el checkout
 
 ### Devoluciones
 - Proceso: contacta al soporte por WhatsApp o correo

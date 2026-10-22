@@ -78,9 +78,9 @@ const CarouselCard: React.FC<CarouselCardProps> = ({
   return (
     <motion.div
       onClick={onActivate}
-      animate={{ scale: isActive ? 1.07 : 1, opacity: isActive ? 1 : 0.82 }}
+      animate={{ scale: isActive ? 1.04 : 1, opacity: isActive ? 1 : 0.84 }}
       transition={{ duration: 0.5, ease: 'easeInOut' }}
-      className="rounded-3xl overflow-hidden flex flex-col transition-all duration-500 ease-in-out cursor-pointer"
+      className="rounded-[2.25rem] overflow-hidden flex flex-col transition-all duration-500 ease-in-out cursor-pointer"
       style={{
         width,
         // Superficie del tema: blanco -> tinte del tema (--c-soft-rgb) con
@@ -93,7 +93,7 @@ const CarouselCard: React.FC<CarouselCardProps> = ({
       }}
     >
       {/* Imagen + etiqueta de estado + favorito */}
-      <div className="relative mx-3 mt-3 rounded-2xl overflow-hidden bg-white/70 aspect-[4/3]">
+      <div className="relative mx-2.5 mt-2.5 rounded-[1.7rem] overflow-hidden bg-white/70 aspect-[4/3]">
         {hasImage ? (
           <img
             src={src}
@@ -109,7 +109,7 @@ const CarouselCard: React.FC<CarouselCardProps> = ({
         )}
 
         <span
-          className="absolute top-3 left-3 z-10 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white shadow-sm"
+          className="absolute top-2.5 left-2.5 z-10 rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em] text-white shadow-sm"
           // Tokens oscuros del tema: la etiqueta va en blanco y debe
           // mantener contraste en las dos tiendas.
           style={{ background: 'linear-gradient(135deg, var(--c-primary-dark), var(--c-grove-2))' }}
@@ -125,7 +125,7 @@ const CarouselCard: React.FC<CarouselCardProps> = ({
           }}
           aria-label={favorite ? 'Quitar de favoritos' : 'Añadir a favoritos'}
           aria-pressed={favorite}
-          className="hit-expand absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center transition-transform duration-300 hover:scale-110 active:scale-90"
+          className="hit-expand absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-transform duration-300 hover:scale-110 active:scale-90"
           style={{
             background: 'rgba(255, 255, 255, 0.75)',
             backdropFilter: 'blur(8px)',
@@ -134,24 +134,24 @@ const CarouselCard: React.FC<CarouselCardProps> = ({
           }}
         >
           <Heart
-            size={16}
+            size={15}
             className={favorite ? 'fill-rose-500 text-rose-500' : 'text-primary-deep'}
           />
         </button>
       </div>
 
-      {/* Cuerpo */}
-      <div className="p-5 flex flex-col flex-1">
-        <h3 className="font-display text-xl leading-snug text-dark line-clamp-2 mb-1.5">
+      {/* Cuerpo: aire justo para que la tarjeta se sienta ligera y compacta. */}
+      <div className="p-4 flex flex-col flex-1">
+        <h3 className="font-display text-lg leading-snug text-dark line-clamp-2 mb-1.5">
           {product.name}
         </h3>
-        <p className="text-gray-500 text-sm line-clamp-2 mb-3">{product.description}</p>
+        <p className="text-gray-500 text-[13px] leading-snug line-clamp-2 mb-2.5">{product.description}</p>
 
         {/* Reseñas reales (sin valoraciones inventadas) */}
         <Link
           to={`/products/${product.id}`}
           onClick={(e) => e.stopPropagation()}
-          className="flex items-center gap-1 mb-4 group/reviews"
+          className="flex items-center gap-1 mb-3 group/reviews"
           aria-label={`Ver reseñas de ${product.name}`}
         >
           {[1, 2, 3, 4, 5].map((i) => (
@@ -175,12 +175,12 @@ const CarouselCard: React.FC<CarouselCardProps> = ({
         </Link>
 
         {/* Precio */}
-        <div className="flex items-end justify-between gap-2 mb-4">
+        <div className="flex items-end justify-between gap-2 mb-3">
           <div>
             {product.discount ? (
               <p className="text-xs text-gray-400 line-through">{formatPrice(product.price)}</p>
             ) : null}
-            <p className="text-2xl font-bold text-primary-deep leading-none">
+            <p className="text-xl font-bold text-primary-deep leading-none">
               {formatPrice(finalPrice)}
             </p>
           </div>
@@ -242,11 +242,11 @@ const CarouselCard: React.FC<CarouselCardProps> = ({
             }}
             disabled={soldOut}
             aria-label={`Agregar ${product.name} al carrito`}
-            className={`btn-liquid flex items-center justify-center gap-2 h-11 transition-all duration-500 ease-in-out disabled:cursor-not-allowed ${
-              isActive ? 'w-full px-5' : 'w-11'
+            className={`btn-liquid flex items-center justify-center gap-2 h-10 text-sm transition-all duration-500 ease-in-out disabled:cursor-not-allowed ${
+              isActive ? 'w-full px-4' : 'w-10'
             }`}
           >
-            {justAdded && isActive ? <Check size={18} /> : <ShoppingCart size={18} />}
+            {justAdded && isActive ? <Check size={17} /> : <ShoppingCart size={17} />}
             <AnimatePresence initial={false}>
               {isActive && (
                 <motion.span
@@ -309,8 +309,10 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, clas
   // que a 320–360px es el recurso más escaso.
   const gap = viewportW > 0 && viewportW < MOBILE_BREAKPOINT ? GAP_MOBILE : GAP;
 
+  // Tarjetas más pequeñas: la activa deja ver las vecinas y la sección
+  // respira sin perder legibilidad (el contenido también se compactó).
   const slideW = useMemo(
-    () => Math.min(340, Math.max(210, viewportW * 0.78)),
+    () => Math.min(296, Math.max(196, viewportW * 0.68)),
     [viewportW]
   );
   const step = slideW + gap;

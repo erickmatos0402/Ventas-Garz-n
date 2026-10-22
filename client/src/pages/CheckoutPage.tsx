@@ -120,7 +120,7 @@ export const CheckoutPage: React.FC = () => {
     }
 
     if (!pickupSlot) {
-      setError('Elige el rango de 1 hora en el que recogerás tu pedido');
+      setError('Elige la hora en la que recogerás tu pedido');
       return;
     }
 
@@ -217,7 +217,7 @@ export const CheckoutPage: React.FC = () => {
             <div className="liquid-badge rounded-2xl p-4 text-left mb-5">
               <p className="flex items-center gap-2 font-bold text-dark text-sm mb-1">
                 <Clock size={16} className="text-primary" />
-                Ventana de recogida (1 hora)
+                Hora de recogida
               </p>
               <p className="text-sm text-gray-600">
                 Listo {pickup.dayLabel}, de{' '}
@@ -304,7 +304,7 @@ export const CheckoutPage: React.FC = () => {
                   Hora de recogida
                 </h2>
                 <p className="text-xs text-gray-400 mb-3">
-                  Elige el día y desliza la hora. Cada rango dura 1 hora.
+                  Elige el día y desliza la hora.
                 </p>
 
                 <ClockTimePicker days={days} value={pickupSlot} onChange={setPickupSlot} />
@@ -456,7 +456,7 @@ export const CheckoutPage: React.FC = () => {
                   <span>
                     {pickupSlot
                       ? `Recogida: ${getPickupWindow(pickupSlot).label}`
-                      : 'Elige la hora de recogida (rangos de 1 hora).'}
+                      : 'Elige la hora de recogida.'}
                   </span>
                 </div>
               </div>

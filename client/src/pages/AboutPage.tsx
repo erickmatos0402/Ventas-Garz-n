@@ -12,7 +12,7 @@ const CONTENT = {
       'Somos una tienda enfocada en calidad, precio justo y atención personalizada. Nuestro objetivo es facilitar la compra de productos de limpieza y alimentos tanto para consumidores como para negocios.',
     pillars: [
       { title: 'Mayorista y Minorista', description: 'Compras al por mayor y detalle con precios competitivos.' },
-      { title: 'Compra confiable', description: 'Pedidos listos para recoger en tienda en una hora.' },
+      { title: 'Compra confiable', description: 'Pedidos preparados con cuidado para recoger en tienda.' },
       { title: 'Atención local', description: 'Soporte cercano con una experiencia de compra segura.' },
     ],
     values: [
