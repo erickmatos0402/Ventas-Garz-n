@@ -120,6 +120,16 @@ html[data-theme='market'],
   --c-hero-bg-position: center, center, center 35%;
   --c-hero-bg-attachment: fixed, fixed, fixed;
   --c-hero-bg-repeat: no-repeat, no-repeat, no-repeat;
+  /* Fondo del footer. Por defecto reutiliza la foto y los velos del hero;
+     cada tienda puede sustituir la foto por una más ancha si la del hero
+     no aguanta el recorte horizontal (ver tema Boutique). */
+  --c-footer-bg-image:
+    linear-gradient(180deg, rgba(6, 9, 12, 0.58) 0%, rgba(6, 9, 12, 0.78) 100%),
+    var(--c-hero-bg-image);
+  --c-footer-bg-size: auto, var(--c-hero-bg-size);
+  --c-footer-bg-position: center, var(--c-hero-bg-position);
+  --c-footer-bg-attachment: scroll, var(--c-hero-bg-attachment);
+  --c-footer-bg-repeat: no-repeat, var(--c-hero-bg-repeat);
   /* Velos: barra (h) y hero (x), desde #14406D y #05242B */
   --c-veil-h1: rgba(6, 90, 70, 0.91); /* cristal verde desde #0A7F5E */
   --c-veil-h2: rgba(5, 62, 52, 0.93);
@@ -214,6 +224,17 @@ html[data-theme='boutique'] {
   --c-hero-bg-position: center, center, center 22%;
   --c-hero-bg-attachment: fixed, fixed, fixed;
   --c-hero-bg-repeat: no-repeat, no-repeat, no-repeat;
+  /* Footer: la foto del hero (600×738, casi vertical) quedaba
+     sobredimensionada y con un recorte muy cerrado en una franja ancha.
+     Se usa una foto horizontal de la misma tienda (bolso, 1024×610) con
+     velo cálido: el encuadre respira y conserva el tono marrón del hero. */
+  --c-footer-bg-image:
+    linear-gradient(180deg, rgba(35, 24, 17, 0.62) 0%, rgba(35, 24, 17, 0.82) 100%),
+    url('/img/boutique/real/bolso.webp');
+  --c-footer-bg-size: auto, cover;
+  --c-footer-bg-position: center, center 42%;
+  --c-footer-bg-attachment: scroll, scroll;
+  --c-footer-bg-repeat: no-repeat, no-repeat;
   /* Velos cálidos y ligeros: antes tapaban la foto por completo. Ahora
      son casi neutros (marrón-negro tenue) para que la foto muestre sus
      colores reales en lugar de salir teñida de marrón. */
@@ -860,13 +881,11 @@ h1, h2, h3, h4 {
 .footer-theme {
   position: relative;
   isolation: isolate;
-  background-image:
-    linear-gradient(180deg, rgba(6, 9, 12, 0.58) 0%, rgba(6, 9, 12, 0.78) 100%),
-    var(--c-hero-bg-image);
-  background-size: auto, var(--c-hero-bg-size);
-  background-position: center, var(--c-hero-bg-position);
-  background-attachment: scroll, var(--c-hero-bg-attachment);
-  background-repeat: no-repeat, var(--c-hero-bg-repeat);
+  background-image: var(--c-footer-bg-image);
+  background-size: var(--c-footer-bg-size);
+  background-position: var(--c-footer-bg-position);
+  background-attachment: var(--c-footer-bg-attachment);
+  background-repeat: var(--c-footer-bg-repeat);
   background-color: var(--c-grove-3);
   color: var(--c-grove-text);
 }
