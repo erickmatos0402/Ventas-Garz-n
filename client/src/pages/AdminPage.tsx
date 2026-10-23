@@ -25,8 +25,9 @@ import {
   Truck,
   CreditCard,
   LogOut,
+  Wand2,
 } from 'lucide-react';
-import { LiquidTabs, RevenueChart } from '../components';
+import { LiquidTabs, RevenueChart, ProductImageEditor } from '../components';
 import { useAuthStore, useCatalogStore, useThemeStore } from '../store';
 import { BoutiqueCategory, Product } from '../types';
 import { formatDate, formatPrice, getPickupWindow } from '../utils';
@@ -40,7 +41,7 @@ import { orderService, type AdminOrder } from '../services/orders';
 import type { OrderStatus } from '../types/database';
 import { BOUTIQUE_CATEGORIES, STORE_META_DATA } from '../data/boutiqueData';
 import { useImageWithFallback } from '../hooks/useImageWithFallback';
-import { MARKET_GALLERY_IMAGES, BOUTIQUE_GALLERY_IMAGES } from '../data/imageGallery';
+import { ensureNotificationPermission, notifyOrderCompleted } from '../utils/notifications';
 
 type StoreId = 'market' | 'boutique';
 type AdminTab = 'productos' | 'pedidos' | 'ventas';
@@ -333,6 +334,7 @@ export const AdminPage: React.FC = () => {
   const [form, setForm] = useState(EMPTY_FORM);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
+  const [imageEditorOpen, setImageEditorOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -351,6 +353,21 @@ export const AdminPage: React.FC = () => {
     () => products.filter((p) => (p.store ?? 'market') === adminStore),
     [products, adminStore]
   );
+
+  // Imágenes que YA están en Tienda: el selector del formulario ofrece las
+  // fotos reales del catálogo (incluidas las subidas), sin una librería fija
+  // que quede desfasada cuando cambian los productos.
+  const galleryImages = useMemo(() => {
+    const seen = new Set<string>();
+    const list: string[] = [];
+    for (const product of storeProducts) {
+      const src = product.image;
+      if (!src || seen.has(src)) continue;
+      seen.add(src);
+      list.push(src);
+    }
+    return list;
+  }, [storeProducts]);
 
   const loadOrders = useCallback(async () => {
     setOrdersLoading(true);
@@ -419,6 +436,7 @@ export const AdminPage: React.FC = () => {
   const openCreate = () => {
     setForm({ ...EMPTY_FORM, emoji: adminStore === 'market' ? '🧴' : '👗' });
     setEditingId(null);
+    setImageEditorOpen(false);
     setModalMode('create');
   };
 
@@ -436,6 +454,7 @@ export const AdminPage: React.FC = () => {
       emoji: product.emoji || '📦',
     });
     setEditingId(product.id);
+    setImageEditorOpen(false);
     setModalMode('edit');
   };
 
@@ -491,9 +510,24 @@ export const AdminPage: React.FC = () => {
     const { order, status } = actionTarget;
     setActionBusyId(order.id);
     setOrdersError(null);
+    // Al entregar, el clic del administrador permite pedir el permiso de
+    // avisos (el navegador lo exige dentro de un gesto). Si ya está
+    // concedido, no vuelve a preguntar.
+    if (status === 'delivered') void ensureNotificationPermission();
     try {
       await orderService.updateStatus(order.id, status);
       setOrders((list) => list.map((item) => (item.id === order.id ? { ...item, status } : item)));
+
+      if (status === 'delivered') {
+        const orderRef = `#${order.id.slice(0, 8).toUpperCase()}`;
+        void notifyOrderCompleted({
+          title: 'Pedido completado',
+          body: `${orderRef} de ${order.customerName} · ${formatPrice(Number(order.total))}`,
+          orderRef,
+          store: adminStore,
+        });
+      }
+
       setActionTarget(null);
     } catch (err) {
       setOrdersError(err instanceof Error ? err.message : 'No se pudo actualizar el pedido');
@@ -864,14 +898,25 @@ export const AdminPage: React.FC = () => {
                         <input type="file" accept="image/*" className="hidden" onChange={handleImageFile} />
                       </label>
                       {form.image && (
-                        <button
-                          type="button"
-                          onClick={() => setForm({ ...form, image: '' })}
-                          className="btn-liquid-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-danger"
-                        >
-                          <X size={14} />
-                          Quitar
-                        </button>
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setImageEditorOpen(true)}
+                            className="btn-liquid-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-sm"
+                            title="Recortar, quitar fondo y ajustar el color"
+                          >
+                            <Wand2 size={14} />
+                            Ajustar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setForm({ ...form, image: '' })}
+                            className="btn-liquid-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-danger"
+                          >
+                            <X size={14} />
+                            Quitar
+                          </button>
+                        </>
                       )}
                     </div>
                     <input
@@ -883,25 +928,31 @@ export const AdminPage: React.FC = () => {
                     />
                   </div>
                 </div>
-                <p className="text-xs text-gray-500 mt-2 mb-1.5">O elige una imagen del catálogo:</p>
+                <p className="text-xs text-gray-500 mt-2 mb-1.5">O elige una imagen que ya esté en Tienda:</p>
                 <div className="liquid-badge rounded-2xl p-2 max-h-28 overflow-y-auto">
-                  <div className="flex flex-wrap gap-2">
-                    {(adminStore === 'market' ? MARKET_GALLERY_IMAGES : BOUTIQUE_GALLERY_IMAGES).map((src) => (
-                      <button
-                        type="button"
-                        key={src}
-                        title={src}
-                        onClick={() => setForm({ ...form, image: src })}
-                        className={`w-11 h-11 rounded-xl overflow-hidden border-2 transition flex-shrink-0 ${
-                          form.image === src
-                            ? 'border-primary ring-2 ring-primary/30'
-                            : 'border-transparent opacity-80 hover:opacity-100'
-                        }`}
-                      >
-                        <img src={src} alt="" loading="lazy" className="w-full h-full object-cover object-center" />
-                      </button>
-                    ))}
-                  </div>
+                  {galleryImages.length === 0 ? (
+                    <p className="text-xs text-gray-500 px-1 py-1.5">
+                      Todavía no hay fotos en el catálogo. Sube la primera con «Subir foto».
+                    </p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {galleryImages.map((src) => (
+                        <button
+                          type="button"
+                          key={src}
+                          title={src}
+                          onClick={() => setForm({ ...form, image: src })}
+                          className={`w-11 h-11 rounded-xl overflow-hidden border-2 transition flex-shrink-0 ${
+                            form.image === src
+                              ? 'border-primary ring-2 ring-primary/30'
+                              : 'border-transparent opacity-80 hover:opacity-100'
+                          }`}
+                        >
+                          <img src={src} alt="" loading="lazy" className="w-full h-full object-cover object-center" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1030,6 +1081,19 @@ export const AdminPage: React.FC = () => {
             </form>
           </motion.div>
         </div>
+      )}
+
+      {/* Editor de imagen del producto: recorte, fondo, giro y color */}
+      {imageEditorOpen && form.image && (
+        <ProductImageEditor
+          src={form.image}
+          productName={form.name || undefined}
+          onApply={(dataUrl) => {
+            setForm((prev) => ({ ...prev, image: dataUrl }));
+            setImageEditorOpen(false);
+          }}
+          onClose={() => setImageEditorOpen(false)}
+        />
       )}
 
       {/* Confirmar eliminación de producto */}

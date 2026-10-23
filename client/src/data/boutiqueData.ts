@@ -29,6 +29,10 @@ export function getBoutiqueDiscountedPrice(product: Pick<Product, 'price' | 'dis
  */
 export const MARKET_LOGO_PATH = '/img/Fotos/logo.jpg';
 
+/** Dirección física de la tienda: es el punto de recogida de los pedidos. */
+export const STORE_ADDRESS =
+  'Avenida Garzón #280 entre 1ra y Madre Vieja, Reparto Santa Bárbara';
+
 /** Metadatos de cada tienda: logo, eslogan, texto del hero y etiquetas de categoría */
 export const STORE_META_DATA: Record<
   'market' | 'boutique',
@@ -41,6 +45,8 @@ export const STORE_META_DATA: Record<
     heroSubtitle: string;
     badgeText: string;
     logo: string;
+    /** Dirección física donde se recogen los pedidos. */
+    address: string;
     categoryLabelA: string;
     categoryLabelB: string;
     searchPlaceholder: string;
@@ -56,6 +62,7 @@ export const STORE_META_DATA: Record<
       'Aseo y alimentos seleccionados uno a uno. Compra fácil, recoge en tienda y lleva calidad a tu familia.',
     badgeText: 'Tu mercado local de confianza',
     logo: MARKET_LOGO_PATH,
+    address: STORE_ADDRESS,
     categoryLabelA: 'Aseo',
     categoryLabelB: 'Alimentos',
     searchPlaceholder: 'Busca shampoo, sponch, café, detergente...',
@@ -70,6 +77,7 @@ export const STORE_META_DATA: Record<
       'Prendas y accesorios seleccionados en pieza única o tallas limitadas. Cada prenda tiene su historia; dale una nueva.',
     badgeText: 'Venta de garaje online',
     logo: '/img/logo_chic.jpg',
+    address: STORE_ADDRESS,
     categoryLabelA: 'Ropa',
     categoryLabelB: 'Accesorios',
     searchPlaceholder: 'Busca vestidos, jeans, bolsos, accesorios...',

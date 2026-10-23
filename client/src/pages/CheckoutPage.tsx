@@ -12,6 +12,7 @@ import {
   Lock,
   Landmark,
   Clock,
+  Bell,
 } from 'lucide-react';
 import { useAuthStore, useCartStore, useThemeStore } from '../store';
 import { ClockTimePicker, SuccessCelebration } from '../components';
@@ -24,6 +25,7 @@ import {
 } from '../utils';
 import { getDiscountedPrice } from '../data/pricing';
 import { orderService } from '../services/orders';
+import { ensureNotificationPermission, notificationsSupported, notifyOrderCompleted } from '../utils/notifications';
 import type { OrderRow } from '../types/database';
 
 type PaymentMode = 'cash' | 'transfer';
@@ -80,6 +82,11 @@ export const CheckoutPage: React.FC = () => {
   const [pickupSlot, setPickupSlot] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  // Aviso al completar el pedido: el permiso se pide con el clic del
+  // usuario (los navegadores no lo conceden si se pide solo).
+  const [notifyReady, setNotifyReady] = useState(
+    () => notificationsSupported() && Notification.permission === 'granted'
+  );
 
   // Rangos de 1 hora disponibles (horario de la tienda, con 1 h de preparación).
   const slots = React.useMemo(() => getPickupSlots(12), []);
@@ -109,6 +116,11 @@ export const CheckoutPage: React.FC = () => {
   // Sin impuestos ni envío: solo existe el recargo del 30% por transferencia.
   const transferFee = paymentMode === 'transfer' ? Math.round(subtotal * TRANSFER_SURCHARGE_RATE) : 0;
   const total = subtotal + transferFee;
+
+  const handleEnableNotifications = async () => {
+    const permission = await ensureNotificationPermission();
+    setNotifyReady(permission === 'granted');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,6 +168,16 @@ export const CheckoutPage: React.FC = () => {
 
       clearCart();
       setSuccess(true);
+
+      // Aviso de pedido completado: notificación del sistema (si hay
+      // permiso) y, en cualquier caso, aviso flotante dentro de la página.
+      const pickup = getPickupWindow(created.pickup_ready_at);
+      void notifyOrderCompleted({
+        title: '¡Pedido completado!',
+        body: `${orderRef} · ${formatPrice(Number(created.total))} · recogida ${pickup.startTime}–${pickup.endTime}`,
+        orderRef,
+        store: theme,
+      });
     } catch (err: any) {
       setError(err?.message || 'Error al procesar el pedido');
     } finally {
@@ -391,6 +413,26 @@ export const CheckoutPage: React.FC = () => {
                 <div className="bg-danger/10 border border-danger text-danger px-4 py-3 rounded-2xl flex items-start space-x-2 text-sm">
                   <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
                   <span>{error}</span>
+                </div>
+              )}
+
+              {notificationsSupported() && (
+                <div className="rounded-2xl liquid-badge p-3 flex flex-col min-[380px]:flex-row min-[380px]:items-center gap-2 min-[380px]:gap-3">
+                  <span className="text-xs text-gray-600 flex items-start gap-2 flex-1 min-w-0">
+                    <Bell size={15} className="text-primary mt-0.5 flex-shrink-0" aria-hidden />
+                    {notifyReady
+                      ? 'Aviso activado: te notificaremos cuando el pedido quede completo.'
+                      : 'Activa el aviso para enterarte cuando el pedido quede completo.'}
+                  </span>
+                  {!notifyReady && (
+                    <button
+                      type="button"
+                      onClick={() => void handleEnableNotifications()}
+                      className="btn-liquid-ghost px-3.5 py-2 text-xs flex-shrink-0"
+                    >
+                      Activar aviso
+                    </button>
+                  )}
                 </div>
               )}
 

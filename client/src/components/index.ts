@@ -11,3 +11,5 @@ export { StoreTransitionOverlay } from './StoreTransitionOverlay';
 export { ClockTimePicker } from './ClockTimePicker';
 export { SuccessCelebration } from './SuccessCelebration';
 export { RevenueChart } from './RevenueChart';
+export { ProductImageEditor } from './ProductImageEditor';
+export { OrderNotificationToast } from './OrderNotificationToast';

@@ -29,7 +29,7 @@ const MENU_ITEMS = [
   { to: '/products', label: 'Tienda', icon: <Store size={16} /> },
   { to: '/about', label: 'Acerca de', icon: <Info size={16} /> },
   { to: '/faq', label: 'FAQ', icon: <HelpCircle size={16} /> },
-  { to: '/admin', label: 'Admin', icon: <ShieldCheck size={16} /> },
+  { to: '/admin', label: 'Panel Admin', icon: <ShieldCheck size={16} /> },
 ];
 
 /** La entrada al panel solo existe con sesión de administrador. */
@@ -172,9 +172,10 @@ export const Header: React.FC = () => {
                         );
                       })}
 
-                      {/* Cuenta: sin sesión se ofrece entrar; con sesión
-                          abierta solo se muestra QUIÉN está dentro (el cierre
-                          de sesión vive en /login, no en este menú). */}
+                      {/* Cuenta: sin sesión se ofrece iniciar sesión, resaltado
+                          para que sea la acción principal del menú; con
+                          sesión abierta solo se muestra QUIÉN está dentro
+                          (el cierre de sesión vive en /login). */}
                       <motion.li variants={menuItemVariants}>
                         {user ? (
                           <Link
@@ -185,11 +186,6 @@ export const Header: React.FC = () => {
                             <span className="flex items-center gap-2.5 min-w-0">
                               <UserCircle size={16} aria-hidden />
                               <span className="truncate">{user.name.split(' ')[0]}</span>
-                              {user.role === 'admin' && (
-                                <span className="flex-shrink-0 text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5 bg-white/20 text-white">
-                                  Admin
-                                </span>
-                              )}
                             </span>
                             <ChevronRight size={16} aria-hidden />
                           </Link>
@@ -197,13 +193,13 @@ export const Header: React.FC = () => {
                           <Link
                             to="/login"
                             onClick={() => setIsMenuOpen(false)}
-                            className="menu-theme-item"
+                            className="menu-theme-item menu-theme-item--login"
                           >
                             <span className="flex items-center gap-2.5 min-w-0">
-                              <LogIn size={16} aria-hidden />
-                              Ingresar o registrarse
+                              <LogIn size={17} aria-hidden />
+                              Iniciar sesión
                             </span>
-                            <ChevronRight size={16} aria-hidden />
+                            <ChevronRight size={17} aria-hidden />
                           </Link>
                         )}
                       </motion.li>

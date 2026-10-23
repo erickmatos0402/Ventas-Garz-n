@@ -11,7 +11,8 @@ const OPTIONS: LiquidTabItem[] = [
 /**
  * StoreSwitcher — pastilla de cristal con las dos tiendas. Reutiliza
  * LiquidTabs para heredar el mismo efecto del menú: burbuja líquida
- * transparente y fluida, sin brillo de gota, que viaja y asienta.
+ * transparente que viaja y asienta al cambiar de tienda, con brillo de
+ * vidrio que sigue al puntero al pasar el cursor (`glow`).
  */
 export const StoreSwitcher: React.FC = () => {
   const theme = useThemeStore((s) => s.theme);
@@ -23,6 +24,7 @@ export const StoreSwitcher: React.FC = () => {
       activeId={theme}
       onChange={(id) => setTheme(id as StoreTheme)}
       size="sm"
+      glow
     />
   );
 };

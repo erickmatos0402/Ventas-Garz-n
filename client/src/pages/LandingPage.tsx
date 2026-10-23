@@ -13,8 +13,9 @@ import {
   Sparkles,
   Store,
   Wallet,
+  MapPin,
 } from 'lucide-react';
-import { SlideUp, containerVariants, itemVariants } from '../utils/animations';
+import { RevealText, SlideUp, containerVariants, itemVariants } from '../utils/animations';
 import { useAuthStore, useCatalogStore, useThemeStore } from '../store';
 import { Product, ProductReview } from '../types';
 import { ProductCard, LiquidTabs, LogoMedallion } from '../components';
@@ -62,19 +63,28 @@ const heroMedallion: Variants = {
   },
 };
 
-/** Encabezado de sección: barra con el arco del medallón + título + bajada. */
+/**
+ * Encabezado de sección: barra con el arco del medallón + título + bajada.
+ * El título y la bajada aparecen palabra a palabra al entrar en pantalla
+ * (RevealText), que es el gesto de lectura de toda la Landing.
+ */
 const SectionHeading: React.FC<{ title: string; subtitle?: string }> = ({ title, subtitle }) => (
-  <SlideUp>
-    <div className="mb-6 sm:mb-10 flex flex-col items-center gap-2.5 sm:gap-3.5 text-center">
-      <span className="section-rule" aria-hidden />
-      <h2 className="font-display text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-dark text-balance">
-        {title}
-      </h2>
-      {subtitle && (
-        <p className="text-gray-500 font-light text-sm sm:text-lg max-w-xl text-balance">{subtitle}</p>
-      )}
-    </div>
-  </SlideUp>
+  <div className="mb-6 sm:mb-10 flex flex-col items-center gap-2.5 sm:gap-3.5 text-center">
+    <span className="section-rule" aria-hidden />
+    <RevealText
+      as="h2"
+      text={title}
+      className="font-display text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-dark text-balance"
+    />
+    {subtitle && (
+      <RevealText
+        as="p"
+        text={subtitle}
+        delay={0.12}
+        className="text-gray-500 font-light text-sm sm:text-lg max-w-xl text-balance"
+      />
+    )}
+  </div>
 );
 
 export const LandingPage: React.FC = () => {
@@ -201,35 +211,70 @@ export const LandingPage: React.FC = () => {
     },
   ];
 
+  // Accesos a la tienda con las fotos REALES del catálogo: la primera
+  // imagen de producto de cada categoría. Sin rutas fijas de demostración:
+  // si una categoría aún no tiene fotos, la tarjeta lo dice y no inventa
+  // una imagen que no existe en Tienda.
+  const imageFor = (predicate: (product: Product) => boolean) =>
+    products.find((product) => !!product.image && predicate(product))?.image;
+
+  // La bajada cuenta lo que HAY hoy en Tienda: si cambian los productos, el
+  // texto cambia con ellos. Nada de nombres de artículos que ya no existen
+  // (por ejemplo bolsos cuando la tienda no tiene bolsos).
+  const stockLabel = (predicate: (product: Product) => boolean, singular: string, plural: string) => {
+    const count = products.filter(predicate).length;
+    if (!count) return `Aún sin ${plural} en Tienda`;
+    return `${count} ${count === 1 ? singular : plural} ${count === 1 ? 'disponible' : 'disponibles'} hoy`;
+  };
+
+  const isGarment = (product: Product) => product.subcategory !== 'accesorios';
+
+  // La tarjeta de prendas usa la foto de un conjunto (o de cualquier prenda
+  // si aún no hay conjuntos) y lleva al filtro exacto de esa misma prenda.
+  const featuredGarment =
+    products.find((product) => !!product.image && product.subcategory === 'conjuntos') ??
+    products.find((product) => !!product.image && isGarment(product));
+
   const categories = isMarket
     ? [
         {
           title: 'Cuidado del Hogar',
-          subtitle: 'Shampoo, jabones, detergente y más',
-          image: '/img/products/jabon-bano.jpg',
+          subtitle: stockLabel((product) => product.category === 'aseo', 'producto de aseo', 'productos de aseo'),
+          image: imageFor((product) => product.category === 'aseo'),
           to: '/products?category=aseo',
         },
         {
           title: 'Despensa Completa',
-          subtitle: 'Café, arroz, pastas, sopas y dulces',
-          image: '/img/products/sazon.jpg',
+          subtitle: stockLabel((product) => product.category === 'alimentos', 'alimento', 'alimentos'),
+          image: imageFor((product) => product.category === 'alimentos'),
           to: '/products?category=alimentos',
         },
       ]
     : [
         {
           title: 'Prendas con Historia',
-          subtitle: 'Vestidos, camisas, jeans y blusas únicas',
-          image: '/img/boutique/real/vestido-floral.webp',
-          to: '/products?category=aseo',
+          subtitle: stockLabel(isGarment, 'prenda', 'prendas'),
+          image: featuredGarment?.image,
+          to: featuredGarment?.subcategory
+            ? `/products?category=${featuredGarment.subcategory}`
+            : '/products',
         },
         {
           title: 'Accesorios Chic',
-          subtitle: 'Bolsos, sombreros, joyas y más',
-          image: '/img/boutique/real/bolso.webp',
-          to: '/products?category=alimentos',
+          subtitle: stockLabel(
+            (product) => product.subcategory === 'accesorios',
+            'accesorio',
+            'accesorios'
+          ),
+          image: imageFor((product) => product.subcategory === 'accesorios'),
+          to: '/products?category=accesorios',
         },
       ];
+
+  // La tarjeta de la otra tienda también usa una foto real de su catálogo.
+  const crossImage = catalogProducts.find(
+    (product) => (product.store ?? 'market') !== theme && !!product.image
+  )?.image;
 
   return (
     <div className="min-h-dvh">
@@ -373,6 +418,43 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
+      {/* ============ DIRECCIÓN DE LA TIENDA ============ */}
+      <section className="pt-6 sm:pt-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SlideUp>
+            <div className="glass-panel rounded-[1.75rem] px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 text-center sm:text-left">
+              <span
+                className="w-11 h-11 rounded-2xl grid place-items-center text-white flex-shrink-0"
+                style={{
+                  background: 'linear-gradient(135deg, var(--c-sig-1), var(--c-sig-3))',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.45)',
+                }}
+                aria-hidden
+              >
+                <MapPin size={20} />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.22em] font-bold text-primary-deep mb-0.5">
+                  Punto de recogida
+                </p>
+                <p className="font-display text-sm sm:text-base font-bold text-dark leading-snug text-balance">
+                  {meta.address}
+                </p>
+              </div>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(meta.address)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-liquid-ghost inline-flex items-center gap-1.5 px-4 py-2.5 text-sm sm:ml-auto flex-shrink-0"
+              >
+                Cómo llegar
+                <ArrowUpRight size={16} aria-hidden />
+              </a>
+            </div>
+          </SlideUp>
+        </div>
+      </section>
+
       {/* ============ CATEGORÍAS CON IMAGEN ============ */}
       <section className="py-8 sm:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 gap-3 sm:gap-6">
@@ -391,11 +473,23 @@ export const LandingPage: React.FC = () => {
                   isMarket ? 'rounded-[2rem]' : 'rounded-[1.8rem]'
                 }`}
               >
-                <img
-                  src={cat.image}
-                  alt={cat.title}
-                  className="w-full h-32 sm:h-52 md:h-72 object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                />
+                {cat.image ? (
+                  <img
+                    src={cat.image}
+                    alt={cat.title}
+                    loading="lazy"
+                    className="w-full h-32 sm:h-52 md:h-72 object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                  />
+                ) : (
+                  <div
+                    className="w-full h-32 sm:h-52 md:h-72 grid place-items-center px-3 text-center"
+                    style={{ background: 'linear-gradient(150deg, var(--c-sig-1), var(--c-sig-3))' }}
+                  >
+                    <span className="text-white/90 text-[11px] sm:text-sm font-semibold">
+                      Todavía sin fotos en Tienda
+                    </span>
+                  </div>
+                )}
                 <div
                   className="absolute inset-0"
                   style={{
@@ -508,11 +602,11 @@ export const LandingPage: React.FC = () => {
       {/* ============ DESTACADOS CON PESTAÑAS ============ */}
       <section className="py-8 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SlideUp>
-            <h2 className="font-display text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-center text-dark mb-5 sm:mb-8 text-balance">
-              Productos Destacados
-            </h2>
-          </SlideUp>
+          <RevealText
+            as="h2"
+            text="Productos Destacados"
+            className="font-display text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-center text-dark mb-5 sm:mb-8 text-balance"
+          />
 
           {/* Filtros: la opción activa se marca sin desplazamientos */}
           <div className="flex justify-center mb-6 sm:mb-10">
@@ -665,11 +759,20 @@ export const LandingPage: React.FC = () => {
               {...bubbleProps}
               className="group relative block w-full rounded-3xl overflow-hidden bubble-hl bubble-hl-dark ios-press liquid-border shadow-glass-lg text-left"
             >
-              <img
-                src={isMarket ? '/img/boutique/real/vestido-floral.webp' : '/img/products/caldito-pollo.jpg'}
-                alt=""
-                className="w-full h-40 sm:h-52 md:h-64 object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-              />
+              {crossImage ? (
+                <img
+                  src={crossImage}
+                  alt=""
+                  loading="lazy"
+                  className="w-full h-40 sm:h-52 md:h-64 object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                />
+              ) : (
+                <div
+                  className="w-full h-40 sm:h-52 md:h-64"
+                  style={{ background: 'linear-gradient(150deg, var(--c-sig-1), var(--c-sig-3))' }}
+                  aria-hidden
+                />
+              )}
               <div
                 className="absolute inset-0"
                 style={{
@@ -708,12 +811,21 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <SlideUp>
             <div className="grove-theme liquid-border rounded-3xl p-5 sm:p-6 md:p-10 text-center shadow-glass-lg">
-              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-3 sm:mb-4">
-                ¿Listo para Comprar?
-              </h2>
-              <p className="text-sm sm:text-lg mb-6 sm:mb-8 grove-text-soft">
-                {isMarket ? 'Tu despensa y tu aseo, resueltos en minutos' : 'Renueva tu armario sin vaciar tu bolsillo'}
-              </p>
+              <RevealText
+                as="h2"
+                text="¿Listo para Comprar?"
+                className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-3 sm:mb-4"
+              />
+              <RevealText
+                as="p"
+                delay={0.1}
+                text={
+                  isMarket
+                    ? 'Tu despensa y tu aseo, resueltos en minutos'
+                    : 'Renueva tu armario sin vaciar tu bolsillo'
+                }
+                className="text-sm sm:text-lg mb-6 sm:mb-8 grove-text-soft"
+              />
               <div className="flex flex-col min-[420px]:flex-row gap-3 sm:gap-4 justify-center">
                 <Link to="/products" className="btn-signature inline-flex px-8 py-3">
                   Compra Ahora

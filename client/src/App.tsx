@@ -1,7 +1,14 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { MotionConfig } from 'framer-motion';
-import { Header, Footer, FloatingLeaves, ContactBubble, StoreTransitionOverlay } from './components';
+import {
+  Header,
+  Footer,
+  FloatingLeaves,
+  ContactBubble,
+  StoreTransitionOverlay,
+  OrderNotificationToast,
+} from './components';
 import {
   LandingPage,
   ProductsPage,
@@ -74,6 +81,7 @@ function AppShell() {
       <Footer />
       <ContactBubble />
       <StoreTransitionOverlay />
+      <OrderNotificationToast />
     </div>
   );
 }
