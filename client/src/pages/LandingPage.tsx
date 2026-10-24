@@ -753,17 +753,16 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* ============ CROSS-SELLING: LA OTRA TIENDA ============ */}
-      {/* Tarjeta CUADRADA (1:1): el acceso a la otra tienda se lee como un
-          cuadro más de la Landing, no como una franja ancha. */}
+      {/* Mismo ancho y misma altura que los demás bloques de la Landing
+          (franja de confianza, categorías y pasos). */}
       <section className="py-8 sm:py-14">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <SlideUp>
-            <div className="mx-auto w-full max-w-[24rem] sm:max-w-sm md:max-w-md">
-              <button
-                onClick={() => setTheme(isMarket ? 'boutique' : 'market')}
-                {...bubbleProps}
-                className="group relative block w-full aspect-square rounded-[2rem] overflow-hidden bubble-hl bubble-hl-dark ios-press liquid-border shadow-glass-lg text-left"
-              >
+            <button
+              onClick={() => setTheme(isMarket ? 'boutique' : 'market')}
+              {...bubbleProps}
+              className="group relative block w-full h-56 sm:h-64 md:h-80 rounded-[2rem] overflow-hidden bubble-hl bubble-hl-dark ios-press liquid-border shadow-glass-lg text-left"
+            >
                 {crossImage ? (
                   <img
                     src={crossImage}
@@ -786,28 +785,27 @@ export const LandingPage: React.FC = () => {
                     background: 'linear-gradient(to top, var(--c-cross-1), var(--c-cross-2) 55%, transparent)',
                   }}
                 />
-                <div className="absolute inset-0 p-5 sm:p-6 flex flex-col justify-between">
-                  <p className="ios-glass-dark self-start inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold text-white">
-                    <Store size={13} />
-                    {isMarket ? 'Nueva tienda' : 'Visita también'}
+              <div className="absolute inset-0 p-5 sm:p-7 flex flex-col justify-between">
+                <p className="ios-glass-dark self-start inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold text-white">
+                  <Store size={13} />
+                  {isMarket ? 'Nueva tienda' : 'Visita también'}
+                </p>
+                <div className="max-w-xl">
+                  <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-white mb-1.5 drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]">
+                    {isMarket ? 'Garzón Chic' : 'Ventas Garzón'}
+                  </h3>
+                  <p className="text-white/85 text-sm sm:text-base mb-4">
+                    {isMarket
+                      ? 'Venta de garaje online: ropa y accesorios únicos a precio de ganga'
+                      : 'Tu mercado de aseo y alimentos de siempre, a un clic'}
                   </p>
-                  <div>
-                    <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-white mb-1.5 drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]">
-                      {isMarket ? 'Garzón Chic' : 'Ventas Garzón'}
-                    </h3>
-                    <p className="text-white/85 text-sm sm:text-base mb-4">
-                      {isMarket
-                        ? 'Venta de garaje online: ropa y accesorios únicos a precio de ganga'
-                        : 'Tu mercado de aseo y alimentos de siempre, a un clic'}
-                    </p>
-                    <span className="ios-glass-dark inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold text-white">
-                      Ver la tienda
-                      <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-                    </span>
-                  </div>
+                  <span className="ios-glass-dark inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold text-white">
+                    Ver la tienda
+                    <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+                  </span>
                 </div>
-              </button>
-            </div>
+              </div>
+            </button>
           </SlideUp>
         </div>
       </section>
