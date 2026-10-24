@@ -74,14 +74,14 @@ const SectionHeading: React.FC<{ title: string; subtitle?: string }> = ({ title,
     <RevealText
       as="h2"
       text={title}
-      className="font-display text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-dark text-balance"
+      className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-dark text-balance"
     />
     {subtitle && (
       <RevealText
         as="p"
         text={subtitle}
         delay={0.12}
-        className="text-gray-500 font-light text-sm sm:text-lg max-w-xl text-balance"
+        className="text-gray-500 font-light text-base sm:text-xl max-w-2xl text-balance"
       />
     )}
   </div>
@@ -299,14 +299,14 @@ export const LandingPage: React.FC = () => {
                 <div className="space-y-5 sm:space-y-7 md:space-y-9">
                   <motion.p
                     variants={heroItem}
-                    className="ios-glass-dark inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-semibold text-primary-deep"
+                    className="ios-glass-dark inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-sm sm:text-base font-semibold text-primary-deep"
                   >
                     <span className="h-2 w-2 rounded-full" style={{ background: 'var(--c-sig-1)' }}></span>
                     {meta.badgeText}
                   </motion.p>
                   <motion.h1
                     variants={heroItem}
-                    className="font-display text-[1.65rem] min-[400px]:text-[1.85rem] sm:text-4xl lg:text-5xl font-extrabold text-dark leading-[1.12] sm:leading-[1.08] text-balance"
+                    className="font-display text-[1.85rem] min-[400px]:text-[2.05rem] sm:text-[2.6rem] lg:text-[3.35rem] font-extrabold text-dark leading-[1.12] sm:leading-[1.08] text-balance"
                   >
                     {meta.heroTitleA}{' '}
                     <span className="text-signature">{meta.heroTitleB}</span>
@@ -349,14 +349,14 @@ export const LandingPage: React.FC = () => {
                     <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-2.5 sm:gap-3">
                       <Link
                         to="/products"
-                        className="btn-liquid inline-flex w-full items-center justify-center gap-2 min-h-[52px] px-5 py-3 text-sm sm:text-base"
+                        className="btn-liquid inline-flex w-full items-center justify-center gap-2 min-h-[52px] px-5 py-3 text-base"
                       >
                         Compra ahora
                         <ArrowRight size={18} className="flex-shrink-0" />
                       </Link>
                       <Link
                         to="/about"
-                        className="btn-liquid-ghost inline-flex w-full items-center justify-center gap-2 min-h-[52px] px-5 py-3 text-sm sm:text-base"
+                        className="btn-liquid-ghost inline-flex w-full items-center justify-center gap-2 min-h-[52px] px-5 py-3 text-base"
                       >
                         Conoce más
                         <ArrowUpRight size={18} className="flex-shrink-0" />
@@ -409,8 +409,8 @@ export const LandingPage: React.FC = () => {
                   {item.icon}
                 </span>
                 <div>
-                  <h3 className="font-display text-[12px] sm:text-base font-bold text-dark mb-1 leading-tight">{item.title}</h3>
-                  <p className="hidden sm:block text-sm text-gray-500 font-light leading-relaxed">{item.description}</p>
+                  <h3 className="font-display text-[13px] sm:text-lg font-bold text-dark mb-1 leading-tight">{item.title}</h3>
+                  <p className="hidden sm:block text-sm sm:text-base text-gray-500 font-light leading-relaxed">{item.description}</p>
                 </div>
               </motion.div>
             ))}
@@ -434,10 +434,10 @@ export const LandingPage: React.FC = () => {
                 <MapPin size={20} />
               </span>
               <div className="min-w-0">
-                <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.22em] font-bold text-primary-deep mb-0.5">
+                <p className="text-[11px] sm:text-xs uppercase tracking-[0.22em] font-bold text-primary-deep mb-0.5">
                   Punto de recogida
                 </p>
-                <p className="font-display text-sm sm:text-base font-bold text-dark leading-snug text-balance">
+                <p className="font-display text-base sm:text-lg font-bold text-dark leading-snug text-balance">
                   {meta.address}
                 </p>
               </div>
@@ -445,7 +445,7 @@ export const LandingPage: React.FC = () => {
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(meta.address)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-liquid-ghost inline-flex items-center gap-1.5 px-4 py-2.5 text-sm sm:ml-auto flex-shrink-0"
+                className="btn-liquid-ghost inline-flex items-center gap-1.5 px-4 py-2.5 text-sm sm:text-base sm:ml-auto flex-shrink-0"
               >
                 Cómo llegar
                 <ArrowUpRight size={16} aria-hidden />
@@ -457,7 +457,9 @@ export const LandingPage: React.FC = () => {
 
       {/* ============ CATEGORÍAS CON IMAGEN ============ */}
       <section className="py-8 sm:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 gap-3 sm:gap-6">
+        {/* Accesos en cuadros amplios, a la escala del bloque de «la otra
+            tienda»: a ancho completo en móvil y con imagen alta en escritorio. */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           {categories.map((cat, i) => (
             <motion.div
               key={cat.title}
@@ -478,14 +480,14 @@ export const LandingPage: React.FC = () => {
                     src={cat.image}
                     alt={cat.title}
                     loading="lazy"
-                    className="w-full h-32 sm:h-52 md:h-72 object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                    className="w-full h-56 sm:h-64 md:h-80 object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                   />
                 ) : (
                   <div
-                    className="w-full h-32 sm:h-52 md:h-72 grid place-items-center px-3 text-center"
+                    className="w-full h-56 sm:h-64 md:h-80 grid place-items-center px-3 text-center"
                     style={{ background: 'linear-gradient(150deg, var(--c-sig-1), var(--c-sig-3))' }}
                   >
-                    <span className="text-white/90 text-[11px] sm:text-sm font-semibold">
+                    <span className="text-white/90 text-sm sm:text-base font-semibold">
                       Todavía sin fotos en Tienda
                     </span>
                   </div>
@@ -497,14 +499,14 @@ export const LandingPage: React.FC = () => {
                       'linear-gradient(to top, var(--c-scrim-1), var(--c-scrim-2) 48%, transparent 75%)',
                   }}
                 />
-                <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-7 flex items-end justify-between gap-2 sm:gap-4">
+                <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-7 flex items-end justify-between gap-3 sm:gap-4">
                   <div>
-                    <h3 className="font-display text-sm sm:text-2xl font-extrabold text-white mb-1 sm:mb-1.5 drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">
+                    <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-extrabold text-white mb-1 sm:mb-2 drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">
                       {cat.title}
                     </h3>
-                    <p className="hidden sm:block text-white/85 text-sm font-light">{cat.subtitle}</p>
+                    <p className="text-white/85 text-sm sm:text-base font-light">{cat.subtitle}</p>
                   </div>
-                  <span className="ios-glass-dark rounded-full p-2 sm:p-3.5 text-white group-hover:translate-x-1 transition-transform inline-flex items-center">
+                  <span className="ios-glass-dark rounded-full p-2.5 sm:p-3.5 text-white group-hover:translate-x-1 transition-transform inline-flex items-center">
                     <ArrowRight size={20} />
                   </span>
                 </div>
@@ -571,22 +573,22 @@ export const LandingPage: React.FC = () => {
                   <div className="absolute inset-0 z-10 rounded-[inherit] ring-1 ring-white/30" aria-hidden />
 
                   <div className="relative z-20 w-full p-3.5 sm:p-8">
-                    <span className="inline-flex items-center gap-1.5 mb-2 sm:mb-3 rounded-full px-2.5 sm:px-4 py-0.5 sm:py-1 text-[10px] sm:text-xs font-bold text-white ios-glass-dark">
+                    <span className="inline-flex items-center gap-1.5 mb-2 sm:mb-3 rounded-full px-2.5 sm:px-4 py-0.5 sm:py-1 text-[11px] sm:text-xs font-bold text-white ios-glass-dark">
                       {product.discount}% · {product.category === 'aseo' ? 'Aseo' : 'Alimentos'}
                     </span>
-                    <h3 className="font-display text-sm sm:text-3xl font-extrabold tracking-tight text-white mb-1 sm:mb-2 drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)]">
+                    <h3 className="font-display text-lg sm:text-3xl font-extrabold tracking-tight text-white mb-1 sm:mb-2 drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)]">
                       {product.name}
                     </h3>
                     <p className="hidden sm:block mb-2 text-white/95 font-light text-base sm:text-lg drop-shadow-[0_1px_6px_rgba(0,0,0,0.55)]">
                       {product.description}
                     </p>
-                    <p className="mb-3 sm:mb-5 text-white font-bold text-[13px] sm:text-xl drop-shadow-[0_1px_6px_rgba(0,0,0,0.55)]">
+                    <p className="mb-3 sm:mb-5 text-white font-bold text-sm sm:text-xl drop-shadow-[0_1px_6px_rgba(0,0,0,0.55)]">
                       <span className="line-through opacity-70 mr-2">{formatPrice(product.price)}</span>
                       {formatPrice(getDiscountedPrice(product))}
                     </p>
                     <Link
                       to="/products?category=ofertas"
-                      className="inline-flex items-center gap-1.5 sm:gap-2 text-primary-deep px-3 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-base rounded-full font-bold bg-white/85 backdrop-blur-sm shadow-glass hover:brightness-105 active:scale-95 transition"
+                      className="inline-flex items-center gap-1.5 sm:gap-2 text-primary-deep px-3 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base rounded-full font-bold bg-white/85 backdrop-blur-sm shadow-glass hover:brightness-105 active:scale-95 transition"
                     >
                       Ver Oferta
                       <ArrowRight size={18} />
@@ -605,7 +607,7 @@ export const LandingPage: React.FC = () => {
           <RevealText
             as="h2"
             text="Productos Destacados"
-            className="font-display text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-center text-dark mb-5 sm:mb-8 text-balance"
+            className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-center text-dark mb-5 sm:mb-8 text-balance"
           />
 
           {/* Filtros: la opción activa se marca sin desplazamientos */}
@@ -679,8 +681,8 @@ export const LandingPage: React.FC = () => {
                 >
                   {step.icon}
                 </div>
-                <h3 className="font-display text-[12px] sm:text-lg font-bold text-primary-dark mb-2 leading-tight">{step.title}</h3>
-                <p className="hidden sm:block text-gray-500 text-sm font-light leading-relaxed">{step.description}</p>
+                <h3 className="font-display text-[13px] sm:text-lg font-bold text-primary-dark mb-2 leading-tight">{step.title}</h3>
+                <p className="hidden sm:block text-gray-500 text-sm sm:text-base font-light leading-relaxed">{step.description}</p>
               </motion.div>
             ))}
           </div>
@@ -726,7 +728,7 @@ export const LandingPage: React.FC = () => {
                       />
                     ))}
                   </div>
-                  <p className="text-[13px] sm:text-base text-gray-600 mb-4 sm:mb-5 leading-relaxed">
+                  <p className="text-sm sm:text-lg text-gray-600 mb-4 sm:mb-5 leading-relaxed">
                     "{review.comment}"
                   </p>
                   <div className="flex items-center gap-2 sm:gap-3">
@@ -737,8 +739,8 @@ export const LandingPage: React.FC = () => {
                       {review.authorName.charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-bold text-dark text-sm truncate">{review.authorName}</p>
-                      <p className="text-gray-400 text-xs truncate">
+                      <p className="font-bold text-dark text-base truncate">{review.authorName}</p>
+                      <p className="text-gray-400 text-sm truncate">
                         {review.productName} · {formatDate(review.createdAt)}
                       </p>
                     </div>
@@ -752,7 +754,7 @@ export const LandingPage: React.FC = () => {
 
       {/* ============ CROSS-SELLING: LA OTRA TIENDA ============ */}
       <section className="py-8 sm:py-14">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <SlideUp>
             <button
               onClick={() => setTheme(isMarket ? 'boutique' : 'market')}
@@ -764,11 +766,11 @@ export const LandingPage: React.FC = () => {
                   src={crossImage}
                   alt=""
                   loading="lazy"
-                  className="w-full h-40 sm:h-52 md:h-64 object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                  className="w-full h-52 sm:h-64 md:h-72 object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                 />
               ) : (
                 <div
-                  className="w-full h-40 sm:h-52 md:h-64"
+                  className="w-full h-52 sm:h-64 md:h-72"
                   style={{ background: 'linear-gradient(150deg, var(--c-sig-1), var(--c-sig-3))' }}
                   aria-hidden
                 />
@@ -783,14 +785,14 @@ export const LandingPage: React.FC = () => {
               />
               <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 flex items-end justify-between gap-4">
                 <div>
-                  <p className="ios-glass-dark inline-flex items-center gap-2 rounded-full px-3.5 py-1 text-xs font-semibold text-white mb-3">
+                  <p className="ios-glass-dark inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold text-white mb-3">
                     <Store size={13} />
                     {isMarket ? 'Nueva tienda' : 'Visita también'}
                   </p>
-                  <h3 className="font-display text-xl sm:text-2xl md:text-4xl font-extrabold text-white mb-1">
+                  <h3 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-1">
                     {isMarket ? 'Garzón Chic' : 'Ventas Garzón'}
                   </h3>
-                  <p className="text-white/85 text-xs sm:text-sm md:text-base">
+                  <p className="text-white/85 text-sm sm:text-base md:text-lg">
                     {isMarket
                       ? 'Venta de garaje online: ropa y accesorios únicos a precio de ganga'
                       : 'Tu mercado de aseo y alimentos de siempre, a un clic'}
@@ -814,7 +816,7 @@ export const LandingPage: React.FC = () => {
               <RevealText
                 as="h2"
                 text="¿Listo para Comprar?"
-                className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-3 sm:mb-4"
+                className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 sm:mb-4"
               />
               <RevealText
                 as="p"
@@ -824,7 +826,7 @@ export const LandingPage: React.FC = () => {
                     ? 'Tu despensa y tu aseo, resueltos en minutos'
                     : 'Renueva tu armario sin vaciar tu bolsillo'
                 }
-                className="text-sm sm:text-lg mb-6 sm:mb-8 grove-text-soft"
+                className="text-base sm:text-xl mb-6 sm:mb-8 grove-text-soft"
               />
               <div className="flex flex-col min-[420px]:flex-row gap-3 sm:gap-4 justify-center">
                 <Link to="/products" className="btn-signature inline-flex px-8 py-3">

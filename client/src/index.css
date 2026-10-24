@@ -2298,12 +2298,32 @@ html[data-mode='dark'][data-theme='boutique'] {
   color: var(--c-primary-deep);
 }
 
-/* Hover y foco: vidrio claro, como los filtros de la tienda. */
+/* Hover y foco: UNA sola burbuja.
+   ------------------------------------------------------------
+   Antes el hover pintaba además un relleno en la propia opción
+   (background + borde + sombra) y el brillo que sigue al puntero
+   iba encima: dos gotas superpuestas en el mismo sitio y el cristal
+   no se apreciaba. Ahora la opción queda plana y todo el hover vive
+   en .liquid-tab::after, con la MISMA silueta de la pastilla activa
+   (inset -4px, radio heredado): una burbuja que se enciende bajo el
+   puntero y la pastilla que viaja al elegir tienda. */
 .header-dark .store-switcher .liquid-tab:hover,
 .header-dark .store-switcher .liquid-tab:focus-visible {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.12));
-  border-color: rgba(255, 255, 255, 0.55);
-  box-shadow:
-    0 6px 16px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+/* Un solo cristal en el hover: canto fino + tinte de vidrio + el
+   reflejo especular que sigue al puntero (--mx / --my). */
+.header-dark .store-switcher .liquid-tab::after {
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  background:
+    radial-gradient(
+      64px 64px at var(--mx, 50%) var(--my, 50%),
+      rgba(255, 255, 255, 0.5),
+      rgba(255, 255, 255, 0) 74%
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.06) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
