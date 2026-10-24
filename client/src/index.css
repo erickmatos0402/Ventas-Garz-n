@@ -325,16 +325,24 @@ html[data-theme='boutique'] {
     inset 0 -1px 1px rgba(255, 255, 255, 0.25);
 }
 
+/* Chips, campos y filas pequeñas: SIN vidrio. Casi siempre viven dentro de
+   un panel que ya es cristal, así que un segundo desenfoque no aportaba
+   nada y sí ensuciaba el conjunto (además de costar rendimiento en móvil). */
 .liquid-badge {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.3) 52%, rgba(var(--c-primary-rgb), 0.07));
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 1px 2px rgba(var(--c-shadow-rgb), 0.05);
+}
+
+/* Superficie plana para tarjetas de contenido (productos, pasos, reseñas y
+   filas del panel). Tampoco necesita desenfocar el fondo: conserva el tinte
+   del tema y el borde, pero deja de ser “liquid glass”. */
+.surface-card {
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.94), rgba(var(--c-soft-rgb), 0.88));
+  border: 1px solid rgba(255, 255, 255, 0.78);
   box-shadow:
-    0 1px 2px rgba(var(--c-shadow-rgb), 0.06),
-    0 8px 20px rgba(var(--c-shadow-rgb), 0.10),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    inset 0 -1px 1px rgba(255, 255, 255, 0.25);
+    0 1px 2px rgba(var(--c-shadow-rgb), 0.05),
+    0 10px 26px rgba(var(--c-shadow-rgb), 0.07);
 }
 
 /* BORDE LIQUIDO: aro especular en el canto */
@@ -1426,7 +1434,6 @@ h3 {
   .glass-panel,
   .glass-strong,
   .liquid-panel,
-  .liquid-badge,
   .liquid-tabs,
   .grove-chip,
   .grove-panel,
@@ -2216,9 +2223,17 @@ html[data-mode='dark'][data-theme='boutique'] {
 }
 
 :where(html[data-mode='dark']) .liquid-badge {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04));
+  background: rgba(255, 255, 255, 0.055);
   border-color: rgba(255, 255, 255, 0.13);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+:where(html[data-mode='dark']) .surface-card {
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.09), rgba(var(--c-soft-rgb), 0.55));
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.35),
+    0 10px 26px rgba(0, 0, 0, 0.35);
 }
 
 /* Opción activa de las pestañas: pastilla oscura, no blanca */

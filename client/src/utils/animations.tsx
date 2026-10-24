@@ -82,18 +82,20 @@ interface RevealTextProps {
 }
 
 /**
- * RevealText — los textos de la Landing aparecen palabra a palabra al
- * entrar en pantalla mientras se hace scroll. Cada palabra sube desde su
- * propia máscara y se va aclarando con una curva rápida de salida; el
- * bloque se anima una sola vez. El texto real queda en `aria-label`, así
- * los lectores de pantalla lo leen de corrido y no palabra por palabra.
+ * RevealText — los textos de la Landing aparecen al entrar en pantalla
+ * mientras se hace scroll. Cada palabra se eleva desde su máscara con un
+ * giro leve sobre el eje X, desenfoque que se disuelve y un pequeño
+ * asentamiento de escala; el conjunto se lee como una cortina de cristal que
+ * se abre, en lugar del salto recto de antes. El bloque se anima una sola vez
+ * y el texto real queda en `aria-label`, así los lectores de pantalla lo leen
+ * de corrido y no palabra por palabra.
  */
 export const RevealText: React.FC<RevealTextProps> = ({
   text,
   className = '',
   as = 'p',
   delay = 0,
-  stagger = 0.045,
+  stagger = 0.055,
 }) => {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.3 });
@@ -101,21 +103,26 @@ export const RevealText: React.FC<RevealTextProps> = ({
 
   return React.createElement(
     as,
-    { ref, className, 'aria-label': text },
+    { ref, className, 'aria-label': text, style: { perspective: '900px' } },
     words.map((word, index) => (
       <span
         key={`${word}-${index}`}
         aria-hidden
-        className="inline-block overflow-hidden align-bottom"
+        className="inline-block overflow-hidden align-bottom pb-[0.06em]"
       >
         <motion.span
-          className="inline-block"
-          initial={{ y: '110%', opacity: 0 }}
-          animate={inView ? { y: '0%', opacity: 1 } : undefined}
+          className="inline-block will-change-transform"
+          style={{ transformOrigin: '50% 100%', transformStyle: 'preserve-3d' }}
+          initial={{ y: '105%', opacity: 0, rotateX: -48, scale: 0.96, filter: 'blur(6px)' }}
+          animate={
+            inView
+              ? { y: '0%', opacity: 1, rotateX: 0, scale: 1, filter: 'blur(0px)' }
+              : undefined
+          }
           transition={{
-            duration: 0.55,
+            duration: 0.85,
             delay: delay + index * stagger,
-            ease: [0.22, 1, 0.36, 1],
+            ease: [0.16, 1, 0.3, 1],
           }}
         >
           {word}

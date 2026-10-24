@@ -73,6 +73,23 @@ export const orderService = {
   },
 
   /**
+   * Últimos pedidos de una tienda, sin líneas ni perfil: es la consulta
+   * ligera que usa el aviso al administrador para detectar pedidos nuevos.
+   * RLS solo devuelve todos los pedidos a las cuentas con rol admin.
+   */
+  listRecent: async (store: ProductStore, limit = 20): Promise<OrderRow[]> => {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('store', store)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  },
+
+  /**
    * Pedidos de una tienda con sus líneas y el cliente (solo administradores:
    * RLS devuelve todos los pedidos únicamente a las cuentas con rol admin).
    * Se consulta en tres pasos sencillos para no depender de joins tipados.

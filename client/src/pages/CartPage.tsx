@@ -50,7 +50,7 @@ export const CartPage: React.FC = () => {
 
         {/* Recogida en tienda: ya no hay envío ni impuestos */}
         <SlideUp delay={0.05}>
-          <div className="glass-panel rounded-2xl sm:rounded-full px-5 py-3 mb-8 flex items-center gap-3">
+          <div className="surface-card rounded-2xl sm:rounded-full px-5 py-3 mb-8 flex items-center gap-3">
             <Store size={18} className="text-primary flex-shrink-0" />
             <p className="text-sm text-dark min-w-0 flex-1">
               Recogida en tienda <span className="text-gray-400">·</span>{' '}
@@ -74,7 +74,7 @@ export const CartPage: React.FC = () => {
                   key={item.id}
                   variants={itemVariants}
                   layout
-                  className="glass-panel rounded-xl p-2 flex flex-col"
+                  className="surface-card rounded-xl p-2 flex flex-col"
                 >
                   {/* Ficha compacta: la foto manda y el botón de eliminar se
                       superpone para no robarle alto a la tarjeta. */}

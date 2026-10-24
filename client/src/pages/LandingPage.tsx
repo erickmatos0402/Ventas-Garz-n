@@ -389,7 +389,7 @@ export const LandingPage: React.FC = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="ios-glass rounded-[1.75rem] p-1.5 grid grid-cols-3"
+            className="surface-card rounded-[1.75rem] p-1.5 grid grid-cols-3"
           >
             {trustItems.map((item) => (
               <motion.div
@@ -530,7 +530,7 @@ export const LandingPage: React.FC = () => {
             className="grid grid-cols-2 gap-3 sm:gap-6"
           >
             {promoCards.length === 0 ? (
-              <div className="md:col-span-2 ios-glass rounded-3xl p-10 text-center">
+              <div className="md:col-span-2 surface-card rounded-3xl p-10 text-center">
                 <p className="text-gray-500">
                   {isAdmin
                     ? 'No hay ofertas activas por ahora. Añade productos con descuento en el Admin.'
@@ -665,7 +665,7 @@ export const LandingPage: React.FC = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.12 }}
                 {...bubbleProps}
-                className="relative bubble-hl ios-glass rounded-2xl sm:rounded-3xl px-2.5 py-4 pt-9 sm:p-7 sm:pt-12 text-center"
+                className="relative bubble-hl surface-card rounded-2xl sm:rounded-3xl px-2.5 py-4 pt-9 sm:p-7 sm:pt-12 text-center"
               >
                 <span
                   className="absolute -top-5 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full text-white font-display font-extrabold flex items-center justify-center shadow-glass ring-4 ring-white/40"
@@ -715,7 +715,7 @@ export const LandingPage: React.FC = () => {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.12 }}
                   {...bubbleProps}
-                  className="bubble-hl ios-glass rounded-2xl sm:rounded-3xl p-4 sm:p-7"
+                  className="bubble-hl surface-card rounded-2xl sm:rounded-3xl p-4 sm:p-7"
                 >
                   <div className="flex gap-1 mb-3 sm:mb-4">
                     {[1, 2, 3, 4, 5].map((s) => (

@@ -13,3 +13,4 @@ export { SuccessCelebration } from './SuccessCelebration';
 export { RevenueChart } from './RevenueChart';
 export { ProductImageEditor } from './ProductImageEditor';
 export { OrderNotificationToast } from './OrderNotificationToast';
+export { AdminOrderAlerts } from './AdminOrderAlerts';

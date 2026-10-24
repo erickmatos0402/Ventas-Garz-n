@@ -57,7 +57,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, 
       transition={{ type: 'spring', stiffness: 300, damping: 22 }}
       onPointerMove={trackBubblePointer}
       onPointerLeave={resetBubblePointer}
-      className="ios-glass bubble-hl rounded-[1.4rem] sm:rounded-[2rem] overflow-hidden flex flex-col h-full"
+      className="surface-card bubble-hl rounded-[1.4rem] sm:rounded-[2rem] overflow-hidden flex flex-col h-full"
     >
       {/* Imagen del producto: ventana ancha con relación fija, recorta con object-cover */}
       <div className="relative w-full aspect-[16/10] overflow-hidden bg-white/60">

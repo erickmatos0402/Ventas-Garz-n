@@ -10,7 +10,6 @@ import {
   Store,
   Info,
   HelpCircle,
-  ShieldCheck,
   LogIn,
   UserCircle,
 } from 'lucide-react';
@@ -29,11 +28,7 @@ const MENU_ITEMS = [
   { to: '/products', label: 'Tienda', icon: <Store size={16} /> },
   { to: '/about', label: 'Acerca de', icon: <Info size={16} /> },
   { to: '/faq', label: 'FAQ', icon: <HelpCircle size={16} /> },
-  { to: '/admin', label: 'Panel Admin', icon: <ShieldCheck size={16} /> },
 ];
-
-/** La entrada al panel solo existe con sesión de administrador. */
-const isAdminItem = (item: (typeof MENU_ITEMS)[number]) => item.to === '/admin';
 
 /** El panel entra como una gota y las opciones lo hacen en cascada. */
 const menuVariants: Variants = {
@@ -68,8 +63,7 @@ export const Header: React.FC = () => {
   const totalItems = items.reduce((sum: number, item: any) => sum + item.quantity, 0);
   const location = useLocation();
   const meta = STORE_META_DATA[theme];
-  // Solo los administradores ven la opción Admin en el menú.
-  const menuItems = MENU_ITEMS.filter((item) => !isAdminItem(item) || user?.role === 'admin');
+  const menuItems = MENU_ITEMS;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -173,13 +167,15 @@ export const Header: React.FC = () => {
                       })}
 
                       {/* Cuenta: sin sesión se ofrece iniciar sesión, resaltado
-                          para que sea la acción principal del menú; con
-                          sesión abierta solo se muestra QUIÉN está dentro
-                          (el cierre de sesión vive en /login). */}
+                          para que sea la acción principal del menú. Con
+                          sesión abierta, el nombre lleva a la cuenta del
+                          cliente o directamente al Panel si es admin: allí
+                          ya están «Continuar» y «Cerrar sesión», así que el
+                          panel no ocupa una opción aparte en el menú. */}
                       <motion.li variants={menuItemVariants}>
                         {user ? (
                           <Link
-                            to="/login"
+                            to={user.role === 'admin' ? '/admin' : '/login'}
                             onClick={() => setIsMenuOpen(false)}
                             className="menu-theme-item"
                           >

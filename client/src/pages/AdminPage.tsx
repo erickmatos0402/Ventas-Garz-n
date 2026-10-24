@@ -26,6 +26,7 @@ import {
   CreditCard,
   LogOut,
   Wand2,
+  Bell,
 } from 'lucide-react';
 import { LiquidTabs, RevenueChart, ProductImageEditor } from '../components';
 import { useAuthStore, useCatalogStore, useThemeStore } from '../store';
@@ -41,7 +42,11 @@ import { orderService, type AdminOrder } from '../services/orders';
 import type { OrderStatus } from '../types/database';
 import { BOUTIQUE_CATEGORIES, STORE_META_DATA } from '../data/boutiqueData';
 import { useImageWithFallback } from '../hooks/useImageWithFallback';
-import { ensureNotificationPermission, notifyOrderCompleted } from '../utils/notifications';
+import {
+  ensureNotificationPermission,
+  notificationsSupported,
+  notifyOrderCompleted,
+} from '../utils/notifications';
 
 type StoreId = 'market' | 'boutique';
 type AdminTab = 'productos' | 'pedidos' | 'ventas';
@@ -123,7 +128,7 @@ const AdminProductCard: React.FC<{
   const isMarket = (product.store ?? 'market') === 'market';
 
   return (
-    <div className="glass-panel rounded-3xl p-5 flex flex-col gap-3">
+    <div className="surface-card rounded-3xl p-5 flex flex-col gap-3">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <button
@@ -240,7 +245,7 @@ const OrderCard: React.FC<{
   const isOpen = order.status !== 'delivered' && order.status !== 'cancelled';
 
   return (
-    <div className="glass-panel rounded-3xl p-4 sm:p-5 flex flex-col gap-3">
+    <div className="surface-card rounded-3xl p-4 sm:p-5 flex flex-col gap-3">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="font-display font-bold text-dark">#{order.id.slice(0, 8).toUpperCase()}</p>
@@ -337,6 +342,11 @@ export const AdminPage: React.FC = () => {
   const [imageEditorOpen, setImageEditorOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  // Los avisos del navegador necesitan permiso explícito; el de la página
+  // (con sonido) funciona siempre que el panel esté abierto.
+  const [alertsEnabled, setAlertsEnabled] = useState(
+    () => notificationsSupported() && Notification.permission === 'granted'
+  );
 
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
@@ -431,6 +441,11 @@ export const AdminPage: React.FC = () => {
   const handleLogout = async () => {
     await logout();
     navigate('/', { replace: true });
+  };
+
+  const enableAlerts = async () => {
+    const permission = await ensureNotificationPermission();
+    setAlertsEnabled(permission === 'granted');
   };
 
   const openCreate = () => {
@@ -608,6 +623,17 @@ export const AdminPage: React.FC = () => {
                   Nuevo {adminStore === 'market' ? 'Producto' : 'Artículo'}
                 </button>
               )}
+              {notificationsSupported() && !alertsEnabled && (
+                <button
+                  type="button"
+                  onClick={() => void enableAlerts()}
+                  className="btn-liquid-ghost inline-flex items-center gap-2 px-5 py-3 text-sm"
+                  title="Avisar con una notificación del sistema cuando entre un pedido"
+                >
+                  <Bell size={17} />
+                  Activar avisos
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => void handleLogout()}
@@ -650,7 +676,7 @@ export const AdminPage: React.FC = () => {
             {/* Estadísticas de la tienda activa */}
             <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
               {stats.map((stat) => (
-                <motion.div key={stat.label} whileHover={{ y: -4 }} className="glass-panel rounded-3xl p-4 sm:p-6">
+                <motion.div key={stat.label} whileHover={{ y: -4 }} className="surface-card rounded-3xl p-4 sm:p-6">
                   <div className="flex items-start justify-between gap-2">
                     <p className="heading-eyebrow text-[11px] sm:text-sm min-w-0 break-words">{stat.label}</p>
                     <span className="flex-shrink-0">{stat.icon}</span>
@@ -777,7 +803,7 @@ export const AdminPage: React.FC = () => {
                 { label: 'Ticket promedio', value: formatPrice(summary.averageTicket), icon: <Truck size={22} className="text-primary-deep" /> },
                 { label: 'Pendientes', value: String(summary.pending), icon: <Clock size={22} className="text-amber-600" /> },
               ].map((stat) => (
-                <div key={stat.label} className="glass-panel rounded-3xl p-4 sm:p-6">
+                <div key={stat.label} className="surface-card rounded-3xl p-4 sm:p-6">
                   <div className="flex items-start justify-between gap-2">
                     <p className="heading-eyebrow text-[11px] sm:text-sm min-w-0 break-words">{stat.label}</p>
                     <span className="flex-shrink-0">{stat.icon}</span>

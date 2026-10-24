@@ -14,6 +14,57 @@ export interface OrderNotificationPayload {
 /** Evento interno que escucha el aviso flotante de la página. */
 export const ORDER_NOTIFICATION_EVENT = 'vg:order-notification';
 
+let audioContext: AudioContext | null = null;
+
+/**
+ * Sonido de aviso (dos notas suaves) generado en el navegador: no hace falta
+ * descargar ningún archivo. Se crea y reanuda dentro de un gesto del usuario
+ * para que los navegadores no bloqueen el audio.
+ */
+function getAudioContext(): AudioContext | null {
+  if (typeof window === 'undefined') return null;
+  const AudioCtor = window.AudioContext ?? (window as any).webkitAudioContext;
+  if (!AudioCtor) return null;
+  if (!audioContext) audioContext = new AudioCtor();
+  return audioContext;
+}
+
+/** Prepara el audio con el primer gesto de la página (clic o tecla). */
+export function primeNotificationSound(): void {
+  const context = getAudioContext();
+  if (context?.state === 'suspended') void context.resume();
+}
+
+/** Reproduce el aviso sonoro de pedido. Si el audio está bloqueado, no falla. */
+export function playNotificationSound(): void {
+  const context = getAudioContext();
+  if (!context) return;
+  if (context.state === 'suspended') void context.resume();
+
+  try {
+    const start = context.currentTime;
+    // Do agudo -> Mi agudo: un timbre corto y reconocible, sin ser estridente.
+    [880, 1318.5].forEach((frequency, index) => {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      const noteStart = start + index * 0.14;
+
+      oscillator.type = 'sine';
+      oscillator.frequency.value = frequency;
+      gain.gain.setValueAtTime(0.0001, noteStart);
+      gain.gain.exponentialRampToValueAtTime(0.2, noteStart + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, noteStart + 0.5);
+
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start(noteStart);
+      oscillator.stop(noteStart + 0.52);
+    });
+  } catch {
+    // Sin audio disponible: el aviso flotante sigue informando del pedido.
+  }
+}
+
 export function notificationsSupported(): boolean {
   return typeof window !== 'undefined' && 'Notification' in window;
 }
@@ -43,7 +94,10 @@ export async function ensureNotificationPermission(): Promise<NotificationPermis
  *
  * No usa servicios externos: todo ocurre en el propio navegador.
  */
-export async function notifyOrderCompleted(payload: OrderNotificationPayload): Promise<void> {
+export async function notifyOrderCompleted(
+  payload: OrderNotificationPayload,
+  options: { requestPermission?: boolean } = {}
+): Promise<void> {
   if (typeof window === 'undefined') return;
 
   window.dispatchEvent(
@@ -53,7 +107,11 @@ export async function notifyOrderCompleted(payload: OrderNotificationPayload): P
   if (!notificationsSupported()) return;
 
   let permission = Notification.permission;
-  if (permission === 'default') permission = await ensureNotificationPermission();
+  // El aviso automático (admin escuchando pedidos) no puede abrir el diálogo
+  // del navegador sin un gesto: el panel ofrece un botón para concederlo.
+  if (permission === 'default' && options.requestPermission !== false) {
+    permission = await ensureNotificationPermission();
+  }
   if (permission !== 'granted') return;
 
   try {

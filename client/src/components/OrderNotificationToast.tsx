@@ -3,6 +3,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { BellRing, X } from 'lucide-react';
 import {
   ORDER_NOTIFICATION_EVENT,
+  playNotificationSound,
+  primeNotificationSound,
   type OrderNotificationPayload,
 } from '../utils/notifications';
 
@@ -21,12 +23,20 @@ export const OrderNotificationToast: React.FC = () => {
       const detail = (event as CustomEvent<OrderNotificationPayload>).detail;
       if (!detail) return;
       setPayload(detail);
+      // El aviso de pedido también suena. El audio se desbloquea con el
+      // primer clic o tecla, que es lo que exigen los navegadores.
+      playNotificationSound();
       window.clearTimeout(timerRef.current);
       timerRef.current = window.setTimeout(() => setPayload(null), 6000);
     };
 
+    const unlockAudio = () => primeNotificationSound();
+    window.addEventListener('pointerdown', unlockAudio, { once: true });
+    window.addEventListener('keydown', unlockAudio, { once: true });
     window.addEventListener(ORDER_NOTIFICATION_EVENT, onNotify);
     return () => {
+      window.removeEventListener('pointerdown', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
       window.removeEventListener(ORDER_NOTIFICATION_EVENT, onNotify);
       window.clearTimeout(timerRef.current);
     };

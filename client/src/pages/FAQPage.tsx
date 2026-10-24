@@ -71,7 +71,7 @@ export const FAQPage: React.FC = () => {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.06 }}
-                className={`rounded-3xl overflow-hidden transition-shadow ${isOpen ? 'glass-strong shadow-glass-lg' : 'liquid-badge'}`}
+                className={`rounded-3xl overflow-hidden transition-shadow ${isOpen ? 'surface-card shadow-glass-lg' : 'liquid-badge'}`}
               >
                 <button
                   onClick={() => setOpenIndex(isOpen ? null : i)}

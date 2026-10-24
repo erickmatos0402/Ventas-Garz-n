@@ -292,25 +292,36 @@ export const ProductImageEditor: React.FC<ProductImageEditorProps> = ({
     dragRef.current = null;
   };
 
+  /**
+   * Zona de la foto que queda dentro del marco de recorte, en píxeles de la
+   * imagen original. Es la misma cuenta para «Recortar» y para «Usar esta
+   * imagen», así lo que se ve en el marco es exactamente lo que se guarda.
+   */
+  const cropSource = (img: HTMLImageElement) => {
+    const sourceX = (geometry.frameX - (viewport - geometry.dispW) / 2 - offset.x) / geometry.scale;
+    const sourceY = (geometry.frameY - (viewport - geometry.dispH) / 2 - offset.y) / geometry.scale;
+    const sourceW = geometry.frameW / geometry.scale;
+    const sourceH = geometry.frameH / geometry.scale;
+
+    return {
+      x: clamp(sourceX, 0, Math.max(0, img.width - sourceW)),
+      y: clamp(sourceY, 0, Math.max(0, img.height - sourceH)),
+      width: Math.min(sourceW, img.width),
+      height: Math.min(sourceH, img.height),
+    };
+  };
+
   const handleCrop = async () => {
     if (!size.width || !geometry.scale) return;
     setBusy('crop');
     setError(null);
     try {
       const img = await loadImage(workSrc);
-      const sourceX = (geometry.frameX - (viewport - geometry.dispW) / 2 - offset.x) / geometry.scale;
-      const sourceY = (geometry.frameY - (viewport - geometry.dispH) / 2 - offset.y) / geometry.scale;
-      const sourceW = geometry.frameW / geometry.scale;
-      const sourceH = geometry.frameH / geometry.scale;
+      const source = cropSource(img);
 
-      const safeX = clamp(sourceX, 0, Math.max(0, img.width - sourceW));
-      const safeY = clamp(sourceY, 0, Math.max(0, img.height - sourceH));
-      const safeW = Math.min(sourceW, img.width);
-      const safeH = Math.min(sourceH, img.height);
-
-      const scale = Math.min(1, MAX_OUTPUT / Math.max(safeW, safeH));
-      const [canvas, ctx] = makeCanvas(safeW * scale, safeH * scale);
-      ctx.drawImage(img, safeX, safeY, safeW, safeH, 0, 0, canvas.width, canvas.height);
+      const scale = Math.min(1, MAX_OUTPUT / Math.max(source.width, source.height));
+      const [canvas, ctx] = makeCanvas(source.width * scale, source.height * scale);
+      ctx.drawImage(img, source.x, source.y, source.width, source.height, 0, 0, canvas.width, canvas.height);
       pushHistory(canvasToDataUrl(canvas, ctx));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo recortar la imagen');
@@ -379,15 +390,20 @@ export const ProductImageEditor: React.FC<ProductImageEditorProps> = ({
   };
 
   const handleApply = async () => {
+    if (!size.width || !geometry.scale) return;
     setBusy('save');
     setError(null);
     try {
       const img = await loadImage(workSrc);
-      const scale = Math.min(1, MAX_OUTPUT / Math.max(img.width, img.height));
-      const [canvas, ctx] = makeCanvas(img.width * scale, img.height * scale);
+      // Se guarda el encuadre que muestra el marco (proporción, zoom y
+      // posición) junto con brillo y contraste. Antes solo se aplicaba el
+      // color, así que en Tienda seguía apareciendo la foto sin recortar.
+      const source = cropSource(img);
+      const scale = Math.min(1, MAX_OUTPUT / Math.max(source.width, source.height));
+      const [canvas, ctx] = makeCanvas(source.width * scale, source.height * scale);
       // `filter` del canvas aplica el ajuste de luz y contraste de una vez.
       ctx.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, source.x, source.y, source.width, source.height, 0, 0, canvas.width, canvas.height);
       onApply(canvasToDataUrl(canvas, ctx));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo aplicar la edición');

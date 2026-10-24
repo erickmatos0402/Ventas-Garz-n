@@ -8,6 +8,7 @@ import {
   ContactBubble,
   StoreTransitionOverlay,
   OrderNotificationToast,
+  AdminOrderAlerts,
 } from './components';
 import {
   LandingPage,
@@ -82,6 +83,7 @@ function AppShell() {
       <ContactBubble />
       <StoreTransitionOverlay />
       <OrderNotificationToast />
+      <AdminOrderAlerts />
     </div>
   );
 }
