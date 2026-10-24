@@ -753,56 +753,61 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* ============ CROSS-SELLING: LA OTRA TIENDA ============ */}
+      {/* Tarjeta CUADRADA (1:1): el acceso a la otra tienda se lee como un
+          cuadro más de la Landing, no como una franja ancha. */}
       <section className="py-8 sm:py-14">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <SlideUp>
-            <button
-              onClick={() => setTheme(isMarket ? 'boutique' : 'market')}
-              {...bubbleProps}
-              className="group relative block w-full rounded-3xl overflow-hidden bubble-hl bubble-hl-dark ios-press liquid-border shadow-glass-lg text-left"
-            >
-              {crossImage ? (
-                <img
-                  src={crossImage}
-                  alt=""
-                  loading="lazy"
-                  className="w-full h-52 sm:h-64 md:h-72 object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                />
-              ) : (
+            <div className="mx-auto w-full max-w-[24rem] sm:max-w-sm md:max-w-md">
+              <button
+                onClick={() => setTheme(isMarket ? 'boutique' : 'market')}
+                {...bubbleProps}
+                className="group relative block w-full aspect-square rounded-[2rem] overflow-hidden bubble-hl bubble-hl-dark ios-press liquid-border shadow-glass-lg text-left"
+              >
+                {crossImage ? (
+                  <img
+                    src={crossImage}
+                    alt=""
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                  />
+                ) : (
+                  <div
+                    className="absolute inset-0"
+                    style={{ background: 'linear-gradient(150deg, var(--c-sig-1), var(--c-sig-3))' }}
+                    aria-hidden
+                  />
+                )}
                 <div
-                  className="w-full h-52 sm:h-64 md:h-72"
-                  style={{ background: 'linear-gradient(150deg, var(--c-sig-1), var(--c-sig-3))' }}
-                  aria-hidden
+                  className="absolute inset-0"
+                  style={{
+                    /* --c-cross-* describe siempre la tienda que se muestra
+                       en la tarjeta (la contraria a la activa). */
+                    background: 'linear-gradient(to top, var(--c-cross-1), var(--c-cross-2) 55%, transparent)',
+                  }}
                 />
-              )}
-              <div
-                className="absolute inset-0"
-                style={{
-                  /* --c-cross-* describe siempre la tienda que se muestra
-                     en la tarjeta (la contraria a la activa). */
-                  background: 'linear-gradient(to top, var(--c-cross-1), var(--c-cross-2) 55%, transparent)',
-                }}
-              />
-              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 flex items-end justify-between gap-4">
-                <div>
-                  <p className="ios-glass-dark inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold text-white mb-3">
+                <div className="absolute inset-0 p-5 sm:p-6 flex flex-col justify-between">
+                  <p className="ios-glass-dark self-start inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold text-white">
                     <Store size={13} />
                     {isMarket ? 'Nueva tienda' : 'Visita también'}
                   </p>
-                  <h3 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-1">
-                    {isMarket ? 'Garzón Chic' : 'Ventas Garzón'}
-                  </h3>
-                  <p className="text-white/85 text-sm sm:text-base md:text-lg">
-                    {isMarket
-                      ? 'Venta de garaje online: ropa y accesorios únicos a precio de ganga'
-                      : 'Tu mercado de aseo y alimentos de siempre, a un clic'}
-                  </p>
+                  <div>
+                    <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-white mb-1.5 drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]">
+                      {isMarket ? 'Garzón Chic' : 'Ventas Garzón'}
+                    </h3>
+                    <p className="text-white/85 text-sm sm:text-base mb-4">
+                      {isMarket
+                        ? 'Venta de garaje online: ropa y accesorios únicos a precio de ganga'
+                        : 'Tu mercado de aseo y alimentos de siempre, a un clic'}
+                    </p>
+                    <span className="ios-glass-dark inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold text-white">
+                      Ver la tienda
+                      <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+                    </span>
+                  </div>
                 </div>
-                <span className="ios-glass-dark rounded-full p-3.5 text-white group-hover:translate-x-1.5 transition-transform flex-shrink-0">
-                  <ArrowRight size={22} />
-                </span>
-              </div>
-            </button>
+              </button>
+            </div>
           </SlideUp>
         </div>
       </section>

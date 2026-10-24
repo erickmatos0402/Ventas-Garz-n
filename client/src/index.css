@@ -596,24 +596,31 @@ html[data-theme='boutique'] {
 /* Brillo de vidrio dentro de cada opción: sigue al puntero (--mx / --my,
    escritas por trackBubblePointer) y aparece al pasar el cursor o al
    enfocar con el teclado. Es la reacción "glass" del conmutador de
-   tienda y de cualquier grupo de pestañas líquidas. */
+   tienda y de cualquier grupo de pestañas líquidas.
+   Es la ÚNICA pieza de cristal del hover: un velo tenue (se ve la página a
+   través de ella), el canto fino y el reflejo que sigue al puntero. El
+   relleno que antes se pintaba en la propia opción se retiró para que no
+   se sumaran dos burbujas en el mismo sitio. */
 .liquid-tab::after {
   content: '';
   position: absolute;
   inset: -4px;
   z-index: 0;
   border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.5);
   background:
     radial-gradient(
       60px 60px at var(--mx, 50%) var(--my, 50%),
-      rgba(255, 255, 255, 0.55),
+      rgba(255, 255, 255, 0.5),
       rgba(255, 255, 255, 0) 72%
     ),
     radial-gradient(
       90px 90px at var(--mx, 50%) var(--my, 50%),
       var(--c-sig-glow),
       transparent 78%
-    );
+    ),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
@@ -625,11 +632,14 @@ html[data-theme='boutique'] {
 /* Sobre header/hero oscuros el brillo sube para notarse en el cristal */
 .header-dark .liquid-tab::after,
 .hero-dark .liquid-tab::after {
-  background: radial-gradient(
-    70px 70px at var(--mx, 50%) var(--my, 50%),
-    rgba(255, 255, 255, 0.42),
-    rgba(255, 255, 255, 0) 74%
-  );
+  border-color: rgba(255, 255, 255, 0.4);
+  background:
+    radial-gradient(
+      70px 70px at var(--mx, 50%) var(--my, 50%),
+      rgba(255, 255, 255, 0.42),
+      rgba(255, 255, 255, 0) 74%
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.04) 100%);
 }
 
 @media (hover: none) {
@@ -1980,15 +1990,16 @@ summary:focus-visible {
   box-shadow: var(--lens-depth), var(--lens-thickness), var(--lens-refract);
 }
 
-/* La opción activa es una lente más pequeña, con su propio canto */
+/* La opción activa es una lente de cristal TRANSPARENTE: apenas un velo
+   tenue y el canto luminoso, nunca un relleno blanco, para que se vea la
+   página a través de la pastilla. */
 .liquid-tab > .liquid-tab-blob {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.16));
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06));
+  border: 1px solid rgba(255, 255, 255, 0.58);
   box-shadow:
-    0 6px 16px rgba(var(--c-shadow-rgb), 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    inset 0 -1px 1px rgba(255, 255, 255, 0.30),
-    inset 0 0 14px rgba(255, 255, 255, 0.20);
+    0 6px 16px rgba(var(--c-shadow-rgb), 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.22);
 }
 
 /* --- Variantes sobre superficie oscura (header y hero) --- */
@@ -2015,44 +2026,12 @@ summary:focus-visible {
     inset 0 -1px 1px rgba(255, 255, 255, 0.12);
 }
 
-/* Crystal al pasar el cursor: al ir de una opción a otra, la superficie de
-   cristal aparece bajo el puntero y viaja con él (hover real, no táctil). */
+/* Crystal al pasar el cursor: la opción no pinta relleno propio. Todo el
+   hover vive en .liquid-tab::after (arriba), así que al ir de una opción a
+   otra se enciende UNA sola burbuja bajo el puntero, no dos superpuestas. */
 .liquid-tab {
   border: 1px solid transparent;
-  transition:
-    color 0.25s ease,
-    background-color 0.25s ease,
-    border-color 0.25s ease,
-    box-shadow 0.25s ease;
-}
-
-.liquid-tab:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.14));
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow:
-    0 6px 16px rgba(var(--c-shadow-rgb), 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8),
-    inset 0 -1px 1px rgba(255, 255, 255, 0.28),
-    inset 0 0 14px rgba(255, 255, 255, 0.18);
-}
-
-/* Sobre superficie oscura el hover se aclara con vidrio esmerilado */
-.header-dark .liquid-tab:hover,
-.hero-dark .liquid-tab:hover {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.08) 100%);
-  border-color: rgba(255, 255, 255, 0.45);
-  box-shadow:
-    0 6px 16px rgba(0, 0, 0, 0.30),
-    inset 0 1px 0 rgba(255, 255, 255, 0.40),
-    inset 0 -1px 1px rgba(255, 255, 255, 0.12);
-}
-
-@media (hover: none) {
-  .liquid-tab:hover {
-    background: transparent;
-    border-color: transparent;
-    box-shadow: none;
-  }
+  transition: color 0.25s ease;
 }
 
 /* --- 3) BOTONES --- */
@@ -2245,14 +2224,6 @@ html[data-mode='dark'][data-theme='boutique'] {
     inset 0 1px 0 rgba(255, 255, 255, 0.24);
 }
 
-:where(html[data-mode='dark']) .liquid-tab:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.06));
-  border-color: rgba(255, 255, 255, 0.24);
-  box-shadow:
-    0 6px 16px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
-}
-
 /* Grises de Tailwind: se aclaran sobre el lienzo oscuro */
 :where(html[data-mode='dark']) .text-gray-400 { color: #8ba49c; }
 :where(html[data-mode='dark']) .text-gray-500 { color: #a6b9b2; }
@@ -2271,59 +2242,3 @@ html[data-mode='dark'][data-theme='boutique'] {
 /* Velos de los modales del admin: sobre oscuro deben ser negros */
 :where(html[data-mode='dark']) .bg-dark\/40 { background-color: rgba(0, 0, 0, 0.62); }
 
-/* ============================================================
-   CONMUTADOR MERCADO / BOUTIQUE
-   ------------------------------------------------------------
-   La pastilla activa es la MISMA burbuja de cristal que viaja en
-   los filtros Aseo / Alimentos / Ofertas de la tienda. Sobre la
-   barra oscura el cristal lleva algo más de cuerpo para que el
-   desplazamiento se vea, pero el mecanismo y el brillo son los
-   mismos: al cambiar de tienda la burbuja se desliza hasta la
-   opción elegida.
-   ============================================================ */
-
-.header-dark .store-switcher .liquid-tab > .liquid-tab-blob {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.34));
-  border-color: rgba(255, 255, 255, 0.85);
-  box-shadow:
-    0 6px 16px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -1px 1px rgba(255, 255, 255, 0.45),
-    inset 0 0 14px rgba(255, 255, 255, 0.32);
-}
-
-/* Sobre la burbuja clara el texto activo vuelve al tono profundo de la
-   tienda, igual que en los filtros del catálogo. */
-.header-dark .store-switcher .liquid-tab.text-primary-deep {
-  color: var(--c-primary-deep);
-}
-
-/* Hover y foco: UNA sola burbuja.
-   ------------------------------------------------------------
-   Antes el hover pintaba además un relleno en la propia opción
-   (background + borde + sombra) y el brillo que sigue al puntero
-   iba encima: dos gotas superpuestas en el mismo sitio y el cristal
-   no se apreciaba. Ahora la opción queda plana y todo el hover vive
-   en .liquid-tab::after, con la MISMA silueta de la pastilla activa
-   (inset -4px, radio heredado): una burbuja que se enciende bajo el
-   puntero y la pastilla que viaja al elegir tienda. */
-.header-dark .store-switcher .liquid-tab:hover,
-.header-dark .store-switcher .liquid-tab:focus-visible {
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-}
-
-/* Un solo cristal en el hover: canto fino + tinte de vidrio + el
-   reflejo especular que sigue al puntero (--mx / --my). */
-.header-dark .store-switcher .liquid-tab::after {
-  border: 1px solid rgba(255, 255, 255, 0.42);
-  background:
-    radial-gradient(
-      64px 64px at var(--mx, 50%) var(--my, 50%),
-      rgba(255, 255, 255, 0.5),
-      rgba(255, 255, 255, 0) 74%
-    ),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.06) 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
-}
