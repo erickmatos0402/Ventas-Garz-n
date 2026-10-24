@@ -2270,3 +2270,40 @@ html[data-mode='dark'][data-theme='boutique'] {
 
 /* Velos de los modales del admin: sobre oscuro deben ser negros */
 :where(html[data-mode='dark']) .bg-dark\/40 { background-color: rgba(0, 0, 0, 0.62); }
+
+/* ============================================================
+   CONMUTADOR MERCADO / BOUTIQUE
+   ------------------------------------------------------------
+   La pastilla activa es la MISMA burbuja de cristal que viaja en
+   los filtros Aseo / Alimentos / Ofertas de la tienda. Sobre la
+   barra oscura el cristal lleva algo más de cuerpo para que el
+   desplazamiento se vea, pero el mecanismo y el brillo son los
+   mismos: al cambiar de tienda la burbuja se desliza hasta la
+   opción elegida.
+   ============================================================ */
+
+.header-dark .store-switcher .liquid-tab > .liquid-tab-blob {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.34));
+  border-color: rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.45),
+    inset 0 0 14px rgba(255, 255, 255, 0.32);
+}
+
+/* Sobre la burbuja clara el texto activo vuelve al tono profundo de la
+   tienda, igual que en los filtros del catálogo. */
+.header-dark .store-switcher .liquid-tab.text-primary-deep {
+  color: var(--c-primary-deep);
+}
+
+/* Hover y foco: vidrio claro, como los filtros de la tienda. */
+.header-dark .store-switcher .liquid-tab:hover,
+.header-dark .store-switcher .liquid-tab:focus-visible {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.12));
+  border-color: rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}

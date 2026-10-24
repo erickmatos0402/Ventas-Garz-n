@@ -77,58 +77,35 @@ interface RevealTextProps {
   /** Etiqueta semántica del texto (por defecto, párrafo). */
   as?: RevealTag;
   delay?: number;
-  /** Segundos entre palabra y palabra. */
-  stagger?: number;
 }
 
 /**
- * RevealText — los textos de la Landing aparecen al entrar en pantalla
- * mientras se hace scroll. Cada palabra se eleva desde su máscara con un
- * giro leve sobre el eje X, desenfoque que se disuelve y un pequeño
- * asentamiento de escala; el conjunto se lee como una cortina de cristal que
- * se abre, en lugar del salto recto de antes. El bloque se anima una sola vez
- * y el texto real queda en `aria-label`, así los lectores de pantalla lo leen
- * de corrido y no palabra por palabra.
+ * RevealText — los textos de la Landing aparecen al entrar en pantalla con un
+ * fundido suave. Antes se partían en palabras y cada una se movía: al
+ * cambiar el ancho de las palabras, el navegador reacomodaba las líneas y el
+ * bloque “saltaba” de varias líneas a una. Ahora se anima el bloque completo
+ * solo con opacidad y un desenfoque que se disuelve: no hay transformaciones
+ * ni cambios de maquetación, así el texto ocupa su lugar definitivo desde el
+ * primer momento.
  */
 export const RevealText: React.FC<RevealTextProps> = ({
   text,
   className = '',
   as = 'p',
   delay = 0,
-  stagger = 0.055,
 }) => {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.3 });
-  const words = text.split(' ');
+  // `as` solo admite h1/h2/h3/p; el cast deja que createElement reciba el ref
+  // del elemento real sin pelearse con la unión de tipos de framer-motion.
+  const MotionTag = motion[as] as React.ElementType;
 
-  return React.createElement(
-    as,
-    { ref, className, 'aria-label': text, style: { perspective: '900px' } },
-    words.map((word, index) => (
-      <span
-        key={`${word}-${index}`}
-        aria-hidden
-        className="inline-block overflow-hidden align-bottom pb-[0.06em]"
-      >
-        <motion.span
-          className="inline-block will-change-transform"
-          style={{ transformOrigin: '50% 100%', transformStyle: 'preserve-3d' }}
-          initial={{ y: '105%', opacity: 0, rotateX: -48, scale: 0.96, filter: 'blur(6px)' }}
-          animate={
-            inView
-              ? { y: '0%', opacity: 1, rotateX: 0, scale: 1, filter: 'blur(0px)' }
-              : undefined
-          }
-          transition={{
-            duration: 0.85,
-            delay: delay + index * stagger,
-            ease: [0.16, 1, 0.3, 1],
-          }}
-        >
-          {word}
-          {index < words.length - 1 ? '\u00A0' : ''}
-        </motion.span>
-      </span>
-    ))
-  );
+  return React.createElement(MotionTag, {
+    ref,
+    className,
+    initial: { opacity: 0, filter: 'blur(6px)' },
+    animate: inView ? { opacity: 1, filter: 'blur(0px)' } : undefined,
+    transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] },
+    style: { willChange: 'opacity, filter' },
+  }, text);
 };
